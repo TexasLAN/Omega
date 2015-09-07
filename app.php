@@ -6,17 +6,24 @@ require 'vendor/autoload.php';
 # Set the app's timezone to central
 date_default_timezone_set('America/Chicago');
 
+if(!file_exists('config.ini')) {
+  error_log("Config file does not exist");
+  die;
+}
+
+$configs = parse_ini_file('config.ini', true);
+
 # Setup Mailgun and email
 use Mailgun\Mailgun;
-Email::$mg = new Mailgun('key');
-Email::$domain = 'example.com';
-Email::$from = 'hello@example.com';
+Email::$mg = new Mailgun($configs['mailgun']['key']);
+Email::$domain = $configs['mailgun']['domain'];
+Email::$from = $configs['mailgun']['from'];
 
 # Prepare the databae
-DB::$user = getenv('DB_USER');
-DB::$password = getenv('DB_PASS');
-DB::$dbName = 'omega';
-DB::$port = 3306;
+DB::$user = $configs['db']['user'];
+DB::$password = $configs['db']['password'];
+DB::$dbName = $configs['db']['name'];
+DB::$port = $configs['db']['port'];
 
 # Get the user session going
 Session::init();
