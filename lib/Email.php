@@ -14,7 +14,7 @@ class Email {
       'from' => self::$from,
       'to' => $list,
       'subject' => $subject,
-      'text' => $body
+      'html' => $body
     ));
   }
 
