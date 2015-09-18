@@ -54,6 +54,11 @@ class MembersController {
             Promote to member
           </button>
         );
+        $buttons->appendChild(
+          <button name="delete" class="btn btn-danger" value={$row['id']} type="submit">
+            Delete
+          </button>
+        );
       } else {
         $buttons->appendChild(
           <button
