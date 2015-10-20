@@ -1,12 +1,13 @@
 <?hh
+
 class Auth {
   public static function login(
     string $username,
     string $password
   ): bool {
-    $user = User::genByUsername($username);
+    $user = User::loadUsername($username);
     if(!$user) {
-      $user = User::genByEmail($username);
+      $user = User::loadEmail($username);
     }
     if ($user && hash_equals($user->getPassword(), crypt($password, $user->getPassword()))) {
       Session::create($user);
@@ -34,7 +35,7 @@ class Auth {
       return false;
     }
     
-    $user = User::genByIDAndToken((int)$user_id, $token);
+    $user = User::loadIdAndToken((int)$user_id, $token);
     
     if($user) {
       // User with token exists, setup the session
@@ -61,7 +62,9 @@ class Auth {
     setcookie('remember_me', $cookie_string, time() + (3600 * 24 * 14), '/');
     
     // Set the user token in the database
-    $user->setToken($random_token_string);
+    UserMutator::update($user->getID())
+        ->setToken($random_token_string)
+        ->save();
   }
 
   public static function logout(): void {
@@ -69,7 +72,7 @@ class Auth {
     setcookie('remember_me', false, time() - (3600 * 24 * 3650), '/');
   }
 
-  public static function verifyStatus(?array $status): void {
+  public static function verifyStatus(?Vector $status): void {
     // Null status array requires no minimum member status
     if(!$status) {
       return;
@@ -84,7 +87,7 @@ class Auth {
 
     // Check the users's status against the permitted status
     $user = Session::getUser();
-    if(!in_array($user->getStatusID(), $status)) {
+    if(!in_array($user->getMemberStatus(), $status)) {
       Flash::set('error', 'You do not have permission to view this page');
       Route::redirect('/dashboard');
     }
@@ -92,7 +95,7 @@ class Auth {
     return;
   }
 
-  public static function verifyRoles(?array $roles): void {
+  public static function verifyRoles(?Vector $roles): void {
     // Null roles array requires no specific roles
     if(!$roles) {
       return;
@@ -116,13 +119,13 @@ class Auth {
   }
 
   public static function requestPasswordReset(string $username): bool {
-    $user = User::genByUsername($username);
+    $user = User::loadUsername($username);
     if(!$user) {
       return false;
     }
 
     $resetHash = sha1(uniqid(mt_rand(), true));
-    $user->setPasswordReset($resetHast);
+    // TODO: $user->setPasswordReset($resetHast);
 
     Email::send(
       $user->getEmail(),

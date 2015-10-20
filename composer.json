@@ -1,12 +1,16 @@
 {
   "require": {
+    "bshaffer/oauth2-server-php": "v1.6",
+    "facebook/xhp-lib": "2.x",
     "mailgun/mailgun-php": "~1.7.2",
-    "sergeytsalkov/meekrodb": "*",
-    "facebook/xhp-lib": "dev-hack",
-    "aura/router": "*",
-    "bshaffer/oauth2-server-php": "v1.6"
+    "sergeytsalkov/meekrodb": "*"
+  },
+  "require-dev": {
+    "codegyre/robo": "*",
+    "facebook/hack-codegen": "*"
   },
   "autoload": {
-    "classmap": ["components/", "api/", "routes/", "lib/"]
+    "classmap": ["api/", "controllers/", "lib/", "models/", "views/" ],
+    "files": ["lib/functions.php"]
   }
 }

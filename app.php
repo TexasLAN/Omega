@@ -1,9 +1,10 @@
 <?hh
 
-# Load in external libraries
+// Load in external libraries
 require 'vendor/autoload.php';
+require 'lib/Config.php';
 
-# Set the app's timezone to central
+// Set the app's timezone to central
 date_default_timezone_set('America/Chicago');
 
 if(!file_exists('config.ini')) {
@@ -12,23 +13,24 @@ if(!file_exists('config.ini')) {
 }
 
 $configs = parse_ini_file('config.ini', true);
+Config::initialize($configs);
 
-# Setup Mailgun and email
-use Mailgun\Mailgun;
-Email::$mg = new Mailgun($configs['mailgun']['key']);
-Email::$domain = $configs['mailgun']['domain'];
-Email::$from = $configs['mailgun']['from'];
-
-# Prepare the databae
+// Prepare the databae
 DB::$user = $configs['db']['user'];
 DB::$password = $configs['db']['password'];
 DB::$dbName = $configs['db']['name'];
 DB::$port = $configs['db']['port'];
 
-# Get the user session going
+// Setup Mailgun and email
+use Mailgun\Mailgun;
+Email::$mg = new Mailgun($configs['mailgun']['key']);
+Email::$domain = $configs['mailgun']['domain'];
+Email::$from = $configs['mailgun']['from'];
+
+// Get the user session going
 Session::init();
 
-# Call the dispatcher to do its thing
+// Call the dispatcher to do its thing
 Route::dispatch(
   parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
   $_SERVER['REQUEST_METHOD']

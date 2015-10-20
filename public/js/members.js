@@ -28,3 +28,10 @@ $('#submit').click(function() {
 });
 
 $('head').append('<link rel="stylesheet" type="text/css" href="/css/bootstrap-sortable.css" />');
+
+
+new Clipboard('#alum .btn-clipboard');
+new Clipboard('#members .btn-clipboard');
+new Clipboard('#inactive .btn-clipboard');
+new Clipboard('#pledges .btn-clipboard');
+new Clipboard('#applicants .btn-clipboard');

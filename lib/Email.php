@@ -1,7 +1,7 @@
 <?hh //decl
 
 class Email {
-  public static Mailgun $mg = null;
+  public static Mailgun $mg;
   public static string $domain = 'example.com';
   public static string $from = 'hello@example.com';
 
@@ -19,7 +19,7 @@ class Email {
   }
 
   private static function getHtmlMessage(string $message): string {
-    return '<body style="background: #277FB2 url(\'http://www.texaslan.org/img/bg.png\') no-repeat;font-family: sans-serif;">
+    return '<body style="background: #277FB2 url(\'http://www.texaslan.org/img/bg.png\') repeat;font-family: sans-serif;">
 <div class="email_body" style="margin: auto; max-width: 560px;">
   <div class="head_logo" style="padding-top: 30px; text-align: center;margin: 30px;">
     <img style="width: 60%;" src="http://www.texaslan.org/img/crest.png">
