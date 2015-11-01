@@ -49,19 +49,19 @@ class SignupController extends BaseController {
        $_POST['password2'] == '' || $_POST['email'] == '' ||
        $_POST['fname'] == '' || $_POST['lname'] == '') {
       Flash::set('error', 'All fields are required');
-      Route::redirect(SignupController::getPath());
+      Route::redirect(self::getPath());
     }
 
     # Verify password length
     if(strlen($_POST['password']) < 6) {
       Flash::set('error', 'Password must be longer than 6 characters');
-      Route::redirect(SignupController::getPath());
+      Route::redirect(self::getPath());
     }
 
     # Verify passwords match
     if($_POST['password'] != $_POST['password2']) {
       Flash::set('error', 'Passwords do not match');
-      Route::redirect(SignupController::getPath());
+      Route::redirect(self::getPath());
     }
 
     # Create the user
@@ -76,7 +76,7 @@ class SignupController extends BaseController {
     # User creation failed
     if(!$user) {
       Flash::set('error', 'Username or Email is taken');
-      Route::redirect(SignupController::getPath());
+      Route::redirect(self::getPath());
     }
 
     Session::create($user);

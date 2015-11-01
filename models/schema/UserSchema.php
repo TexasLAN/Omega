@@ -10,7 +10,7 @@ class UserSchema implements ModelSchema {
       'Username' => ModelField::string_field('username'),
       'Password' => ModelField::string_field('password'),
       'MemberStatus' => ModelField::int_field('member_status'),
-      'Token' => ModelField::string_field('token')
+      'Token' => ModelField::string_field('token')->optional()
     };
   }
 

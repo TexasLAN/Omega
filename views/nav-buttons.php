@@ -15,7 +15,7 @@ final class :omega:nav-buttons extends :x:element {
       </ul>;
 
     # Applicants can see the application portal
-    if($user->isApplicant()) {
+    if($user->getUserState() == UserState::Applicant) {
       $nav_buttons->appendChild(
         <li class={$controller === 'ApplyController' ? 'active' : ''}>
           <a href="/apply">Apply</a>
@@ -24,16 +24,21 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     # Members can see the feedback portal
-    if($user->isMember()) {
+    if($user->getUserState() == UserState::Member) {
       $nav_buttons->appendChild(
         <li class={($controller === 'FeedbackListController' || $controller === 'FeedbackSingleController') ? 'active' : ''}>
           <a href="/feedback">Applicant Feedback</a>
         </li>
       );
+      $nav_buttons->appendChild(
+        <li class={($controller === 'NotifyLogController' || $controller === 'NotifyLogController') ? 'active' : ''}>
+          <a href="/notify/log">Notification Logs</a>
+        </li>
+      );
     }
 
     # Admins and Reviewers can access the review portal
-    if($user->isAdmin() || $user->isReviewer()) {
+    if($user->validateRole(UserRoleEnum::Admin) || $user->validateRole(UserRoleEnum::Reviewer)) {
       $nav_buttons->appendChild(
         <li class={($controller === 'ReviewListController' || $controller === 'ReviewSingleController') ? 'active' : ''}>
           <a href="/review">Review</a>
@@ -42,7 +47,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     # Admins and event admins can access the events portal
-    if($user->isAdmin() || $user->isOfficer()) {
+    if($user->validateRole(UserRoleEnum::Admin) || $user->validateRole(UserRoleEnum::Officer)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'EventsAdminController' ? 'active' : ''}>
           <a href="/events/admin">Events</a>
@@ -56,7 +61,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     # Admin only actions
-    if($user->isAdmin()) {
+    if($user->validateRole(UserRoleEnum::Admin)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'MembersController' ? 'active' : ''}>
           <a href="/members">Members</a>

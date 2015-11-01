@@ -1,7 +1,5 @@
 <?hh // decl
 
-require 'URIMap.php';
-
 class Route {
   public static function dispatch(string $path, string $method): void {
 

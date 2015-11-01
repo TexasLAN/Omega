@@ -47,7 +47,7 @@ class EventAttendanceController extends BaseController {
       $table_body->appendChild(
         <tr>
           <td>{$user->getFirstName() . ' ' . $user->getLastName()}</td>
-          <td>{$user->getStatus()}</td>
+          <td>{$user->getUserStateStr()}</td>
         </tr>
       );
     }

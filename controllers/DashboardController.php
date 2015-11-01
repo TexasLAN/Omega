@@ -28,11 +28,11 @@ class DashboardController extends BaseController {
 
     $badges = <p />;
     $badges->appendChild(
-      <span class="label label-warning">{ucwords($user->getStatus())}</span>
+      <span class="label label-warning">{ucwords($user->getUserStateStr())}</span>
     );
 
     $applicant_info = null;
-    if($user->isApplicant()) {
+    if($user->getUserState() == UserState::Applicant) {
       $application = Application::genByUser($user);
       if(!$application->isStarted() && !$application->isSubmitted()) {
         $status = <a href="/apply" class="btn btn-primary btn-lg wide">Start Application</a>;
@@ -48,7 +48,7 @@ class DashboardController extends BaseController {
     }
 
     $events = null;
-    if(!$user->isDisabled()) {
+    if($user->getUserState() != UserState::Disabled) {
       $events = Event::genAllFuture();
       if(!empty($events)) {
         $events =

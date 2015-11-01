@@ -62,6 +62,15 @@ class NotifyController extends BaseController {
       Route::redirect(NotifyController::getPath());
     }
 
+    if($_POST['email'] == 'actives@texaslan.org') {
+      NotifyLogMutator::create()
+      ->setNotifyTitle($_POST['subject'])
+      ->setNotifyText($_POST['body'])
+      ->setSenderUserId(Session::getUser()->getID())
+      ->setSentTime(new DateTime(date('Y-m-d H:i:s')))
+      ->save();
+    }
+
     Email::send($_POST['email'], $_POST['subject'], $_POST['body']);
     Flash::set('success', 'Your email was sent successfully');
     Route::redirect(NotifyController::getPath());

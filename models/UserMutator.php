@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<927d13d12864f919b80968d0a8ec260b>>
+ * @partially-generated SignedSource<<868ee224f801d3046edecabe39c54785>>
  */
 
 final class UserMutator {
@@ -47,7 +47,6 @@ final class UserMutator {
       'username',
       'password',
       'member_status',
-      'token',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(

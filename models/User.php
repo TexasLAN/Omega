@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<db3479751349648b3bed413bfdc78828>>
+ * @partially-generated SignedSource<<33824bb95d4d84a8e445359a2f36d0df>>
  */
 
 final class User {
@@ -47,8 +47,8 @@ final class User {
     return (int) $this->data['member_status'];
   }
 
-  public function getToken(): string {
-    return (string) $this->data['token'];
+  public function getToken(): ?string {
+    return isset($this->data['token']) ? (string) $this->data['token'] : null;
   }
 
   /* BEGIN MANUAL SECTION User_footer */
@@ -81,59 +81,16 @@ final class User {
     return UserRole::getRoles($this->getID());
   }
 
-  public function getStatus(): string {
-    switch($this->getMemberStatus()) {
-      case UserState::Applicant:
-        return 'applicant';
-      case UserState::Pledge:
-        return 'pledge';
-      case UserState::Member:
-        return 'member';
-      case UserState::Disabled:
-        return 'disabled';
-      case UserState::Inactive:
-        return 'inactive';
-      case UserState::Alum:
-        return 'alum';
-      default:
-        return 'unknown';
-    }
+  public function validateRole(UserRoleEnum $role): bool {
+    return in_array($role, $this->getRoles());
   }
 
-  public function isApplicant(): bool {
-    return $this->getMemberStatus() == UserState::Applicant;
+  public function getUserState(): UserState {
+    return UserState::assert($this->getMemberStatus());
   }
 
-  public function isPledge(): bool {
-    return $this->getMemberStatus() == UserState::Pledge;
-  }
-
-  public function isMember(): bool {
-    return $this->getMemberStatus() == UserState::Member;
-  }
-
-  public function isDisabled(): bool {
-    return $this->getMemberStatus() == UserState::Disabled;
-  }
-
-  public function isInactive(): bool {
-    return $this->getMemberStatus() == UserState::Inactive;
-  }
-
-  public function isAlum(): bool {
-    return $this->getMemberStatus() == UserState::Alum;
-  }
-
-  public function isAdmin(): bool {
-    return in_array('admin', $this->getRoles());
-  }
-
-  public function isReviewer(): bool {
-    return in_array('reviewer', $this->getRoles());
-  }
-
-  public function isOfficer(): bool {
-    return in_array(UserRoleEnum::Officer, $this->getRoles());
+  public function getUserStateStr(): string {
+    return UserState::getNames()[UserState::assert($this->getUserState())];
   }
   /* END MANUAL SECTION */
 }

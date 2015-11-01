@@ -1,6 +1,6 @@
 <?hh //decl
 
-class ReviewListController {
+class ReviewListController extends BaseController {
   public static function getPath(): string {
     return '/review';
   }
@@ -8,14 +8,14 @@ class ReviewListController {
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
-      array(
+      Vector {
         UserState::Member
-        ));
+        });
     $newConfig->setUserRoles(
-      array(
-        UserRole::Reviewer,
-        UserRole::Admin
-        ));
+      Vector {
+        UserRoleEnum::Reviewer,
+        UserRoleEnum::Admin
+        });
     $newConfig->setTitle('Review');
     return $newConfig;
   }
@@ -40,10 +40,10 @@ class ReviewListController {
     $table_body = <tbody class="list" />;
     foreach($query as $row) {
       # Get the user the application belongs to
-      $user = User::genByID($row['user_id']);
+      $user = User::load((int) $row['user_id']);
 
       # Skip the user if they're no longer an applicant
-      if(!$user->isApplicant()) {
+      if(!$user->getUserState() == UserState::Applicant) {
         continue;
       }
 

@@ -169,14 +169,11 @@ class MembersController extends BaseController {
 
   private static function getModal(): :xhp {
     $form = <form action="/members" method="post" />;
-    $refl = new ReflectionClass('UserRole');
-    foreach($refl->getConstants() as $role) {
-      $stringRole = (string) $role;
-
+    foreach(UserRoleEnum::getValues() as $name => $value) {
       $form->appendChild(
         <div class="checkbox">
           <label>
-            <input type="checkbox" id={$stringRole} name={$stringRole} /> {ucwords($stringRole)}
+            <input type="checkbox" id={$value} name={$value} /> {ucwords($value)}
           </label>
         </div>
       );
@@ -238,16 +235,16 @@ class MembersController extends BaseController {
         ->setMemberStatus(UserState::Inactive)
         ->save();
     } else {
-      $refl = new ReflectionClass('Roles');
-      foreach($refl->getConstants() as $role) {
-        $user_roles = Roles::getRoles((int)$_POST['id']);
-        if(isset($_POST[$role])) {
-          if(!in_array($role, $user_roles)) {
-            Roles::insert($role, (int)$_POST['id']);
+      foreach(UserRoleEnum::getValues() as $name => $value) {
+        $user_roles = UserRole::getRoles((int)$_POST['id']);
+
+        if(isset($_POST[$value])) {
+          if(!in_array($value, $user_roles)) {
+            UserRole::insert($value, (int)$_POST['id']);
           }
         } else {
-          if(in_array($role, $user_roles)) {
-            Roles::delete($role, (int)$_POST['id']);
+          if(in_array($value, $user_roles)) {
+            UserRole::delete($value, (int)$_POST['id']);
           }
         }
       }
