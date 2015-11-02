@@ -92,5 +92,9 @@ final class User {
   public function getUserStateStr(): string {
     return UserState::getNames()[UserState::assert($this->getUserState())];
   }
+
+  public function isReviewable(): bool {
+    return ($this->getUserState() == UserState::Applicant || $this->getUserState() == UserState::Candidate);
+  }
   /* END MANUAL SECTION */
 }

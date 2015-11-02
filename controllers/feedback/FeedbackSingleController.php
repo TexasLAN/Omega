@@ -18,6 +18,9 @@ class FeedbackSingleController extends BaseController {
   public static function get(): :xhp {
     $user_id = (int)$_SESSION['route_params']['id'];
     $user = User::load($user_id);
+    if(is_null($user) || !$user->isReviewable()) {
+      return FourOhFourController::get();
+    }
 
     $email_hash = md5(strtolower(trim($user->getEmail())));
     $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=200';

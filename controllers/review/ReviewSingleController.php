@@ -25,6 +25,10 @@ class ReviewSingleController extends BaseController {
 
     $application = Application::genByID((int)$app_id);
     $user = User::load($application->getUserID());
+    if(is_null($user) || !$user->isReviewable()) {
+      return FourOhFourController::get();
+    }
+
     $review = AppReview::genByUserAndApp(Session::getUser(), $application);
 
     # Admins get special actions like delete and promote

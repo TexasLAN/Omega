@@ -36,29 +36,29 @@ class ReviewListController extends BaseController {
       </thead>
     );
 
-    # Loop through all the applications that are submitted
+    // Loop through all the applications that are submitted
     $query = DB::query("SELECT * FROM applications WHERE status=2");
     $table_body = <tbody class="list" />;
     foreach($query as $row) {
-      # Get the user the application belongs to
+      // Get the user the application belongs to
       $user = User::load((int) $row['user_id']);
 
-      # Skip the user if they're no longer an applicant
-      if(!$user->getUserState() == UserState::Applicant) {
+      // Skip the user if they're no longer an applicant or candidate
+      if(!$user->isReviewable()) {
         continue;
       }
 
       $query = DB::queryFirstRow("SELECT COUNT(*) FROM reviews WHERE application_id=%s", $row['id']);
       $count = $query['COUNT(*)'];
 
-      # Get the average rating
+      // Get the average rating
       $query = DB::queryFirstRow("SELECT AVG(rating) FROM reviews WHERE application_id=%s", $row['id']);
       $avg_rating = number_format($query['AVG(rating)'], 2);
 
-      # Get the current user's review
+      // Get the current user's review
       DB::query("SELECT * FROM reviews WHERE user_id=%s AND application_id=%s", Session::getUser()->getID(), $row['id']);
 
-      # Append the applicant to the table as a new row
+      // Append the applicant to the table as a new row
       $table_body->appendChild(
         <tr id={$row['id']}>
           <td>{$row['id']}</td>

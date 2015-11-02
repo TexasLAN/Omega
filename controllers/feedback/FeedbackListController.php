@@ -27,17 +27,17 @@ class FeedbackListController extends BaseController {
       </thead>
     );
 
-    # Loop through all the applications that are submitted
-    $query = DB::query("SELECT * FROM users WHERE member_status=%s", UserState::Applicant);
+    // Loop through all the applications that are submitted
+    $query = DB::query("SELECT * FROM users WHERE member_status=%s OR member_status=%s", UserState::Applicant, UserState::Candidate);
     $table_body = <tbody class="list" />;
     foreach($query as $row) {
-      # Get the user the application belongs to
+      // Get the user the application belongs to
       $user = User::load((int)$row['id']);
 
-      # Get the current user's review
+      // Get the current user's review
       $feedback = Feedback::gen($row['id'], Session::getUser()->getID());
 
-      # Append the applicant to the table as a new row
+      // Append the applicant to the table as a new row
       $table_body->appendChild(
         <tr id={$row['id']}>
           <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
