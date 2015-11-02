@@ -17,7 +17,7 @@ class FeedbackSingleController extends BaseController {
 
   public static function get(): :xhp {
     $user_id = (int)$_SESSION['route_params']['id'];
-    $user = User::genByID($user_id);
+    $user = User::load($user_id);
 
     $email_hash = md5(strtolower(trim($user->getEmail())));
     $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=200';
@@ -44,11 +44,11 @@ class FeedbackSingleController extends BaseController {
             <form method="post" action={'/feedback/' . $user_id}>
               <div class="form-group">
                 <label for="review" class="control-label">Comments</label>
-                <textarea class="form-control" rows="5" id="feedback" name="feedback">
+                <textarea class="form-control" rows={5} id="feedback" name="feedback">
                   {$feedback->getComments()}
                 </textarea>
               </div>
-              <button type="submit" name="id" value={$user_id} class="btn btn-default">Submit</button>
+              <button type="submit" name="id" value={(string) $user_id} class="btn btn-default">Submit</button>
             </form>
           </div>
         </div>

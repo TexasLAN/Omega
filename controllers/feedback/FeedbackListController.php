@@ -22,6 +22,7 @@ class FeedbackListController extends BaseController {
         <tr>
           <th>Name</th>
           <th>Review</th>
+          <th>Reviewed</th>
         </tr>
       </thead>
     );
@@ -31,16 +32,17 @@ class FeedbackListController extends BaseController {
     $table_body = <tbody class="list" />;
     foreach($query as $row) {
       # Get the user the application belongs to
-      $user = User::genByID($row['id']);
+      $user = User::load((int)$row['id']);
 
       # Get the current user's review
       $feedback = Feedback::gen($row['id'], Session::getUser()->getID());
 
       # Append the applicant to the table as a new row
       $table_body->appendChild(
-        <tr class={$feedback->getComments() != '' ? "success" : ""} id={$row['id']}>
+        <tr id={$row['id']}>
           <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
           <td><a href={'/feedback/' . $row['id']} class="btn btn-primary">Review</a></td>
+          <td>{$feedback->getComments() != '' ? "✔" : ""}</td>
         </tr>
       );
     }

@@ -12,15 +12,17 @@ class Feedback {
     DB::query("SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s", $user_id, $reviewer_id);
 
     if(DB::count() != 0) {
-      DB::update('feedback', Map {
+      $paramData = Map {
         'comments' => $comments
-      }->toArray(), 'user_id=%s AND reviewer_id=%s', $user_id, $reviewer_id);
+      };
+      DB::update('feedback', $paramData->toArray(), 'user_id=%s AND reviewer_id=%s', $user_id, $reviewer_id);
     } else {
-      DB::insert('feedback', Map {
+      $paramData = Map {
         'comments' => $comments,
         'user_id' => $user_id,
         'reviewer_id' => $reviewer_id
-      }->toArray());
+      };
+      DB::insert('feedback', $paramData->toArray());
     }
   }
 

@@ -67,6 +67,11 @@ final class :omega:nav-buttons extends :x:element {
           <a href="/members">Members</a>
         </li>
       );
+      $nav_buttons->appendChild(
+        <li class={$controller === 'SettingsController' ? 'active' : ''}>
+          <a href="/settings">Site Settings</a>
+        </li>
+      );
     }
 
     return $nav_buttons;
