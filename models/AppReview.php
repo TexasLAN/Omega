@@ -16,17 +16,19 @@ class AppReview {
     DB::query("SELECT * FROM reviews WHERE user_id=%s AND application_id=%s", $user->getID(), $application->getID());
 
     if(DB::count() != 0) {
-      DB::update('reviews', Map {
+      $paramData = Map {
         'comments' => $comments,
         'rating' => $rating
-      }->toArray(), 'user_id=%s AND application_id=%s', $user->getID(), $application->getID());
+      };
+      DB::update('reviews', $paramData->toArray(), 'user_id=%s AND application_id=%s', $user->getID(), $application->getID());
     } else {
-      DB::insert('reviews', Map {
+      $paramData = Map {
         'comments' => $comments,
         'rating' => $rating,
         'user_id' => $user->getID(),
         'application_id' => $application->getID()
-      }->toArray());
+      };
+      DB::insert('reviews', $paramData->toArray());
     }
   }
 

@@ -20,10 +20,11 @@ class Attendance {
     int $user_id,
     int $event_id
   ): void {
-    DB::insert('attendance', Map {
+    $paramData = Map {
       'user_id' => $user_id,
       'event_id' => $event_id
-    }->toArray());
+    };
+    DB::insert('attendance', $paramData->toArray());
   }
 
   public static function genAllForEvent(int $event_id): array<Attendance> {

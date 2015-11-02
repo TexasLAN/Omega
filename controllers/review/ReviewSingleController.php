@@ -24,12 +24,12 @@ class ReviewSingleController extends BaseController {
     $app_id = (int)$_SESSION['route_params']['id'];
 
     $application = Application::genByID((int)$app_id);
-    $user = User::genByID($application->getUserID());
+    $user = User::load($application->getUserID());
     $review = AppReview::genByUserAndApp(Session::getUser(), $application);
 
     # Admins get special actions like delete and promote
     $admin_controls = null;
-    if(Session::getUser()->isAdmin()) {
+    if(Session::getUser()->validateRole(UserRoleEnum::Admin)) {
       $admin_controls =
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -37,10 +37,10 @@ class ReviewSingleController extends BaseController {
           </div>
           <div class="panel-body">
             <form class="btn-toolbar" method="post" action="/members">
-              <button name="pledge" class="btn btn-primary" value={$user->getID()} type="submit">
+              <button name="pledge" class="btn btn-primary" value={(string) $user->getID()} type="submit">
                 Promote to Pledge
               </button>
-              <button name="delete" class="btn btn-danger" value={$user->getID()} type="submit">
+              <button name="delete" class="btn btn-danger" value={(string) $user->getID()} type="submit">
                 Delete this application
               </button>
             </form>
@@ -110,7 +110,7 @@ class ReviewSingleController extends BaseController {
             <form method="post" action={'/review/' . $user->getID()}>
               <div class="form-group">
                 <label for="review" class="control-label">Comments</label>
-                <textarea class="form-control" rows="3" id="review" name="review">
+                <textarea class="form-control" rows={3} id="review" name="review">
                   {$review->getComments()}
                 </textarea>
               </div>
@@ -141,7 +141,7 @@ class ReviewSingleController extends BaseController {
                   </label>
                 </div>
               </div>
-              <button type="submit" name="id" value={$application->getID()} class="btn btn-default">Submit</button>
+              <button type="submit" name="id" value={(string) $application->getID()} class="btn btn-default">Submit</button>
             </form>
           </div>
         </div>
@@ -175,7 +175,7 @@ class ReviewSingleController extends BaseController {
     $query = DB::query("SELECT * FROM reviews WHERE application_id=%s", $application->getID());
     $reviews = <ul class="list-group" />;
     foreach($query as $row) {
-      $user = User::genByID($row['user_id']);
+      $user = User::load((int) $row['user_id']);
       $reviews->appendChild(
         <li class="list-group-item">
           <h4>{$user->getFirstName() . ' ' . $user->getLastName()}</h4>
@@ -192,7 +192,7 @@ class ReviewSingleController extends BaseController {
       if($row['comments'] === '') {
         continue;
       }
-      $user = User::genByID($row['reviewer_id']);
+      $user = User::load((int) $row['reviewer_id']);
       $feedback->appendChild(
         <li class="list-group-item">
           <h4>{$user->getFirstName() . ' ' . $user->getLastName()}</h4>
