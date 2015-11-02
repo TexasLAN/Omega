@@ -2,7 +2,7 @@
 
 class EventAttendanceController extends BaseController {
   public static function getPath(): string {
-    return '/events/(?<id>\d+)';
+    return '/events/attendance/(?<id>\d+)';
   }
 
   public static function getConfig(): ControllerConfig {

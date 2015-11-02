@@ -7,4 +7,5 @@ enum UserState : int as int {
 	Disabled = 3;
 	Inactive = 4;
 	Alum = 5;
+	Candidate = 6;
 }

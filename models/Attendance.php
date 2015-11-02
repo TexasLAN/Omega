@@ -23,7 +23,7 @@ class Attendance {
     DB::insert('attendance', Map {
       'user_id' => $user_id,
       'event_id' => $event_id
-    });
+    }->toArray());
   }
 
   public static function genAllForEvent(int $event_id): array<Attendance> {

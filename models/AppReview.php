@@ -19,14 +19,14 @@ class AppReview {
       DB::update('reviews', Map {
         'comments' => $comments,
         'rating' => $rating
-      }, 'user_id=%s AND application_id=%s', $user->getID(), $application->getID());
+      }->toArray(), 'user_id=%s AND application_id=%s', $user->getID(), $application->getID());
     } else {
       DB::insert('reviews', Map {
         'comments' => $comments,
         'rating' => $rating,
         'user_id' => $user->getID(),
         'application_id' => $application->getID()
-      });
+      }->toArray());
     }
   }
 

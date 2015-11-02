@@ -14,13 +14,13 @@ class Feedback {
     if(DB::count() != 0) {
       DB::update('feedback', Map {
         'comments' => $comments
-      }, 'user_id=%s AND reviewer_id=%s', $user_id, $reviewer_id);
+      }->toArray(), 'user_id=%s AND reviewer_id=%s', $user_id, $reviewer_id);
     } else {
       DB::insert('feedback', Map {
         'comments' => $comments,
         'user_id' => $user_id,
         'reviewer_id' => $reviewer_id
-      });
+      }->toArray());
     }
   }
 

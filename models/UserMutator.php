@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<868ee224f801d3046edecabe39c54785>>
+ * @partially-generated SignedSource<<c389f62ad8f10ed1ca2243e2ef969935>>
  */
 
 final class UserMutator {
@@ -30,10 +30,10 @@ final class UserMutator {
     $id = $this->id;
     if ($id === null) {
       $this->checkRequiredFields();
-      DB::insert("users", $this->data);
+      DB::insert("users", $this->data->toArray());
       return (int) DB::insertId();
     } else {
-      DB::update("users", $this->data, "id=%s", $this->id);
+      DB::update("users", $this->data->toArray(), "id=%s", $this->id);
       return $id;
     }
   }
@@ -97,5 +97,36 @@ final class UserMutator {
 
   /* BEGIN MANUAL SECTION UserMutator_footer */
   // Insert additional methods here
+  public static function createUser(
+    string $username,
+    string $password,
+    string $email,
+    string $fname,
+    string $lname
+  ): ?User {
+    # Make sure a user doesn't already exist with that username or email
+    DB::query(
+      "SELECT * FROM users WHERE username=%s OR email=%s",
+      $username, $email
+    );
+    if(DB::count() != 0) {
+      return null;
+    }
+    # Create the password hash
+    $salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
+    $salt = sprintf("$2a$%02d$", 10) . $salt;
+    $hash = crypt($password, $salt);
+    # Insert the user
+    $paramData = Map {
+      'username' => $username,
+      'password' => $hash,
+      'email' => $email,
+      'fname' => $fname,
+      'lname' => $lname,
+      'member_status' => 0
+    };
+    DB::insert('users', $paramData->toArray());
+    return User::loadUsername($username);
+  }
   /* END MANUAL SECTION */
 }

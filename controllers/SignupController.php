@@ -65,7 +65,7 @@ class SignupController extends BaseController {
     }
 
     # Create the user
-    $user = User::create(
+    $user = UserMutator::createUser(
       $_POST['uname'],
       $_POST['password'],
       $_POST['email'],

@@ -8,10 +8,11 @@ enum UserRoleEnum: string as string {
 
 class UserRole {
   public static function insert(string $role, int $user_id): void {
-    DB::insert('roles', Map {
+    $paramData = Map {
       'role' => $role,
       'user_id' => $user_id
-    });
+    };
+    DB::insert('roles', $paramData->toArray());
   }
 
   public static function delete(string $role, int $user_id): void {

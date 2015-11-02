@@ -27,11 +27,11 @@ class Event {
   ): void {
     $unix_timestamp = strtotime($date . ' ' . $time);
     $mysql_timestamp = date('Y-m-d H:i:s',$unix_timestamp);
-    DB::insert('events', Map {
+    DB::insert('events', (Map {
       'name' => $name,
       'location' => $location,
       'datetime' => $mysql_timestamp
-    });
+    })->toArray());
   }
 
   public static function genAllFuture(): array<Event> {

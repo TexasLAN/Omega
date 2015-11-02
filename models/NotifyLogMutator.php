@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<af3ef0e96528e65804c45d7e23dcdad6>>
+ * @partially-generated SignedSource<<4cef6a84c31f77001eb743dd189f773e>>
  */
 
 final class NotifyLogMutator {
@@ -30,10 +30,10 @@ final class NotifyLogMutator {
     $id = $this->id;
     if ($id === null) {
       $this->checkRequiredFields();
-      DB::insert("notify_log", $this->data);
+      DB::insert("notify_log", $this->data->toArray());
       return (int) DB::insertId();
     } else {
-      DB::update("notify_log", $this->data, "id=%s", $this->id);
+      DB::update("notify_log", $this->data->toArray(), "id=%s", $this->id);
       return $id;
     }
   }

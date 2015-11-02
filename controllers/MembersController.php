@@ -36,43 +36,80 @@ class MembersController extends BaseController {
             <a href="#pledges" aria-controls="profile" role="tab" data-toggle="tab">Pledges</a>
           </li>
           <li role="presentation">
+            <a href="#candidates" aria-controls="profile" role="tab" data-toggle="tab">Candidates</a>
+          </li>
+          <li role="presentation">
             <a href="#applicants" aria-controls="profile" role="tab" data-toggle="tab">Applicants</a>
           </li>
         </ul>
         <br />
         <div class="tab-content">
           <div role="tabpanel" class="tab-pane" id="alum">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(5)}>
+            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Alum)}>
               Email List
             </button>
-            {self::getMembersByStatus(5)}
+            {self::getMembersByStatus(UserState::Alum)}
           </div>
           <div role="tabpanel" class="tab-pane active" id="members">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(2)}>
+            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Member)}>
               Email List
             </button>
-            {self::getMembersByStatus(2)}
+            {self::getMembersByStatus(UserState::Member)}
           </div>
           <div role="tabpanel" class="tab-pane" id="inactive">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(4)}>
+            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Inactive)}>
               Email List
             </button>
-            {self::getMembersByStatus(4)}
+            {self::getMembersByStatus(UserState::Inactive)}
           </div>
           <div role="tabpanel" class="tab-pane" id="pledges">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(1)}>
+            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Pledge)}>
               Email List
             </button>
-            {self::getMembersByStatus(1)}
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-toggle="modal"
+              data-target="#deleteConfirm"
+              data-type="state"
+              data-id={(string) UserState::Pledge}>
+              Delete
+            </button>
+            {self::getMembersByStatus(UserState::Pledge)}
+          </div>
+          <div role="tabpanel" class="tab-pane" id="candidates">
+            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Candidate)}>
+              Email List
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-toggle="modal"
+              data-target="#deleteConfirm"
+              data-type="state"
+              data-id={(string) UserState::Candidate}>
+              Delete
+            </button>
+            {self::getMembersByStatus(UserState::Candidate)}
           </div>
           <div role="tabpanel" class="tab-pane" id="applicants">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(0)}>
+            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Applicant)}>
               Email List
             </button>
-            {self::getMembersByStatus(0)}
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-toggle="modal"
+              data-target="#deleteConfirm"
+              data-type="state"
+              data-id={(string) UserState::Applicant}>
+              Delete
+            </button>
+            {self::getMembersByStatus(UserState::Applicant)}
           </div>
         </div>
         {self::getModal()}
+        {self::getDeleteModal()}
         <script src="/js/clipboard.min.js"></script>
         <script src="/js/members.js"></script>
         <script src="/js/moment.min.js"></script>
@@ -91,14 +128,20 @@ class MembersController extends BaseController {
       $buttons = <form class="btn-toolbar" method="post" action="/members" />;
       if($row['member_status'] == UserState::Applicant) {
         $buttons->appendChild(
+          <button name="candidate" class="btn btn-primary" value={$row['id']} type="submit">
+            Promote to candidate
+          </button>
+        );
+      } elseif ($row['member_status'] == UserState::Candidate) {
+        $buttons->appendChild(
           <button name="pledge" class="btn btn-primary" value={$row['id']} type="submit">
             Promote to pledge
           </button>
         );
       } elseif ($row['member_status'] == UserState::Pledge) {
         $buttons->appendChild(
-          <button name="member" class="btn btn-primary" value={$row['id']} type="submit">
-            Promote to member
+          <button name="active" class="btn btn-primary" value={$row['id']} type="submit">
+            Promote to Active
           </button>
         );
       } elseif ($row['member_status'] == UserState::Inactive) {
@@ -137,7 +180,13 @@ class MembersController extends BaseController {
         );
       }
       $buttons->appendChild(
-          <button name="delete" class="btn btn-danger" value={$row['id']} type="submit">
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-toggle="modal"
+            data-target="#deleteConfirm"
+            data-type="single"
+            data-id={$row['id']}>
             Delete
           </button>
         );
@@ -181,6 +230,9 @@ class MembersController extends BaseController {
     $form->appendChild(
       <input type="hidden" name="id" />
     );
+    $form->appendChild(
+      <input type="hidden" name="role_save" />
+    );
     return
       <div class="modal fade" id="editRoles" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -201,6 +253,31 @@ class MembersController extends BaseController {
       </div>;
   }
 
+  private static function getDeleteModal(): :xhp {
+    return
+      <div class="modal fade" id="deleteConfirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h3 class="modal-title">Delete Confirmation</h3>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to delete?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button name="delete" type="button" class="btn btn-danger" id="delete-submit">Delete</button>
+              <form action="/members" method="post">
+                <input type="hidden" name="delete" />
+                <input type="hidden" name="delete_id" id="delete_id" />
+                <input type="hidden" name="delete_type" id="delete_type" />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>;
+  }
   private static function getEmailList(int $status): string {
     $query = DB::query("SELECT * FROM users WHERE member_status=%s", $status);
 
@@ -215,36 +292,50 @@ class MembersController extends BaseController {
   }
 
   public static function post(): void {
-    # Update the proper field
     if(isset($_POST['delete'])) {
-      UserMutator::delete((int)$_POST['delete']);
+      // Deletes a user by by single or by group
+      if(isset($_POST['delete_type']) && $_POST['delete_type'] == 'single') {
+        UserMutator::delete((int)$_POST['delete_id']);
+      } elseif(isset($_POST['delete_type']) && $_POST['delete_type'] == 'state') {
+        DB::delete("users", "member_status=%s", $_POST['delete_id']);
+      }
+    } elseif (isset($_POST['candidate'])) {
+      // Makes a member a candidate
+      UserMutator::update((int)$_POST['candidate'])
+        ->setMemberStatus(UserState::Candidate)
+        ->save();
     } elseif (isset($_POST['pledge'])) {
+      // Makes a member pledge
       UserMutator::update((int)$_POST['pledge'])
         ->setMemberStatus(UserState::Pledge)
         ->save();
     } elseif (isset($_POST['active'])) {
+      // Makes a member active
       UserMutator::update((int)$_POST['active'])
         ->setMemberStatus(UserState::Member)
         ->save();
     } elseif (isset($_POST['alum'])) {
+      // Makes a member alum
       UserMutator::update((int)$_POST['alum'])
         ->setMemberStatus(UserState::Alum)
         ->save();
     } elseif (isset($_POST['inactive'])) {
+      // Makes a member inactive
       UserMutator::update((int)$_POST['inactive'])
         ->setMemberStatus(UserState::Inactive)
         ->save();
-    } else {
-      foreach(UserRoleEnum::getValues() as $name => $value) {
+    } elseif (isset($_POST['role_save'])) {
+      // Saves the editted roled
+      foreach(UserRoleEnum::getValues() as $name => $role) {
         $user_roles = UserRole::getRoles((int)$_POST['id']);
 
-        if(isset($_POST[$value])) {
-          if(!in_array($value, $user_roles)) {
-            UserRole::insert($value, (int)$_POST['id']);
+        if(isset($_POST[$role])) {
+          if(!in_array($role, $user_roles)) {
+            UserRole::insert($role, (int)$_POST['id']);
           }
         } else {
-          if(in_array($value, $user_roles)) {
-            UserRole::delete($value, (int)$_POST['id']);
+          if(in_array($role, $user_roles)) {
+            UserRole::delete($role, (int)$_POST['id']);
           }
         }
       }

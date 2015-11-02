@@ -36,7 +36,7 @@ class Application {
       }
 
       # An application exists, just update it
-      DB::update('applications', Map {
+      $paramData = Map {
         'gender' => $gender,
         'year' => $year,
         'q1' => $q1,
@@ -45,10 +45,11 @@ class Application {
         'q4' => $q4,
         'q5' => $q5,
         'q6' => $q6
-      }, 'user_id=%s', $user_id);
+      };
+      DB::update('applications', $paramData->toArray(), 'user_id=%s', $user_id);
     } else {
       # Insert the application
-      DB::insert('applications', Map {
+      $paramData = Map {
         'user_id' => $user_id,
         'gender' => $gender,
         'year' => $year,
@@ -59,7 +60,8 @@ class Application {
         'q5' => $q5,
         'q6' => $q6,
         'status' => 1
-      });
+      };
+      DB::insert('applications', $paramData->toArray());
     }
 
     $query = DB::queryFirstRow("SELECT * FROM applications WHERE user_id=%s", $user_id);
@@ -67,9 +69,10 @@ class Application {
   }
 
   public function submit(): void {
-    DB::update('applications', Map {
+    $paramData = Map {
       'status' => 2
-    }, 'id=%s', $this->id);
+    };
+    DB::update('applications', $paramData->toArray(), 'id=%s', $this->id);
   }
 
   public function getID(): int {
