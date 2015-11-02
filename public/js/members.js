@@ -44,6 +44,23 @@ $('#delete-submit').click(function() {
   $('#deleteConfirm').find('form').submit();
 });
 
+$('#disableConfirm').on('show.bs.modal', function(event) {
+  // Get the data from the button
+  var button = $(event.relatedTarget);
+  var delete_type = button.data('type');
+  var id = button.data('id');
+
+  var modal = $(this)
+
+  // Set the info
+  modal.find('#disable_id').val(id);
+  modal.find('#disable_type').val(delete_type);
+});
+
+$('#disable-submit').click(function() {
+  $('#disableConfirm').find('form').submit();
+});
+
 $('head').append('<link rel="stylesheet" type="text/css" href="/css/bootstrap-sortable.css" />');
 
 
