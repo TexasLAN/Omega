@@ -31,6 +31,7 @@ class ReviewListController extends BaseController {
           <th>{'# Reviews'}</th>
           <th>Avg Rating</th>
           <th data-defaultsort="disabled">Review</th>
+          <th>Reviewed</th>
         </tr>
       </thead>
     );
@@ -59,13 +60,14 @@ class ReviewListController extends BaseController {
 
       # Append the applicant to the table as a new row
       $table_body->appendChild(
-        <tr class={DB::count() != 0 ? "success" : ""} id={$row['id']}>
+        <tr id={$row['id']}>
           <td>{$row['id']}</td>
           <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
           <td class="email">{$user->getEmail()}</td>
           <td class="text-center">{$count}</td>
           <td class="text-center">{$avg_rating}</td>
           <td class="text-center"><a href={'/review/' . $row['id']} class="btn btn-primary">Review</a></td>
+          <td>{DB::count() != 0 ? "✔" : ""}</td>
         </tr>
       );
     }
