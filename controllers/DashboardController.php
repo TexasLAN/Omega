@@ -49,7 +49,7 @@ class DashboardController extends BaseController {
 
     $events = null;
     if($user->getUserState() != UserState::Disabled) {
-      $events = Event::genAllFuture();
+      $events = Event::loadFuture();
       if(!empty($events)) {
         $events =
           <div class="panel panel-default">

@@ -20,112 +20,70 @@ class MembersController extends BaseController {
   }
 
   public static function get(): :xhp {
+    $tabList = <ul class="nav nav-tabs nav-justified" role="tablist"/>;
+    $tabPanel = <div class="tab-content"/>;
+    foreach(UserState::getValues() as $name => $value) {
+      // Tab List
+      $href = "#" . strtolower($name);
+      if($value == UserState::Member) {
+        $listItem = <li role="presentation" class="active"/>;
+        $listItem->appendChild(
+          <a href={$href} aria-controls="home" role="tab" data-toggle="tab">{$name}</a>
+        );
+      } else {
+        $listItem = <li role="presentation"/>;
+        $listItem->appendChild(
+          <a href={$href} aria-controls="profile" role="tab" data-toggle="tab">{$name}</a>
+        );
+      }
+      $tabList->appendChild($listItem);
+
+      // Tab Content
+      $id = strtolower($name);
+      $contentItem = <div role="tabpanel" class="tab-pane" id={$id}/>;
+      if($value == UserState::Member) {
+        $contentItem = <div role="tabpanel" class="tab-pane active" id={$id}/>;
+      }
+      $contentItem->appendChild(
+        <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList($value)}>
+          Email List
+        </button>
+      );
+      if($value == UserState::Pledge || $value == UserState::Candidate || $value == UserState::Applicant) {
+        $contentItem->appendChild(
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-toggle="modal"
+            data-target="#disableConfirm"
+            data-type="state"
+            data-id={(string) $value}>
+            Disable
+          </button>
+        );
+      } elseif($value == UserState::Disabled) {
+        $contentItem->appendChild(
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-toggle="modal"
+            data-target="#deleteConfirm"
+            data-type="state"
+            data-id={(string) $value}>
+            Delete
+          </button>
+        );
+      }
+      $memberContent = self::getMembersByStatus($value);
+      $contentItem->appendChild($memberContent);
+      $tabPanel->appendChild($contentItem);
+    }
+
     return
       <div class="well" role="tabpanel">
-        <ul class="nav nav-tabs nav-justified" role="tablist">
-          <li role="presentation">
-            <a href="#alum" aria-controls="profile" role="tab" data-toggle="tab">Alums</a>
-          </li>
-          <li role="presentation" class="active">
-            <a href="#members" aria-controls="home" role="tab" data-toggle="tab">Members</a>
-          </li>
-          <li role="presentation">
-            <a href="#inactive" aria-controls="profile" role="tab" data-toggle="tab">Inactives</a>
-          </li>
-          <li role="presentation">
-            <a href="#pledges" aria-controls="profile" role="tab" data-toggle="tab">Pledges</a>
-          </li>
-          <li role="presentation">
-            <a href="#candidates" aria-controls="profile" role="tab" data-toggle="tab">Candidates</a>
-          </li>
-          <li role="presentation">
-            <a href="#applicants" aria-controls="profile" role="tab" data-toggle="tab">Applicants</a>
-          </li>
-          <li role="presentation">
-            <a href="#disabled" aria-controls="profile" role="tab" data-toggle="tab">Disabled</a>
-          </li>
-        </ul>
+        {$tabList}
         <br />
-        <div class="tab-content">
-          <div role="tabpanel" class="tab-pane" id="alum">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Alum)}>
-              Email List
-            </button>
-            {self::getMembersByStatus(UserState::Alum)}
-          </div>
-          <div role="tabpanel" class="tab-pane active" id="members">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Member)}>
-              Email List
-            </button>
-            {self::getMembersByStatus(UserState::Member)}
-          </div>
-          <div role="tabpanel" class="tab-pane" id="inactive">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Inactive)}>
-              Email List
-            </button>
-            {self::getMembersByStatus(UserState::Inactive)}
-          </div>
-          <div role="tabpanel" class="tab-pane" id="pledges">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Pledge)}>
-              Email List
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-toggle="modal"
-              data-target="#deleteConfirm"
-              data-type="state"
-              data-id={(string) UserState::Pledge}>
-              Disable
-            </button>
-            {self::getMembersByStatus(UserState::Pledge)}
-          </div>
-          <div role="tabpanel" class="tab-pane" id="candidates">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Candidate)}>
-              Email List
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-toggle="modal"
-              data-target="#deleteConfirm"
-              data-type="state"
-              data-id={(string) UserState::Candidate}>
-              Disable
-            </button>
-            {self::getMembersByStatus(UserState::Candidate)}
-          </div>
-          <div role="tabpanel" class="tab-pane" id="applicants">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Applicant)}>
-              Email List
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-toggle="modal"
-              data-target="#disableConfirm"
-              data-type="state"
-              data-id={(string) UserState::Applicant}>
-              Disable
-            </button>
-            {self::getMembersByStatus(UserState::Applicant)}
-          </div>
-          <div role="tabpanel" class="tab-pane" id="disabled">
-            <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList(UserState::Disabled)}>
-              Email List
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-toggle="modal"
-              data-target="#deleteConfirm"
-              data-type="state"
-              data-id={(string) UserState::Disabled}>
-              Delete
-            </button>
-            {self::getMembersByStatus(UserState::Disabled)}
-          </div>
-        </div>
+        {$tabPanel}
         {self::getModal()}
         {self::getDeleteModal()}
         {self::getDisableModal()}

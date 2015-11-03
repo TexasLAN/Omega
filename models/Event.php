@@ -1,108 +1,84 @@
 <?hh
+/**
+ * This file is partially generated. Only make modifications between BEGIN
+ * MANUAL SECTION and END MANUAL SECTION designators.
+ *
+ * @partially-generated SignedSource<<6def5a1872bc172ef8c3f7970ed3a06c>>
+ */
 
-class Event {
+final class Event {
 
-  private int $id = 0;
-  private string $name = '';
-  private string $location = '';
-  private string $datetime = '';
-
-  public function __construct(
-    int $id,
-    string $name,
-    string $location,
-    string $datetime
-  ): void {
-    $this->id = $id;
-    $this->name = $name;
-    $this->location = $location;
-    $this->datetime = $datetime;
+  private function __construct(private Map<string, mixed> $data) {
   }
 
-  public static function create(
-    string $name,
-    string $location,
-    string $date,
-    string $time
-  ): void {
-    $unix_timestamp = strtotime($date . ' ' . $time);
-    $mysql_timestamp = date('Y-m-d H:i:s',$unix_timestamp);
-    DB::insert('events', (Map {
-      'name' => $name,
-      'location' => $location,
-      'datetime' => $mysql_timestamp
-    })->toArray());
-  }
-
-  public static function genAllFuture(): array<Event> {
-    $query = DB::query("
-      SELECT * FROM events
-      WHERE datetime >= CURDATE()
-      ORDER BY datetime"
-    );
-    if(!$query) {
-      return array();
-    }
-    return array_map(function($value) {
-      return new Event(
-        (int)$value['id'],
-        $value['name'],
-        $value['location'],
-        $value['datetime']
-      );
-    }, $query);
-  }
-
-  public static function genAllPast(): array<Event> {
-    $query = DB::query("
-      SELECT * FROM events
-      WHERE datetime < CURDATE()
-      ORDER BY datetime"
-    );
-    if(!$query) {
-      return array();
-    }
-    return array_map(function($value) {
-      return new Event(
-        (int)$value['id'],
-        $value['name'],
-        $value['location'],
-        $value['datetime']
-      );
-    }, $query);
-  }
-
-  public static function genByID(int $id): ?Event {
-    $query = DB::queryFirstRow("SELECT * FROM events WHERE id=%s", $id);
-    if(!$query) {
+  public static function load(int $id): ?Event {
+    $result = DB::queryFirstRow("SELECT * FROM events WHERE id=%s", $id);
+    if (!$result) {
       return null;
     }
-    return new Event(
-      (int)$query['id'],
-      $query['name'],
-      $query['location'],
-      $query['datetime']
-    );
-  }
-
-  public static function deleteByID(int $id): void {
-    DB::delete('events', 'id=%s', $id);
-  }
-
-  public function getID(): int {
-    return $this->id;
+    return new Event(new Map($result));
   }
 
   public function getName(): string {
-    return $this->name;
+    return (string) $this->data['name'];
   }
 
   public function getLocation(): string {
-    return $this->location;
+    return (string) $this->data['location'];
   }
 
-  public function getDatetime(): string {
-    $timestamp = strtotime($this->datetime);
-    return date('n/j/Y \@ g:i A', $timestamp);
+  public function getStartDate(): DateTime {
+    return new DateTime($this->data['start_date']);
   }
+
+  public function getEndDate(): DateTime {
+    return new DateTime($this->data['end_date']);
+  }
+
+  /* BEGIN MANUAL SECTION Event_footer */
+  // Insert additional methods here
+  public static function strToDatetime(string $date, string $time): DateTime {
+    $unix_timestamp = strtotime($date . ' ' . $time);
+    $mysql_timestamp = date('Y-m-d H:i:s',$unix_timestamp);
+    return $mysql_timestamp;
+  }
+
+  public static function datetimeToStr(DateTime $date): string {
+    // $timestamp = strtotime($date);
+    return $date->format('n/j/Y \@ g:i A');
+    // return date('n/j/Y \@ g:i A', $timestamp);
+  }
+
+  public function getID(): int {
+    return (int) $this->data['id'];
+  }
+
+  public static function loadFuture(): array<Event> {
+    $query = DB::query("
+      SELECT * FROM events
+      WHERE start_date >= CURDATE()
+      ORDER BY start_date ASC"
+    );
+    if(!$query) {
+      return array();
+    }
+    return array_map(function($value) {
+      return new Event(new Map($value));
+    }, $query);
+  }
+
+  public static function loadPast(): array<Event> {
+    $query = DB::query("
+      SELECT * FROM events
+      WHERE start_date < CURDATE()
+      ORDER BY start_date DESC"
+    );
+    if(!$query) {
+      return array();
+    }
+    return array_map(function($value) {
+      return new Event(new Map($value));
+    }, $query);
+  }
+  /* END MANUAL SECTION */
 }

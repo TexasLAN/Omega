@@ -22,7 +22,7 @@ class EventAttendanceController extends BaseController {
 
   public static function get(): :xhp {
     $event_id = (int)$_SESSION['route_params']['id'];
-    $event = Event::genByID($event_id);
+    $event = Event::load($event_id);
     if(!$event) {
       Flash::set('error', 'Invalid Event ID');
       Route::redirect(EventsAdminController::getPath());
