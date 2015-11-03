@@ -40,7 +40,7 @@ class EventAttendanceController extends BaseController {
     );
 
     $table_body = <tbody />;
-    $attendances = Attendance::genAllForEvent($event->getID());
+    $attendances = Attendance::loadForEvent($event->getID());
     foreach($attendances as $attendance) {
       $user = User::load($attendance->getUserID());
       invariant($user !== null, "Invalid user");

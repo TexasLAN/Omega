@@ -67,7 +67,7 @@ class NotifyController extends BaseController {
       ->setNotifyTitle($_POST['subject'])
       ->setNotifyText($_POST['body'])
       ->setSenderUserId(Session::getUser()->getID())
-      ->setSentTime(new DateTime(date('Y-m-d H:i:s')))
+      ->_setSentTime(new DateTime(date('Y-m-d H:i')))
       ->save();
     }
 

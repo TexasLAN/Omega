@@ -1,83 +1,66 @@
 <?hh
+/**
+ * This file is partially generated. Only make modifications between BEGIN
+ * MANUAL SECTION and END MANUAL SECTION designators.
+ *
+ * @partially-generated SignedSource<<03bcd579e3d12445c1fdd61e61b38774>>
+ */
 
-class Attendance {
+final class Attendance {
 
-  private int $event_id = 0;
-  private int $user_id = 0;
-  private string $event_name = '';
-
-  public function __construct(
-    int $event_id,
-    int $user_id,
-    string $event_name
-  ): void {
-    $this->event_id = $event_id;
-    $this->user_id = $user_id;
-    $this->event_name = $event_name;
+  private function __construct(private Map<string, mixed> $data) {
   }
 
-  public static function create(
-    int $user_id,
-    int $event_id
-  ): void {
-    $paramData = Map {
-      'user_id' => $user_id,
-      'event_id' => $event_id
-    };
-    DB::insert('attendance', $paramData->toArray());
+  public static function load(int $id): ?Attendance {
+    $result = DB::queryFirstRow("SELECT * FROM attendance WHERE =%s", $id);
+    if (!$result) {
+      return null;
+    }
+    return new Attendance(new Map($result));
   }
 
-  public static function genAllForEvent(int $event_id): array<Attendance> {
+  public function getUserID(): int {
+    return (int) $this->data['user_id'];
+  }
+
+  public function getEventID(): int {
+    return (int) $this->data['event_id'];
+  }
+
+  public function getStatus(): int {
+    return (int) $this->data['status'];
+  }
+
+  /* BEGIN MANUAL SECTION Attendance_footer */
+  // Insert additional methods here
+  public static function loadForEvent(int $event_id): array<Attendance> {
     $query = DB::query(
-      "SELECT attendance.event_id, attendance.user_id, events.name
+      "SELECT *
       FROM attendance
-      INNER JOIN events
-      WHERE attendance.event_id = events.id
-      AND event_id=%s",
+      WHERE event_id=%s",
       $event_id
     );
     if(!$query) {
       return array();
     }
     return array_map(function($value) {
-      return new Attendance(
-        (int)$value['event_id'],
-        (int)$value['user_id'],
-        $value['name']
-      );
+      return new Attendance(new Map($value));
     }, $query);
   }
 
-  public static function genAllForUser(int $user_id): array<Attendance> {
+  public static function loadForUser(int $user_id): array<Attendance> {
     $query = DB::query("
-      SELECT attendance.event_id, attendance.user_id, events.name
+      SELECT *
       FROM attendance
-      INNER JOIN events
-      WHERE attendance.event_id = events.id
-      AND user_id=%s",
+      WHERE user_id=%s",
       $user_id
     );
     if(!$query) {
       return array();
     }
     return array_map(function($value) {
-      return new Attendance(
-        (int)$value['event_id'],
-        (int)$value['user_id'],
-        $value['name']
-      );
+      return new Attendance(new Map($value));
     }, $query);
   }
-
-  public function getEventID(): int {
-    return $this->event_id;
-  }
-
-  public function getUserID(): int {
-    return $this->user_id;
-  }
-
-  public function getEventName(): string {
-    return $this->event_name;
-  }
+  /* END MANUAL SECTION */
 }

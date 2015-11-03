@@ -84,7 +84,7 @@ class MembersController extends BaseController {
         {$tabList}
         <br />
         {$tabPanel}
-        {self::getModal()}
+        {self::getRoleEditModal()}
         {self::getDeleteModal()}
         {self::getDisableModal()}
         <script src="/js/clipboard.min.js"></script>
@@ -258,7 +258,7 @@ class MembersController extends BaseController {
   }
 
 
-  private static function getModal(): :xhp {
+  private static function getRoleEditModal(): :xhp {
     $form = <form action="/members" method="post" />;
     foreach(UserRoleEnum::getValues() as $name => $value) {
       $form->appendChild(

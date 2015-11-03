@@ -74,5 +74,9 @@ final class NotifyLogMutator {
 
   /* BEGIN MANUAL SECTION NotifyLogMutator_footer */
   // Insert additional methods here
+  public function _setSentTime(DateTime $value): this {
+    $this->data["sent_time"] = $value->format("Y-m-d H:i");
+    return $this;
+  }
   /* END MANUAL SECTION */
 }

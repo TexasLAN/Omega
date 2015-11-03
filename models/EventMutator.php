@@ -74,5 +74,14 @@ final class EventMutator {
 
   /* BEGIN MANUAL SECTION EventMutator_footer */
   // Insert additional methods here
+  public function _setStartDate(DateTime $value): this {
+    $this->data["start_date"] = $value->format("Y-m-d H:i");
+    return $this;
+  }
+
+  public function _setEndDate(DateTime $value): this {
+    $this->data["end_date"] = $value->format("Y-m-d H:i");
+    return $this;
+  }
   /* END MANUAL SECTION */
 }

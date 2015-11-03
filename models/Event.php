@@ -38,14 +38,24 @@ final class Event {
   /* BEGIN MANUAL SECTION Event_footer */
   // Insert additional methods here
   public static function strToDatetime(string $date, string $time): DateTime {
-    $unix_timestamp = strtotime($date . ' ' . $time);
-    $mysql_timestamp = date('Y-m-d H:i:s',$unix_timestamp);
-    return $mysql_timestamp;
+    $datetime = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
+    if (!$datetime) {
+      $datetime = DateTime::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time);
+    }
+    return $datetime;
   }
 
   public static function datetimeToStr(DateTime $date): string {
     // $timestamp = strtotime($date);
     return $date->format('n/j/Y \@ g:i A');
+    // return date('n/j/Y \@ g:i A', $timestamp);
+  }
+
+  public static function datetimeToWeb(DateTime $date): string {
+    // $timestamp = strtotime($date);
+    $result = $date->format('Y-m-d@H:i:s');
+    $result = ereg_replace('@', 'T', $result);
+    return $result;
     // return date('n/j/Y \@ g:i A', $timestamp);
   }
 
