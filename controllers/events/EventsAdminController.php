@@ -49,7 +49,8 @@ class EventsAdminController extends BaseController {
                 class="btn btn-primary"
                 data-toggle="modal"
                 data-target="#eventMutator"
-                data-type="update"
+                data-method="update"
+                data-type="normal"
                 data-id={(string) $event->getID()}
                 data-name={$event->getName()}
                 data-location={$event->getLocation()}
@@ -57,6 +58,9 @@ class EventsAdminController extends BaseController {
                 data-enddate={(string) Event::datetimeToWeb($event->getEndDate())}>
                 Update
               </button>
+              <a href={'/events/attendance/' . $event->getID()} class="btn btn-primary">
+                View Attendance
+              </a>
               <button name="delete" class="btn btn-danger" value={$stringID} type="submit">
                 Delete
               </button>
@@ -98,22 +102,51 @@ class EventsAdminController extends BaseController {
       <div class="col-md-12">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h1 class="panel-title">Create New Event</h1>
+            <h1 class="panel-title">Actions</h1>
           </div>
           <div class="panel-body">
             <button
-                type="button"
-                class="btn btn-primary"
-                data-toggle="modal"
-                data-target="#eventMutator"
-                data-type="create"
-                data-id=""
-                data-name=""
-                data-location=""
-                data-startdate=""
-                data-enddate="">
-                New Event
-              </button>
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#eventMutator"
+              data-method="create"
+              data-type={EventType::Other}
+              data-id=""
+              data-name=""
+              data-location=""
+              data-startdate=""
+              data-enddate="">
+              New Event
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#eventMutator"
+              data-method="create"
+              data-type={EventType::GeneralMeeting}
+              data-id=""
+              data-name="General Meeting"
+              data-location=""
+              data-startdate=""
+              data-enddate="">
+              New General Meeting
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#eventMutator"
+              data-method="create"
+              data-type={EventType::OfficerMeeting}
+              data-id=""
+              data-name="Officer Meeting"
+              data-location=""
+              data-startdate=""
+              data-enddate="">
+              New Officer Meeting
+            </button>
           </div>
         </div>
         <div class="panel panel-default">
@@ -171,10 +204,13 @@ class EventsAdminController extends BaseController {
       <input type="hidden" name="event_mutator" />
     );
     $form->appendChild(
-      <input type="hidden" name="type" id="type"/>
+      <input type="hidden" name="method" id="method"/>
     );
     $form->appendChild(
       <input type="hidden" name="id" id="id"/>
+    );
+    $form->appendChild(
+      <input type="hidden" name="type" id="type"/>
     );
     return
       <div class="modal fade" id="eventMutator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -197,17 +233,17 @@ class EventsAdminController extends BaseController {
   }
 
   public static function post(): void {
-    error_log("1");
     // We're deleting an event
     if(isset($_POST['delete'])) {
-      EventMutator::delete((int)$_POST['delete']);
+      // Delete all attendance records for the event
+      AttendanceMutator::deleteEvent((int) $_POST['delete']);
+      EventMutator::delete((int) $_POST['delete']);
       Flash::set('success', 'Event deleted successfully');
       Route::redirect('/events/admin');
     } elseif (isset($_POST['event_mutator'])) {
-      error_log("2");
-      error_log($_POST['type']);
       // All fields must be present
       if(!isset($_POST['name']) ||
+         !isset($_POST['type']) ||
          !isset($_POST['location']) ||
          !isset($_POST['start_date']) ||
          !isset($_POST['start_time']) ||
@@ -216,17 +252,37 @@ class EventsAdminController extends BaseController {
         Flash::set('error', 'All fields must be filled out');
         Route::redirect('/events/admin');
       }
-      if($_POST['type'] == 'create') {
-        error_log("3.0");
+      if($_POST['method'] == 'create') {
         EventMutator::create()
         ->setName($_POST['name'])
         ->setLocation($_POST['location'])
         ->_setStartDate(Event::strToDatetime($_POST['start_date'], $_POST['start_time']))
         ->_setEndDate(Event::strToDatetime($_POST['end_date'], $_POST['end_time']))
+        ->setType($_POST['type'])
         ->save();
         Flash::set('success', 'Event created successfully');
-      } elseif($_POST['type'] == 'update') {
-        error_log("3.1");
+        $createdEventID = Event::loadRecentCreated()->getID();
+
+        if($_POST['type'] == EventType::GeneralMeeting) {
+          $queryRole = DB::query("SELECT * FROM users WHERE member_status=%s", UserState::Member);
+          foreach($queryRole as $row) {
+            AttendanceMutator::create()
+            ->setUserID((int) $row['id'])
+            ->setEventID((int) $createdEventID)
+            ->setStatus(AttendanceState::NotPresent)
+            ->save();
+          }
+        } elseif($_POST['type'] == EventType::OfficerMeeting) {
+          $queryRole = DB::query("SELECT * FROM roles WHERE role=%s", 'officer');
+          foreach($queryRole as $row) {
+            AttendanceMutator::create()
+            ->setUserID((int) $row['user_id'])
+            ->setEventID((int) $createdEventID)
+            ->setStatus(AttendanceState::NotPresent)
+            ->save();
+          }
+        }
+      } elseif($_POST['method'] == 'update') {
           EventMutator::update((int) $_POST['id'])
           ->setName($_POST['name'])
           ->setLocation($_POST['location'])

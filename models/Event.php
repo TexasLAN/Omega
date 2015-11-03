@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<6def5a1872bc172ef8c3f7970ed3a06c>>
+ * @partially-generated SignedSource<<e3774cf76d3d577f8cc94dd98faaa3ce>>
  */
 
 final class Event {
@@ -35,32 +35,39 @@ final class Event {
     return new DateTime($this->data['end_date']);
   }
 
+  public function getType(): string {
+    return (string) $this->data['type'];
+  }
+
   /* BEGIN MANUAL SECTION Event_footer */
   // Insert additional methods here
   public static function strToDatetime(string $date, string $time): DateTime {
     $datetime = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
-    if (!$datetime) {
+    if (!$datetime) { // Checks if it is some weird javashit nonsense
       $datetime = DateTime::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time);
     }
     return $datetime;
   }
 
   public static function datetimeToStr(DateTime $date): string {
-    // $timestamp = strtotime($date);
     return $date->format('n/j/Y \@ g:i A');
-    // return date('n/j/Y \@ g:i A', $timestamp);
   }
 
+  // Converts the datetime to a javascript standard for the event modal
   public static function datetimeToWeb(DateTime $date): string {
-    // $timestamp = strtotime($date);
     $result = $date->format('Y-m-d@H:i:s');
+    // The 'T' means some date format thing so use @ as workaround
     $result = ereg_replace('@', 'T', $result);
     return $result;
-    // return date('n/j/Y \@ g:i A', $timestamp);
   }
 
   public function getID(): int {
     return (int) $this->data['id'];
+  }
+
+  public static function loadRecentCreated(): Event {
+    $result = DB::queryFirstRow("SELECT * FROM events ORDER BY id DESC");
+    return new Event(new Map($result));
   }
 
   public static function loadFuture(): array<Event> {

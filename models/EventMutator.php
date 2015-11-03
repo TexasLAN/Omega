@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<118634c6ccf7e047e7c4a5e909579af5>>
+ * @partially-generated SignedSource<<f0e6666824722ff4caaf4a9dfb681362>>
  */
 
 final class EventMutator {
@@ -44,6 +44,7 @@ final class EventMutator {
       'location',
       'start_date',
       'end_date',
+      'type',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(
@@ -69,6 +70,11 @@ final class EventMutator {
 
   public function setEndDate(DateTime $value): this {
     $this->data["end_date"] = $value->format("Y-m-d");
+    return $this;
+  }
+
+  public function setType(string $value): this {
+    $this->data["type"] = $value;
     return $this;
   }
 

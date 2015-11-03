@@ -68,5 +68,19 @@ final class AttendanceMutator {
 
   /* BEGIN MANUAL SECTION AttendanceMutator_footer */
   // Insert additional methods here
+  public static function deleteEvent(int $event_id): void {
+    DB::delete("attendance", "event_id=%s", $event_id);
+  }
+
+  public static function deleteUserFromEvent(int $user_id, int $event_id): void {
+    DB::delete("attendance", "user_id=%s AND event_id=%s", $user_id, $event_id);
+  }
+
+  public static function updateStatus(int $user_id, int $event_id, AttendanceState $state): void {
+    $paramData = Map {
+      'status' => $state
+    };
+    DB::update("attendance", $paramData->toArray(), "user_id=%s AND event_id=%s", $user_id, $event_id);
+  }
   /* END MANUAL SECTION */
 }
