@@ -147,6 +147,20 @@ class EventsAdminController extends BaseController {
               data-enddate="">
               New Officer Meeting
             </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target="#eventMutator"
+              data-method="create"
+              data-type={EventType::PledgeMeeting}
+              data-id=""
+              data-name="Pledge Meeting"
+              data-location=""
+              data-startdate=""
+              data-enddate="">
+              New Pledge Meeting
+            </button>
           </div>
         </div>
         <div class="panel panel-default">
@@ -264,7 +278,7 @@ class EventsAdminController extends BaseController {
         $createdEventID = Event::loadRecentCreated()->getID();
 
         if($_POST['type'] == EventType::GeneralMeeting) {
-          $queryRole = DB::query("SELECT * FROM users WHERE member_status=%s", UserState::Member);
+          $queryRole = DB::query("SELECT * FROM users WHERE member_status=%s OR member_status=%s", UserState::Member, UserState::Pledge);
           foreach($queryRole as $row) {
             AttendanceMutator::create()
             ->setUserID((int) $row['id'])
@@ -277,6 +291,17 @@ class EventsAdminController extends BaseController {
           foreach($queryRole as $row) {
             AttendanceMutator::create()
             ->setUserID((int) $row['user_id'])
+            ->setEventID((int) $createdEventID)
+            ->setStatus(AttendanceState::NotPresent)
+            ->save();
+          }
+        } elseif($_POST['type'] == EventType::PledgeMeeting) {
+          $queryRole = DB::query("SELECT * FROM users WHERE member_status=%s", UserState::Pledge);
+          error_log("Dope pledgemeeting");
+          error_log(serialize($queryRole));
+          foreach($queryRole as $row) {
+            AttendanceMutator::create()
+            ->setUserID((int) $row['id'])
             ->setEventID((int) $createdEventID)
             ->setStatus(AttendanceState::NotPresent)
             ->save();
