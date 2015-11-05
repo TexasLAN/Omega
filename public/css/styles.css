@@ -33,3 +33,8 @@ body {
   text-align: center;
 }
 
+.event-textarea {
+  width: 100%;
+  height: 10%;
+  resize: none;
+}

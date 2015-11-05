@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<e3774cf76d3d577f8cc94dd98faaa3ce>>
+ * @partially-generated SignedSource<<6df940aef94e623a7153e2d81db38190>>
  */
 
 final class Event {
@@ -37,6 +37,10 @@ final class Event {
 
   public function getType(): string {
     return (string) $this->data['type'];
+  }
+
+  public function getDescription(): string {
+    return (string) $this->data['description'];
   }
 
   /* BEGIN MANUAL SECTION Event_footer */

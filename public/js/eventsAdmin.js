@@ -18,6 +18,7 @@ $('#eventMutator').on('show.bs.modal', function(event) {
   var endDateStr = button.data('enddate');
   var startDate = new Date(startDateStr);
   var endDate = new Date(endDateStr);
+  var description = button.data('description');
 
   var modal = $(this);
 
@@ -35,6 +36,7 @@ $('#eventMutator').on('show.bs.modal', function(event) {
   modal.find('#start_time').val(assertTwoDigit(startDate.getUTCHours()) + ":" + assertTwoDigit(startDate.getMinutes()) + ":" + assertTwoDigit(startDate.getSeconds()));
   modal.find('#end_date').val(endDate.getFullYear() + "-" + (endDate.getMonth()+1) + "-" + endDate.getUTCDate());
   modal.find('#end_time').val(assertTwoDigit(endDate.getUTCHours()) + ":" + assertTwoDigit(endDate.getMinutes()) + ":" + assertTwoDigit(endDate.getSeconds()));
+  modal.find('#description').val(description);
 });
 
 $('#submit').click(function() {

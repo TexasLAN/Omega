@@ -1,8 +1,8 @@
 <?hh
 
-class EventsAdminController extends BaseController {
+class EventsListController extends BaseController {
   public static function getPath(): string {
-    return '/events/admin';
+    return '/events/';
   }
 
   public static function getConfig(): ControllerConfig {
@@ -11,100 +11,23 @@ class EventsAdminController extends BaseController {
       Vector {
         UserState::Member
         });
-    $newConfig->setUserRoles(
-      Vector {
-        UserRoleEnum::Officer,
-        UserRoleEnum::Admin
-        });
-    $newConfig->setTitle('Events Admin');
+    $newConfig->setTitle('Events');
     return $newConfig;
   }
 
+  private static function validateActions($user): bool {
+    return $user->validateRole(UserRoleEnum::Officer) || $user->validateRole(UserRoleEnum::Admin);
+  }
+
   public static function get(): :xhp {
-    # Generate a table of all future events
-    $upcoming_events =
-      <table class="table table-bordered table-striped sortable">
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Location</th>
-          <th>When</th>
-          <th data-defaultsort="disabled">Actions</th>
-        </tr>
-      </table>;
+    $user = Session::getUser();
 
-    $events = Event::loadFuture();
-    foreach($events as $event) {
-      $stringID = (string) $event->getID();
-      $upcoming_events->appendChild(
-        <tr>
-          <td><a href={'/events/' . $event->getID()}>{$event->getID()}</a></td>
-          <td>{$event->getName()}</td>
-          <td>{$event->getLocation()}</td>
-          <td>{Event::datetimeToStr($event->getStartDate())}</td>
-          <td>
-            <form method="post" action="/events/admin">
-              <button
-                type="button"
-                class="btn btn-primary"
-                data-toggle="modal"
-                data-target="#eventMutator"
-                data-method="update"
-                data-type="normal"
-                data-id={(string) $event->getID()}
-                data-name={$event->getName()}
-                data-location={$event->getLocation()}
-                data-startdate={(string) Event::datetimeToWeb($event->getStartDate())}
-                data-enddate={(string) Event::datetimeToWeb($event->getEndDate())}>
-                Update
-              </button>
-              <a href={'/events/attendance/' . $event->getID()} class="btn btn-primary">
-                View Attendance
-              </a>
-              <button name="delete" class="btn btn-danger" value={$stringID} type="submit">
-                Delete
-              </button>
-            </form>
-          </td>
-        </tr>
-      );
-    }
-
-    $past_events =
-      <table class="table table-bordered table-striped sortable">
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Location</th>
-          <th>When</th>
-          <th data-defaultsort="disabled">Actions</th>
-        </tr>
-      </table>;
-
-    $events = Event::loadPast();
-    foreach($events as $event) {
-      $past_events->appendChild(
-        <tr>
-          <td>{$event->getID()}</td>
-          <td>{$event->getName()}</td>
-          <td>{$event->getLocation()}</td>
-          <td>{Event::datetimeToStr($event->getStartDate())}</td>
-          <td>
-            <a href={'/events/attendance/' . $event->getID()} class="btn btn-primary">
-              View Attendance
-            </a>
-          </td>
-        </tr>
-      );
-    }
-
-    return
-      <div class="col-md-12">
-        <div class="panel panel-default">
+    // Generate a table of all the actions for the event list controller
+    $action_panel = <div class="panel panel-default">
           <div class="panel-heading">
             <h1 class="panel-title">Actions</h1>
           </div>
-          <div class="panel-body">
+          <div class="panel-body btn-toolbar">
             <button
               type="button"
               class="btn btn-primary"
@@ -162,7 +85,104 @@ class EventsAdminController extends BaseController {
               New Pledge Meeting
             </button>
           </div>
-        </div>
+        </div>;
+
+    if(!self::validateActions($user)) {
+      $action_panel = <p/>;
+    }
+
+    // Generate a table of all future events
+    $upcoming_events =
+      <table class="table table-bordered table-striped sortable">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Location</th>
+          <th>When</th>
+          <th data-defaultsort="disabled">Actions</th>
+        </tr>
+      </table>;
+
+    $events = Event::loadFuture();
+    foreach($events as $event) {
+      $stringID = (string) $event->getID();
+      $upcoming_event_actions = <form class="btn-toolbar" method="post" action={EventsListController::getPath()} />;
+      $upcoming_event_actions->appendChild(
+        <a href={'/events/' . $event->getID()} class="btn btn-primary">
+          View Details
+        </a>
+      );
+
+      if(self::validateActions($user)) {
+        $upcoming_event_actions->appendChild(
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target="#eventMutator"
+            data-method="update"
+            data-type="normal"
+            data-id={(string) $event->getID()}
+            data-name={$event->getName()}
+            data-location={$event->getLocation()}
+            data-startdate={(string) Event::datetimeToWeb($event->getStartDate())}
+            data-enddate={(string) Event::datetimeToWeb($event->getEndDate())}
+            data-description={$event->getDescription()}>
+            Update
+          </button>
+        );
+        $upcoming_event_actions->appendChild(
+          <button name="delete" class="btn btn-danger" value={$stringID} type="submit">
+            Delete
+          </button>
+        );
+      }
+
+      $upcoming_events->appendChild(
+        <tr>
+          <td><a href={'/events/' . $event->getID()}>{$event->getID()}</a></td>
+          <td>{$event->getName()}</td>
+          <td>{$event->getLocation()}</td>
+          <td>{Event::datetimeToStr($event->getStartDate())}</td>
+          <td>
+            {$upcoming_event_actions}
+          </td>
+        </tr>
+      );
+    }
+
+    // Generate Table of past events
+    $past_events =
+      <table class="table table-bordered table-striped sortable">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Location</th>
+          <th>When</th>
+          <th data-defaultsort="disabled">Actions</th>
+        </tr>
+      </table>;
+
+    $events = Event::loadPast();
+    foreach($events as $event) {
+      $past_events->appendChild(
+        <tr>
+          <td>{$event->getID()}</td>
+          <td>{$event->getName()}</td>
+          <td>{$event->getLocation()}</td>
+          <td>{Event::datetimeToStr($event->getStartDate())}</td>
+          <td>
+            <a href={'/events/' . $event->getID()} class="btn btn-primary">
+              View Details
+            </a>
+          </td>
+        </tr>
+      );
+    }
+
+    return
+      <div class="col-md-12">
+        {$action_panel}
         <div class="panel panel-default">
           <div class="panel-heading">
             <h1 class="panel-title">Upcoming Events</h1>
@@ -187,7 +207,7 @@ class EventsAdminController extends BaseController {
   }
 
   private static function getEventModal(): :xhp {
-    $form = <form action="/events/admin" method="post" />;
+    $form = <form action={self::getPath()} method="post" />;
     $formChildren = <div><div class="form-group">
                 <label>Name</label>
                 <input type="text" class="form-control" name="name" id="name" />
@@ -211,6 +231,12 @@ class EventsAdminController extends BaseController {
               <div class="form-group">
                 <label>End Time</label>
                 <input type="time" class="form-control" name="end_time" id="end_time" />
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+              </div>
+              <div class="form-group">
+                <textarea class="event-textarea" name="description" id="description" />
               </div>
               </div>;
     $form->appendChild($formChildren);
@@ -247,13 +273,20 @@ class EventsAdminController extends BaseController {
   }
 
   public static function post(): void {
+    // Validate user login
+    $user = Session::getUser();
+    if(!self::validateActions($user)) {
+      Flash::set('error', 'You do not have the required roles to alter the information');
+      Route::redirect(self::getPath());
+    }
+
     // We're deleting an event
     if(isset($_POST['delete'])) {
       // Delete all attendance records for the event
       AttendanceMutator::deleteEvent((int) $_POST['delete']);
       EventMutator::delete((int) $_POST['delete']);
       Flash::set('success', 'Event deleted successfully');
-      Route::redirect('/events/admin');
+      Route::redirect(self::getPath());
     } elseif (isset($_POST['event_mutator'])) {
       // All fields must be present
       if(!isset($_POST['name']) ||
@@ -262,9 +295,10 @@ class EventsAdminController extends BaseController {
          !isset($_POST['start_date']) ||
          !isset($_POST['start_time']) ||
          !isset($_POST['end_date']) ||
-         !isset($_POST['end_time'])) {
+         !isset($_POST['end_time']) ||
+         !isset($_POST['description'])) {
         Flash::set('error', 'All fields must be filled out');
-        Route::redirect('/events/admin');
+        Route::redirect(self::getPath());
       }
       if($_POST['method'] == 'create') {
         EventMutator::create()
@@ -273,6 +307,7 @@ class EventsAdminController extends BaseController {
         ->_setStartDate(Event::strToDatetime($_POST['start_date'], $_POST['start_time']))
         ->_setEndDate(Event::strToDatetime($_POST['end_date'], $_POST['end_time']))
         ->setType($_POST['type'])
+        ->setDescription($_POST['description'])
         ->save();
         Flash::set('success', 'Event created successfully');
         $createdEventID = Event::loadRecentCreated()->getID();
@@ -313,10 +348,11 @@ class EventsAdminController extends BaseController {
           ->setLocation($_POST['location'])
           ->_setStartDate(Event::strToDatetime($_POST['start_date'], $_POST['start_time']))
           ->_setEndDate(Event::strToDatetime($_POST['end_date'], $_POST['end_time']))
+          ->setDescription($_POST['description'])
           ->save();
         Flash::set('success', 'Event updated successfully');
       }
-      Route::redirect('/events/admin');
+      Route::redirect(self::getPath());
     }
   }
 }

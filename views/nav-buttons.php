@@ -10,7 +10,7 @@ final class :omega:nav-buttons extends :x:element {
     $nav_buttons =
       <ul class="nav navbar-nav">
         <li class={$controller === 'DashboardController' ? 'active' : ''}>
-          <a href="/dashboard">Dashboard</a>
+          <a href={DashboardController::getPath()}>Dashboard</a>
         </li>
       </ul>;
 
@@ -18,7 +18,7 @@ final class :omega:nav-buttons extends :x:element {
     if($user->getUserState() == UserState::Applicant) {
       $nav_buttons->appendChild(
         <li class={$controller === 'ApplyController' ? 'active' : ''}>
-          <a href="/apply">Apply</a>
+          <a href={ApplyController::getPath()}>Apply</a>
         </li>
       );
     }
@@ -27,12 +27,17 @@ final class :omega:nav-buttons extends :x:element {
     if($user->getUserState() == UserState::Member) {
       $nav_buttons->appendChild(
         <li class={($controller === 'FeedbackListController' || $controller === 'FeedbackSingleController') ? 'active' : ''}>
-          <a href="/feedback">Applicant Feedback</a>
+          <a href={FeedbackListController::getPath()}>Applicant Feedback</a>
         </li>
       );
       $nav_buttons->appendChild(
         <li class={($controller === 'NotifyLogController' || $controller === 'NotifyLogController') ? 'active' : ''}>
-          <a href="/notify/log">Notification Logs</a>
+          <a href={NotifyLogController::getPath()}>Notification Logs</a>
+        </li>
+      );
+      $nav_buttons->appendChild(
+        <li class={($controller === 'EventsListController' || $controller === 'EventDetailsController') ? 'active' : ''}>
+          <a href={EventsListController::getPath()}>Events</a>
         </li>
       );
     }
@@ -41,7 +46,7 @@ final class :omega:nav-buttons extends :x:element {
     if($user->validateRole(UserRoleEnum::Admin) || $user->validateRole(UserRoleEnum::Reviewer)) {
       $nav_buttons->appendChild(
         <li class={($controller === 'ReviewListController' || $controller === 'ReviewSingleController') ? 'active' : ''}>
-          <a href="/review">Review</a>
+          <a href={ReviewListController::getPath()}>Review</a>
         </li>
       );
     }
@@ -49,13 +54,8 @@ final class :omega:nav-buttons extends :x:element {
     # Admins and event admins can access the events portal
     if($user->validateRole(UserRoleEnum::Admin) || $user->validateRole(UserRoleEnum::Officer)) {
       $nav_buttons->appendChild(
-        <li class={$controller === 'EventsAdminController' ? 'active' : ''}>
-          <a href="/events/admin">Events</a>
-        </li>
-      );
-      $nav_buttons->appendChild(
         <li class={$controller === 'NotifyController' ? 'active' : ''}>
-          <a href="/notify">Send Notification</a>
+          <a href={NotifyController::getPath()}>Send Notification</a>
         </li>
       );
     }
@@ -64,12 +64,12 @@ final class :omega:nav-buttons extends :x:element {
     if($user->validateRole(UserRoleEnum::Admin)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'MembersController' ? 'active' : ''}>
-          <a href="/members">Members</a>
+          <a href={MembersController::getPath()}>Members</a>
         </li>
       );
       $nav_buttons->appendChild(
         <li class={$controller === 'SettingsController' ? 'active' : ''}>
-          <a href="/settings">Site Settings</a>
+          <a href={SettingsController::getPath()}>Site Settings</a>
         </li>
       );
     }

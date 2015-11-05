@@ -1,8 +1,8 @@
 <?hh
 
-class EventAttendanceController extends BaseController {
+class EventDetailsController extends BaseController {
   public static function getPath(): string {
-    return '/events/attendance/(?<id>\d+)';
+    return '/events/(?<id>\d+)';
   }
 
   public static function getConfig(): ControllerConfig {
@@ -11,16 +11,17 @@ class EventAttendanceController extends BaseController {
       Vector {
         UserState::Member
         });
-    $newConfig->setUserRoles(
-      Vector {
-        UserRoleEnum::Officer,
-        UserRoleEnum::Admin
-        });
-    $newConfig->setTitle('Events Attendance');
+    $newConfig->setTitle('Event Details');
     return $newConfig;
   }
 
+  private static function validateActions(Event $event, User $user): bool {
+    $curDatetime = new DateTime(date('Y-m-d H:i'));
+    return $event->getEndDate() < $curDatetime || !($user->validateRole(UserRoleEnum::Officer) || $user->validateRole(UserRoleEnum::Admin));
+  }
+
   public static function get(): :xhp {
+    $user = Session::getUser();
     $event_id = (int)$_SESSION['route_params']['id'];
     $event = Event::load($event_id);
     if(!$event) {
@@ -28,8 +29,18 @@ class EventAttendanceController extends BaseController {
       Route::redirect(EventsAdminController::getPath());
       invariant(false, "Unreachable");
     }
-    $action_url = "/events/attendance/" . $event->getID();
-    $curDatetime = new DateTime(date('Y-m-d H:i'));
+
+    $descriptionPanel =  <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1 class="panel-title">Description</h1>
+      </div>
+      <div class="panel-body">
+        <p>{$event->getDescription()}</p>
+      </div>
+    </div>;
+
+
+    $action_url = "/events/" . $event->getID();
 
     $actionPanel = 
     <div class="panel panel-default">
@@ -49,7 +60,7 @@ class EventAttendanceController extends BaseController {
         </form>
       </div>
     </div>;
-    if($event->getEndDate() < $curDatetime) { // Shouldnt change the values if the event is already over
+    if(self::validateActions($event, $user)) { // Shouldnt change the values if the event is already over or if they dont have the permissions to
         $actionPanel = <p/>;
       }
 
@@ -68,25 +79,25 @@ class EventAttendanceController extends BaseController {
     $table_body = <tbody />;
     $attendances = Attendance::loadForEvent($event->getID());
     foreach($attendances as $attendance) {
-      $user = User::load($attendance->getUserID());
-      invariant($user !== null, "Invalid user");
-      $actions = <form method="post" action={$action_url}>
+      $load_user = User::load($attendance->getUserID());
+      invariant($load_user !== null, "Invalid user");
+      $actions = <form class="btn-toolbar" method="post" action={$action_url}>
                   <button name="change_status" class="btn btn-primary" value={(string) $attendance->getStatus()} type="submit">
                     Change Status
                   </button>
-                  <button name="delete" class="btn btn-danger" value={(string) $user->getID()} type="submit">
+                  <button name="delete" class="btn btn-danger" value={(string) $load_user->getID()} type="submit">
                     Delete
                   </button>
-                  <input type="hidden" name="user_id" value={(string) $user->getID()}/>
+                  <input type="hidden" name="user_id" value={(string) $load_user->getID()}/>
                   <input type="hidden" name="event_id" value={(string) $event->getID()}/>
                 </form>;
-      if($event->getEndDate() < $curDatetime) { // Shouldnt change the values if the event is already over
+      if(self::validateActions($event, $user)) { // Shouldnt change the values if the event is already over
         $actions = <p/>;
       }
       $table_body->appendChild(
         <tr>
-          <td>{$user->getFirstName() . ' ' . $user->getLastName()}</td>
-          <td>{$user->getUserStateStr()}</td>
+          <td>{$load_user->getFirstName() . ' ' . $load_user->getLastName()}</td>
+          <td>{$load_user->getUserStateStr()}</td>
           <td>{($attendance->getStatus() == AttendanceState::Present) ? 'Present' : 'Not Present'}</td>
           <td>
             {$actions}
@@ -102,6 +113,7 @@ class EventAttendanceController extends BaseController {
         <div class="panel-heading">
           <h1>{$event->getName()}</h1>
         </div>
+        {$descriptionPanel}
         {$actionPanel}
         <div class="panel-body">
           {$table}
@@ -113,6 +125,13 @@ class EventAttendanceController extends BaseController {
   }
 
   public static function post(): void {
+    // Validate User creds
+    $user = Session::getUser();
+    if(!($user->validateRole(UserRoleEnum::Officer) || $user->validateRole(UserRoleEnum::Admin))) {
+      Flash::set('error', 'You do not have the required roles to alter the information');
+      Route::redirect('/events/' . $_POST['event_id']);
+    }
+
     if(isset($_POST['delete'])) {
       AttendanceMutator::deleteUserFromEvent((int) $_POST['user_id'], (int) $_POST['event_id']);
       Flash::set('success', 'Attendance deleted successfully');
@@ -137,6 +156,6 @@ class EventAttendanceController extends BaseController {
       }
     }
 
-    Route::redirect('/events/attendance/' . $_POST['event_id']);
+    Route::redirect('/events/' . $_POST['event_id']);
   }
 }
