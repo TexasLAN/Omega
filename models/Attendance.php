@@ -62,5 +62,15 @@ final class Attendance {
       return new Attendance(new Map($value));
     }, $query);
   }
+
+  public static function countUserAttendance(int $user_id, AttendanceState $attendance, EventType $type): int {
+    $query = DB::query("
+      SELECT COUNT(*)
+      FROM attendance, events
+      WHERE attendance.status=%s AND attendance.user_id=%s AND events.type=%s",
+      $attendance, $user_id, $type
+    );
+    return (int) $query;
+  }
   /* END MANUAL SECTION */
 }

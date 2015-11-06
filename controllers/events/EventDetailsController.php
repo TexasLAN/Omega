@@ -1,16 +1,23 @@
 <?hh
 
 class EventDetailsController extends BaseController {
+  public static function getPrePath(): string {
+    return '/event/';
+  }
+
   public static function getPath(): string {
-    return '/events/(?<id>\d+)';
+    return self::getPrePath() . '(?<id>\d+)';
   }
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
+        UserState::Applicant,
+        UserState::Candidate,
+        UserState::Pledge,
         UserState::Member
-        });
+    });
     $newConfig->setTitle('Event Details');
     return $newConfig;
   }
@@ -40,7 +47,7 @@ class EventDetailsController extends BaseController {
     </div>;
 
 
-    $action_url = "/events/" . $event->getID();
+    $action_url = self::getPrePath() . $event->getID();
 
     $actionPanel = 
     <div class="panel panel-default">
@@ -129,7 +136,7 @@ class EventDetailsController extends BaseController {
     $user = Session::getUser();
     if(!($user->validateRole(UserRoleEnum::Officer) || $user->validateRole(UserRoleEnum::Admin))) {
       Flash::set('error', 'You do not have the required roles to alter the information');
-      Route::redirect('/events/' . $_POST['event_id']);
+      Route::redirect(self::getPrePath() . $_POST['event_id']);
     }
 
     if(isset($_POST['delete'])) {
@@ -156,6 +163,6 @@ class EventDetailsController extends BaseController {
       }
     }
 
-    Route::redirect('/events/' . $_POST['event_id']);
+    Route::redirect(self::getPrePath() . $_POST['event_id']);
   }
 }

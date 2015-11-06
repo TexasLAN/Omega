@@ -2,15 +2,16 @@
 
 class EventsListController extends BaseController {
   public static function getPath(): string {
-    return '/events/';
+    return '/event';
   }
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
+        UserState::Pledge,
         UserState::Member
-        });
+    });
     $newConfig->setTitle('Events');
     return $newConfig;
   }
@@ -34,12 +35,7 @@ class EventsListController extends BaseController {
               data-toggle="modal"
               data-target="#eventMutator"
               data-method="create"
-              data-type={EventType::Other}
-              data-id=""
-              data-name=""
-              data-location=""
-              data-startdate=""
-              data-enddate="">
+              data-type={EventType::Other}>
               New Event
             </button>
             <button
@@ -49,11 +45,7 @@ class EventsListController extends BaseController {
               data-target="#eventMutator"
               data-method="create"
               data-type={EventType::GeneralMeeting}
-              data-id=""
-              data-name="General Meeting"
-              data-location=""
-              data-startdate=""
-              data-enddate="">
+              data-name="General Meeting">
               New General Meeting
             </button>
             <button
@@ -63,11 +55,7 @@ class EventsListController extends BaseController {
               data-target="#eventMutator"
               data-method="create"
               data-type={EventType::OfficerMeeting}
-              data-id=""
-              data-name="Officer Meeting"
-              data-location=""
-              data-startdate=""
-              data-enddate="">
+              data-name="Officer Meeting">
               New Officer Meeting
             </button>
             <button
@@ -77,11 +65,7 @@ class EventsListController extends BaseController {
               data-target="#eventMutator"
               data-method="create"
               data-type={EventType::PledgeMeeting}
-              data-id=""
-              data-name="Pledge Meeting"
-              data-location=""
-              data-startdate=""
-              data-enddate="">
+              data-name="Pledge Meeting">
               New Pledge Meeting
             </button>
           </div>
@@ -95,7 +79,6 @@ class EventsListController extends BaseController {
     $upcoming_events =
       <table class="table table-bordered table-striped sortable">
         <tr>
-          <th>ID</th>
           <th>Name</th>
           <th>Location</th>
           <th>When</th>
@@ -108,7 +91,7 @@ class EventsListController extends BaseController {
       $stringID = (string) $event->getID();
       $upcoming_event_actions = <form class="btn-toolbar" method="post" action={EventsListController::getPath()} />;
       $upcoming_event_actions->appendChild(
-        <a href={'/events/' . $event->getID()} class="btn btn-primary">
+        <a href={EventDetailsController::getPrePath() . $event->getID()} class="btn btn-primary">
           View Details
         </a>
       );
@@ -125,8 +108,8 @@ class EventsListController extends BaseController {
             data-id={(string) $event->getID()}
             data-name={$event->getName()}
             data-location={$event->getLocation()}
-            data-startdate={(string) Event::datetimeToWeb($event->getStartDate())}
-            data-enddate={(string) Event::datetimeToWeb($event->getEndDate())}
+            data-startdate={$event->getStartDateWeb()}
+            data-enddate={$event->getEndDateWeb()}
             data-description={$event->getDescription()}>
             Update
           </button>
@@ -140,10 +123,9 @@ class EventsListController extends BaseController {
 
       $upcoming_events->appendChild(
         <tr>
-          <td><a href={'/events/' . $event->getID()}>{$event->getID()}</a></td>
           <td>{$event->getName()}</td>
           <td>{$event->getLocation()}</td>
-          <td>{Event::datetimeToStr($event->getStartDate())}</td>
+          <td>{$event->getStartDateStr()}</td>
           <td>
             {$upcoming_event_actions}
           </td>
@@ -155,7 +137,6 @@ class EventsListController extends BaseController {
     $past_events =
       <table class="table table-bordered table-striped sortable">
         <tr>
-          <th>ID</th>
           <th>Name</th>
           <th>Location</th>
           <th>When</th>
@@ -167,12 +148,11 @@ class EventsListController extends BaseController {
     foreach($events as $event) {
       $past_events->appendChild(
         <tr>
-          <td>{$event->getID()}</td>
           <td>{$event->getName()}</td>
           <td>{$event->getLocation()}</td>
-          <td>{Event::datetimeToStr($event->getStartDate())}</td>
+          <td>{$event->getStartDateStr()}</td>
           <td>
-            <a href={'/events/' . $event->getID()} class="btn btn-primary">
+            <a href={EventDetailsController::getPrePath() . $event->getID()} class="btn btn-primary">
               View Details
             </a>
           </td>
@@ -207,51 +187,6 @@ class EventsListController extends BaseController {
   }
 
   private static function getEventModal(): :xhp {
-    $form = <form action={self::getPath()} method="post" />;
-    $formChildren = <div><div class="form-group">
-                <label>Name</label>
-                <input type="text" class="form-control" name="name" id="name" />
-              </div>
-              <div class="form-group">
-                <label>Location</label>
-                <input type="text" class="form-control" name="location" id="location" />
-              </div>
-              <div class="form-group">
-                <label>Start Date</label>
-                <input type="date" class="form-control" name="start_date" id="start_date" />
-              </div>
-              <div class="form-group">
-                <label>Start Time</label>
-                <input type="time" class="form-control" name="start_time" id="start_time" />
-              </div>
-              <div class="form-group">
-                <label>End Date</label>
-                <input type="date" class="form-control" name="end_date" id="end_date" />
-              </div>
-              <div class="form-group">
-                <label>End Time</label>
-                <input type="time" class="form-control" name="end_time" id="end_time" />
-              </div>
-              <div class="form-group">
-                <label>Description</label>
-              </div>
-              <div class="form-group">
-                <textarea class="event-textarea" name="description" id="description" />
-              </div>
-              </div>;
-    $form->appendChild($formChildren);
-    $form->appendChild(
-      <input type="hidden" name="event_mutator" />
-    );
-    $form->appendChild(
-      <input type="hidden" name="method" id="method"/>
-    );
-    $form->appendChild(
-      <input type="hidden" name="id" id="id"/>
-    );
-    $form->appendChild(
-      <input type="hidden" name="type" id="type"/>
-    );
     return
       <div class="modal fade" id="eventMutator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -261,7 +196,44 @@ class EventsListController extends BaseController {
               <h3 class="modal-title" id="eventName" />
             </div>
             <div class="modal-body">
-              {$form}
+              <form action={self::getPath()} method="post">
+                <div>
+                  <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" name="name" id="name" />
+                  </div>
+                  <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" class="form-control" name="location" id="location" />
+                  </div>
+                  <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" class="form-control" name="start_date" id="start_date" />
+                  </div>
+                  <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="time" class="form-control" name="start_time" id="start_time" />
+                  </div>
+                  <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" class="form-control" name="end_date" id="end_date" />
+                  </div>
+                  <div class="form-group">
+                    <label>End Time</label>
+                    <input type="time" class="form-control" name="end_time" id="end_time" />
+                  </div>
+                  <div class="form-group">
+                    <label>Description</label>
+                  </div>
+                  <div class="form-group">
+                    <textarea class="event-textarea" name="description" id="description" />
+                  </div>
+                </div>
+                <input type="hidden" name="event_mutator" />
+                <input type="hidden" name="method" id="method"/>
+                <input type="hidden" name="id" id="id"/>
+                <input type="hidden" name="type" id="type"/>
+              </form>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -312,36 +284,33 @@ class EventsListController extends BaseController {
         Flash::set('success', 'Event created successfully');
         $createdEventID = Event::loadRecentCreated()->getID();
 
-        if($_POST['type'] == EventType::GeneralMeeting) {
-          $queryRole = DB::query("SELECT * FROM users WHERE member_status=%s OR member_status=%s", UserState::Member, UserState::Pledge);
-          foreach($queryRole as $row) {
-            AttendanceMutator::create()
-            ->setUserID((int) $row['id'])
-            ->setEventID((int) $createdEventID)
-            ->setStatus(AttendanceState::NotPresent)
-            ->save();
-          }
-        } elseif($_POST['type'] == EventType::OfficerMeeting) {
-          $queryRole = DB::query("SELECT * FROM roles WHERE role=%s", 'officer');
-          foreach($queryRole as $row) {
-            AttendanceMutator::create()
-            ->setUserID((int) $row['user_id'])
-            ->setEventID((int) $createdEventID)
-            ->setStatus(AttendanceState::NotPresent)
-            ->save();
-          }
-        } elseif($_POST['type'] == EventType::PledgeMeeting) {
-          $queryRole = DB::query("SELECT * FROM users WHERE member_status=%s", UserState::Pledge);
-          error_log("Dope pledgemeeting");
-          error_log(serialize($queryRole));
-          foreach($queryRole as $row) {
-            AttendanceMutator::create()
-            ->setUserID((int) $row['id'])
-            ->setEventID((int) $createdEventID)
-            ->setStatus(AttendanceState::NotPresent)
-            ->save();
-          }
+        $userList = array();
+
+        switch ($_POST['type']) {
+          case EventType::GeneralMeeting:
+            $userList = User::loadStatus(Vector {
+              UserState::Pledge,
+              UserState::Member
+            });
+            break;
+          case EventType::PledgeMeeting:
+            $userList = User::loadStatus(Vector {
+              UserState::Pledge
+            });
+            break;
+          case EventType::OfficerMeeting:
+            $userList = User::loadRole(UserRoleEnum::Officer);
+            break;
         }
+
+        foreach($userList as $user) {
+            AttendanceMutator::create()
+            ->setUserID((int) $user->getID())
+            ->setEventID((int) $createdEventID)
+            ->setStatus(AttendanceState::NotPresent)
+            ->save();
+        }
+
       } elseif($_POST['method'] == 'update') {
           EventMutator::update((int) $_POST['id'])
           ->setName($_POST['name'])

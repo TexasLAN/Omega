@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<e28bea07666f62576d008bb8c5a0f8a1>>
+ * @generated SignedSource<<c15ca9b9a7a449392149f8f8e4c244d2>>
  */
 
 final class URIMap {
@@ -11,13 +11,13 @@ final class URIMap {
     return Map {
       '/' => 'FrontpageController',
       '/apply' => 'ApplyController',
-      '/dashboard' => 'DashboardController',
-      '/events/' => 'EventsListController',
-      '/events/(?<id>\\d+)' => 'EventDetailsController',
+      '/event' => 'EventsListController',
+      '/event/(?<id>\\d+)' => 'EventDetailsController',
       '/feedback' => 'FeedbackListController',
       '/feedback/(?<id>\\d+)' => 'FeedbackSingleController',
       '/login' => 'LoginController',
       '/members' => 'MembersController',
+      '/members/(?<id>\\d+)' => 'MemberProfileController',
       '/notify' => 'NotifyController',
       '/notify/log' => 'NotifyLogController',
       '/review' => 'ReviewListController',

@@ -9,6 +9,7 @@ class NotifyLogController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
+        UserState::Pledge,
         UserState::Member
         });
     $newConfig->setTitle('Notify Log');

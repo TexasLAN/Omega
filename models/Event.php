@@ -45,6 +45,10 @@ final class Event {
 
   /* BEGIN MANUAL SECTION Event_footer */
   // Insert additional methods here
+  public function getID(): int {
+    return (int) $this->data['id'];
+  }
+
   public static function strToDatetime(string $date, string $time): DateTime {
     $datetime = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
     if (!$datetime) { // Checks if it is some weird javashit nonsense
@@ -53,20 +57,32 @@ final class Event {
     return $datetime;
   }
 
-  public static function datetimeToStr(DateTime $date): string {
+  private static function datetimeToStr(DateTime $date): string {
     return $date->format('n/j/Y \@ g:i A');
   }
 
+  public function getStartDateStr(): string {
+    return self::datetimeToStr($this->getStartDate());
+  }
+
+  public function getEndDateStr(): string {
+    return self::datetimeToStr($this->getEndDate());
+  }
+
   // Converts the datetime to a javascript standard for the event modal
-  public static function datetimeToWeb(DateTime $date): string {
+  private static function datetimeToWeb(DateTime $date): string {
     $result = $date->format('Y-m-d@H:i:s');
     // The 'T' means some date format thing so use @ as workaround
     $result = ereg_replace('@', 'T', $result);
     return $result;
   }
 
-  public function getID(): int {
-    return (int) $this->data['id'];
+  public function getStartDateWeb(): string {
+    return self::datetimeToWeb($this->getStartDate());
+  }
+
+  public function getEndDateWeb(): string {
+    return self::datetimeToWeb($this->getEndDate());
   }
 
   public static function loadRecentCreated(): Event {

@@ -21,7 +21,7 @@ final class :omega:event-list extends :x:element {
         <tr>
           <td>{$event->getName()}</td>
           <td>{$event->getLocation()}</td>
-          <td>{Event::datetimeToStr($event->getStartDate())}</td>
+          <td>{$event->getStartDateStr()}</td>
         </tr>
       );
     }

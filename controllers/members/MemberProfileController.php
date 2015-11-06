@@ -1,8 +1,11 @@
 <?hh
 
-class DashboardController extends BaseController {
+class MemberProfileController extends BaseController {
+  public static function getPrePath(): string {
+    return '/members/';
+  }
   public static function getPath(): string {
-    return '/dashboard';
+    return self::getPrePath() . '(?<id>\d+)';
   }
 
   public static function getConfig(): ControllerConfig {
@@ -10,6 +13,7 @@ class DashboardController extends BaseController {
     $newConfig->setUserState(
       Vector {
         UserState::Applicant,
+        UserState::Candidate,
         UserState::Pledge,
         UserState::Member,
         UserState::Disabled,
@@ -22,18 +26,41 @@ class DashboardController extends BaseController {
 
   public static function get(): :xhp {
     $user = Session::getUser();
+    $profile_user_id = (int)$_SESSION['route_params']['id'];
+    $profile_user = User::load($profile_user_id);
+    // Check if valid profile_user
+    if(!$profile_user) {
+      Flash::set('error', 'Invalid User ID');
+      Route::redirect(MemberProfileController::getPrePath() . $user->getID());
+      invariant(false, "Unreachable");
+    }
+    // Check if valid user to view profile page
+    if(!($profile_user->getID() == $user->getID() ||
+     ($user->validateRole(UserRoleEnum::Admin) || ($user->getUserState() == UserState::Member && $profile_user->getUserState() == UserState::Disabled)))) {
+      Flash::set('error', 'You do not have permission to view this page');
+      Route::redirect(MemberProfileController::getPrePath() . $user->getID());
+      invariant(false, "Unreachable");
+    }
 
-    $email_hash = md5(strtolower(trim($user->getEmail())));
+    $email_hash = md5(strtolower(trim($profile_user->getEmail())));
     $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=300';
+
+    $gravatar_change = 
+    <div class="caption">
+      <p><a href="https://en.gravatar.com/emails/" class="wide btn btn-primary" role="button">Change on Gravatar</a></p>
+    </div>;
+    if($user->getID() != $profile_user_id) {
+      $gravatar_change = <div/>;
+    }
 
     $badges = <p />;
     $badges->appendChild(
-      <span class="label label-warning">{ucwords($user->getUserStateStr())}</span>
+      <span class="label label-warning">{ucwords($profile_user->getUserStateStr())}</span>
     );
 
     $applicant_info = null;
-    if($user->getUserState() == UserState::Applicant) {
-      $application = Application::genByUser($user);
+    if($profile_user->getID() == $user->getID() && $profile_user->getUserState() == UserState::Applicant) {
+      $application = Application::genByUser($profile_user);
       if(!$application->isStarted() && !$application->isSubmitted()) {
         $status = <a href="/apply" class="btn btn-primary btn-lg wide">Start Application</a>;
       } elseif($application->isStarted() && !$application->isSubmitted()) {
@@ -48,7 +75,7 @@ class DashboardController extends BaseController {
     }
 
     $events = null;
-    if($user->getUserState() != UserState::Disabled) {
+    if($profile_user->getUserState() != UserState::Disabled) {
       $events = Event::loadFuture();
       if(!empty($events)) {
         $events =
@@ -63,7 +90,7 @@ class DashboardController extends BaseController {
       }
     }
 
-    $roles = $user->getRoles();
+    $roles = $profile_user->getRoles();
     foreach($roles as $role) {
       $badges->appendChild(<span class="label label-success">{ucwords($role)}</span>);
     }
@@ -75,14 +102,12 @@ class DashboardController extends BaseController {
             <div class="col-md-3">
               <div class="thumbnail">
                 <img src={$gravatar_url} class="img-thumbnail" />
-                <div class="caption">
-                  <p><a href="https://en.gravatar.com/emails/" class="wide btn btn-primary" role="button">Change on Gravatar</a></p>
-                </div>
+                {$gravatar_change}
               </div>
             </div>
             <div class="col-md-9">
-              <h1>{$user->getFirstName() . ' ' . $user->getLastName()}</h1>
-              <p>{$user->getEmail()}</p>
+              <h1>{$profile_user->getFirstName() . ' ' . $profile_user->getLastName()}</h1>
+              <p>{$profile_user->getEmail()}</p>
               {$badges}
             </div>
           </div>
