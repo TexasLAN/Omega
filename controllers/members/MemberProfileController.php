@@ -36,7 +36,7 @@ class MemberProfileController extends BaseController {
     }
     // Check if valid user to view profile page
     if(!($profile_user->getID() == $user->getID() ||
-     ($user->validateRole(UserRoleEnum::Admin) || ($user->getUserState() == UserState::Member && $profile_user->getUserState() == UserState::Disabled)))) {
+     ($user->validateRole(UserRoleEnum::Admin) || ($user->getState() == UserState::Member && $profile_user->getState() == UserState::Disabled)))) {
       Flash::set('error', 'You do not have permission to view this page');
       Route::redirect(MemberProfileController::getPrePath() . $user->getID());
       invariant(false, "Unreachable");
@@ -55,12 +55,12 @@ class MemberProfileController extends BaseController {
 
     $badges = <p />;
     $badges->appendChild(
-      <span class="label label-warning">{ucwords($profile_user->getUserStateStr())}</span>
+      <span class="label label-warning">{ucwords($profile_user->getStateStr())}</span>
     );
 
     $applicant_info = null;
-    if($profile_user->getID() == $user->getID() && $profile_user->getUserState() == UserState::Applicant) {
-      $application = Application::genByUser($profile_user);
+    if($profile_user->getID() == $user->getID() && $profile_user->getState() == UserState::Applicant) {
+      $application = Application::loadByUser($profile_user->getID());
       if(!$application->isStarted() && !$application->isSubmitted()) {
         $status = <a href="/apply" class="btn btn-primary btn-lg wide">Start Application</a>;
       } elseif($application->isStarted() && !$application->isSubmitted()) {
@@ -75,7 +75,7 @@ class MemberProfileController extends BaseController {
     }
 
     $events = null;
-    if($profile_user->getUserState() != UserState::Disabled) {
+    if($profile_user->getState() != UserState::Disabled) {
       $events = Event::loadFuture();
       if(!empty($events)) {
         $events =

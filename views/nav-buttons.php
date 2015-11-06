@@ -15,7 +15,7 @@ final class :omega:nav-buttons extends :x:element {
       </ul>;
 
     // Application Screen
-    if($user->getUserState() == UserState::Applicant) {
+    if($user->getState() == UserState::Applicant) {
       $nav_buttons->appendChild(
         <li class={$controller === 'ApplyController' ? 'active' : ''}>
           <a href={ApplyController::getPath()}>Apply</a>
@@ -24,7 +24,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Member List
-    if($user->getUserState() == UserState::Member) {
+    if($user->getState() == UserState::Member) {
       $nav_buttons->appendChild(
         <li class={$controller === 'MembersController' ? 'active' : ''}>
           <a href={MembersController::getPath()}>Members</a>
@@ -33,7 +33,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Feedback List
-    if($user->getUserState() == UserState::Member) {
+    if($user->getState() == UserState::Member) {
       $nav_buttons->appendChild(
         <li class={($controller === 'FeedbackListController' || $controller === 'FeedbackSingleController') ? 'active' : ''}>
           <a href={FeedbackListController::getPath()}>Applicant Feedback</a>
@@ -51,7 +51,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Events
-    if($user->getUserState() == UserState::Pledge || $user->getUserState() == UserState::Member) {
+    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Member) {
       $nav_buttons->appendChild(
         <li class={($controller === 'EventsListController' || $controller === 'EventDetailsController') ? 'active' : ''}>
           <a href={EventsListController::getPath()}>Events</a>
@@ -60,7 +60,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Notify Log
-    if($user->getUserState() == UserState::Pledge || $user->getUserState() == UserState::Member) {
+    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Member) {
       $nav_buttons->appendChild(
         <li class={($controller === 'NotifyLogController' || $controller === 'NotifyLogController') ? 'active' : ''}>
           <a href={NotifyLogController::getPath()}>Notification Logs</a>

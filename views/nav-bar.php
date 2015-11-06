@@ -9,7 +9,7 @@ final class :omega:nav-bar extends :x:element {
 
     $nav_buttons = null;
     $login = <li><a href="/login">Login</a></li>;
-    if($user && $user->getUserState() != UserState::Disabled) {
+    if($user && $user->getState() != UserState::Disabled) {
       $nav_buttons = <omega:nav-buttons user={$user} controller={$controller} />;
 
       # Logout dropdown

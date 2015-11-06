@@ -3,7 +3,6 @@
 class UserSchema implements ModelSchema {
   public function getFields(): Map<string, ModelField> {
     return Map {
-      'ID' => ModelField::int_field('id'),
       'Email' => ModelField::string_field('email'),
       'FirstName' => ModelField::string_field('fname'),
       'LastName' => ModelField::string_field('lname'),

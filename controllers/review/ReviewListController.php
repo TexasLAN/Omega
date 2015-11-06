@@ -37,37 +37,33 @@ class ReviewListController extends BaseController {
     );
 
     // Loop through all the applications that are submitted
-    $query = DB::query("SELECT * FROM applications WHERE status=2");
+    $applicationList = Application::loadState(ApplicationState::Submitted);
     $table_body = <tbody class="list" />;
-    foreach($query as $row) {
+    foreach($applicationList as $row_app) {
       // Get the user the application belongs to
-      $user = User::load((int) $row['user_id']);
+      $user = User::load($row_app->getUserID());
 
       // Skip the user if they're no longer an applicant or candidate
       if(!$user->isReviewable()) {
         continue;
       }
 
-      $query = DB::queryFirstRow("SELECT COUNT(*) FROM reviews WHERE application_id=%s", $row['id']);
-      $count = $query['COUNT(*)'];
-
-      // Get the average rating
-      $query = DB::queryFirstRow("SELECT AVG(rating) FROM reviews WHERE application_id=%s", $row['id']);
-      $avg_rating = number_format($query['AVG(rating)'], 2);
+      $count = Review::getAppCount($row_app->getID());
+      $avg_rating = Review::getAvgRating($row_app->getID());
 
       // Get the current user's review
-      DB::query("SELECT * FROM reviews WHERE user_id=%s AND application_id=%s", Session::getUser()->getID(), $row['id']);
+      $cur_app = Review::loadByUserAndApp(Session::getUser()->getID(), $row_app->getID());
 
       // Append the applicant to the table as a new row
       $table_body->appendChild(
-        <tr id={$row['id']}>
-          <td>{$row['id']}</td>
+        <tr id={(string) $row_app->getID()}>
+          <td>{(string) $row_app->getID()}</td>
           <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
           <td class="email">{$user->getEmail()}</td>
           <td class="text-center">{$count}</td>
           <td class="text-center">{$avg_rating}</td>
-          <td class="text-center"><a href={'/review/' . $row['id']} class="btn btn-primary">Review</a></td>
-          <td>{DB::count() != 0 ? "✔" : ""}</td>
+          <td class="text-center"><a href={'/review/' . $row_app->getID()} class="btn btn-primary">Review</a></td>
+          <td>{!is_null($cur_app) ? "✔" : ""}</td>
         </tr>
       );
     }

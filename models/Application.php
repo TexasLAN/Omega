@@ -1,157 +1,96 @@
 <?hh
+/**
+ * This file is partially generated. Only make modifications between BEGIN
+ * MANUAL SECTION and END MANUAL SECTION designators.
+ *
+ * @partially-generated SignedSource<<9bd80728877a1313dd17edd36f04ca3c>>
+ */
 
-class Application {
+final class Application {
 
-  private int $id = 0;
-  private int $user_id = 0;
-  private string $gender = '';
-  private string $year = '';
-  private string $q1 = '';
-  private string $q2 = '';
-  private string $q3 = '';
-  private string $q4 = '';
-  private string $q5 = '';
-  private string $q6 = '';
-  private int $status = 0;
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
-  public static function upsert(
-    $user_id,
-    $gender,
-    $year,
-    $q1,
-    $q2,
-    $q3,
-    $q4,
-    $q5,
-    $q6
-  ): Application {
-    # Make sure the user doesn't already have an application active
-    $query = DB::query("SELECT * FROM applications WHERE user_id=%s", $user_id);
-
-    if(DB::count() != 0) {
-      # The user has submitted their app, don't allow them to update
-      if($query['submitted']) {
-        Flash::set('error', 'You have already submitted an application');
-        Route::redirect('/dashboard');
-      }
-
-      # An application exists, just update it
-      $paramData = Map {
-        'gender' => $gender,
-        'year' => $year,
-        'q1' => $q1,
-        'q2' => $q2,
-        'q3' => $q3,
-        'q4' => $q4,
-        'q5' => $q5,
-        'q6' => $q6
-      };
-      DB::update('applications', $paramData->toArray(), 'user_id=%s', $user_id);
-    } else {
-      # Insert the application
-      $paramData = Map {
-        'user_id' => $user_id,
-        'gender' => $gender,
-        'year' => $year,
-        'q1' => $q1,
-        'q2' => $q2,
-        'q3' => $q3,
-        'q4' => $q4,
-        'q5' => $q5,
-        'q6' => $q6,
-        'status' => 1
-      };
-      DB::insert('applications', $paramData->toArray());
+  public static function load(int $id): ?Application {
+    $result = DB::queryFirstRow("SELECT * FROM applications WHERE id=%s", $id);
+    if (!$result) {
+      return null;
     }
-
-    $query = DB::queryFirstRow("SELECT * FROM applications WHERE user_id=%s", $user_id);
-    return self::createFromQuery($query);
+    return new Application(new Map($result));
   }
 
-  public function submit(): void {
-    $paramData = Map {
-      'status' => 2
-    };
-    DB::update('applications', $paramData->toArray(), 'id=%s', $this->id);
+  public function getGender(): string {
+    return (string) $this->data['gender'];
   }
 
-  public function getID(): int {
-    return (int)$this->id;
+  public function getYear(): string {
+    return (string) $this->data['year'];
+  }
+
+  public function getQuestion1(): string {
+    return (string) $this->data['q1'];
+  }
+
+  public function getQuestion2(): string {
+    return (string) $this->data['q2'];
+  }
+
+  public function getQuestion3(): string {
+    return (string) $this->data['q3'];
+  }
+
+  public function getQuestion4(): string {
+    return (string) $this->data['q4'];
+  }
+
+  public function getQuestion5(): string {
+    return (string) $this->data['q5'];
+  }
+
+  public function getQuestion6(): string {
+    return (string) $this->data['q6'];
   }
 
   public function getUserID(): int {
-    return (int)$this->user_id;
+    return (int) $this->data['user_id'];
   }
 
-  public function getGender(): ?string {
-    return isset($this->gender) ? $this->gender : null;
+  public function getStatus(): int {
+    return (int) $this->data['status'];
   }
 
-  public function getYear(): ?string {
-    return isset($this->year) ? $this->year : null;
+  /* BEGIN MANUAL SECTION Application_footer */
+  public function getID(): int {
+    return (int) $this->data['id'];
   }
 
-  public function getQ1(): ?string {
-    return isset($this->q1) ? $this->q1 : null;
+  public static function loadByUser(int $user_id): Application {
+    $result = DB::queryFirstRow("SELECT * FROM applications WHERE user_id=%s", $user_id);
+
+    return new Application(new Map($result));
   }
 
-  public function getQ2(): ?string {
-    return isset($this->q2) ? $this->q2 : null;
+  public static function loadState(ApplicationState $state): array<Application> {
+
+    $query = DB::query("SELECT * FROM applications WHERE status=%s", $state);
+    if(!$query) {
+      return array();
+    }
+    return array_map(function($value) {
+      return new Application(new Map($value));
+    }, $query);
   }
 
-  public function getQ3(): ?string {
-    return isset($this->q3) ? $this->q3 : null;
-  }
-
-  public function getQ4(): ?string {
-    return isset($this->q4) ? $this->q4 : null;
-  }
-
-  public function getQ5(): ?string {
-    return isset($this->q5) ? $this->q5 : null;
-  }
-
-  public function getQ6(): ?string {
-    return isset($this->q6) ? $this->q6 : null;
+  public function getAppState(): ApplicationState {
+    return ApplicationState::assert($this->getStatus());
   }
 
   public function isStarted(): bool {
-    return $this->status == 1;
+    return $this->getAppState() == ApplicationState::Started;
   }
 
   public function isSubmitted(): bool {
-    return $this->status == 2;
+    return $this->getAppState() == ApplicationState::Submitted;
   }
-
-  public static function genByUser(User $user): Application {
-    return self::constructFromQuery('user_id', $user->getID());
-  }
-
-  public static function genByID(int $app_id): Application {
-    return self::constructFromQuery('id', $app_id);
-  }
-
-  private static function constructFromQuery($field, $query): Application {
-    $query = DB::queryFirstRow("SELECT * FROM applications WHERE " . $field . "=%s", $query);
-    if($query === null) {
-      return new Application();
-    }
-    return self::createFromQuery($query);
-  }
-
-  private static function createFromQuery(array $query): Application {
-    $application = new Application();
-    $application->id = $query['id'];
-    $application->user_id = $query['user_id'];
-    $application->gender = $query['gender'];
-    $application->year = $query['year'];
-    $application->q1 = $query['q1'];
-    $application->q2 = $query['q2'];
-    $application->q3 = $query['q3'];
-    $application->q4 = $query['q4'];
-    $application->q5 = $query['q5'];
-    $application->q6 = $query['q6'];
-    $application->status = $query['status'];
-    return $application;
-  }
+  /* END MANUAL SECTION */
 }

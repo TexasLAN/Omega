@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<33824bb95d4d84a8e445359a2f36d0df>>
+ * @partially-generated SignedSource<<138667f69888656efbb3185d9d395b52>>
  */
 
 final class User {
@@ -17,10 +17,6 @@ final class User {
       return null;
     }
     return new User(new Map($result));
-  }
-
-  public function getID(): int {
-    return (int) $this->data['id'];
   }
 
   public function getEmail(): string {
@@ -52,6 +48,9 @@ final class User {
   }
 
   /* BEGIN MANUAL SECTION User_footer */
+  public function getID(): int {
+    return (int) $this->data['id'];
+  }
   /*
     Loads the User obj from a string username
     Returns a user obj with the username or null if it doesnt exist.
@@ -92,7 +91,7 @@ final class User {
     Loads a list of users that match a vector of states.
     Returns a list of users, or null if there is none that match the user states.
    */
-  public static function loadStatus(Vector<UserState> $states): array<User> {
+  public static function loadStates(Vector<UserState> $states): array<User> {
     $whereMsg = '';
     $delim = '';
     foreach($states as $state) {
@@ -141,22 +140,22 @@ final class User {
   /*
     Gets the UserState Enum in order to validate that it maps to a enum value
    */
-  public function getUserState(): UserState {
+  public function getState(): UserState {
     return UserState::assert($this->getMemberStatus());
   }
 
   /*
     Gets the UserState Enum in order to validate that it maps to a enum value and returns the string of it
    */
-  public function getUserStateStr(): string {
-    return UserState::getNames()[UserState::assert($this->getUserState())];
+  public function getStateStr(): string {
+    return UserState::getNames()[UserState::assert($this->getState())];
   }
 
   /*
     Checks the status and sees if it is reviewable(applicant/candidate) or not
    */
   public function isReviewable(): bool {
-    return ($this->getUserState() == UserState::Applicant || $this->getUserState() == UserState::Candidate);
+    return ($this->getState() == UserState::Applicant || $this->getState() == UserState::Candidate);
   }
   /* END MANUAL SECTION */
 }

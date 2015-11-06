@@ -28,21 +28,24 @@ class FeedbackListController extends BaseController {
     );
 
     // Loop through all the applications that are submitted
-    $query = DB::query("SELECT * FROM users WHERE member_status=%s OR member_status=%s", UserState::Applicant, UserState::Candidate);
+    $userList = User::loadStates(Vector {
+              UserState::Applicant,
+              UserState::Candidate
+            });
     $table_body = <tbody class="list" />;
-    foreach($query as $row) {
+    foreach($userList as $cur_user) {
       // Get the user the application belongs to
-      $user = User::load((int)$row['id']);
+      $user = User::load((int)$cur_user->getID());
 
       // Get the current user's review
-      $feedback = Feedback::gen($row['id'], Session::getUser()->getID());
+      $feedback = Feedback::loadByUserAndReviewer($cur_user->getID(), Session::getUser()->getID());
 
       // Append the applicant to the table as a new row
       $table_body->appendChild(
-        <tr id={$row['id']}>
+        <tr id={(string) $cur_user->getID()}>
           <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
-          <td><a href={'/feedback/' . $row['id']} class="btn btn-primary">Review</a></td>
-          <td>{$feedback->getComments() != '' ? "✔" : ""}</td>
+          <td><a href={'/feedback/' . $cur_user->getID()} class="btn btn-primary">Review</a></td>
+          <td>{!is_null($feedback) ? "✔" : ""}</td>
         </tr>
       );
     }

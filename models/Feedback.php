@@ -1,43 +1,54 @@
 <?hh
+/**
+ * This file is partially generated. Only make modifications between BEGIN
+ * MANUAL SECTION and END MANUAL SECTION designators.
+ *
+ * @partially-generated SignedSource<<066cebac12f1145ca8da75344f9def96>>
+ */
 
-class Feedback {
+final class Feedback {
 
-  private string $comments = '';
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
-  public static function upsert(
-    string $comments,
-    int $user_id,
-    int $reviewer_id
-  ): void {
-    DB::query("SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s", $user_id, $reviewer_id);
-
-    if(DB::count() != 0) {
-      $paramData = Map {
-        'comments' => $comments
-      };
-      DB::update('feedback', $paramData->toArray(), 'user_id=%s AND reviewer_id=%s', $user_id, $reviewer_id);
-    } else {
-      $paramData = Map {
-        'comments' => $comments,
-        'user_id' => $user_id,
-        'reviewer_id' => $reviewer_id
-      };
-      DB::insert('feedback', $paramData->toArray());
+  public static function load(int $id): ?Feedback {
+    $result = DB::queryFirstRow("SELECT * FROM feedback WHERE =%s", $id);
+    if (!$result) {
+      return null;
     }
+    return new Feedback(new Map($result));
   }
 
   public function getComments(): string {
-    return $this->comments;
+    return (string) $this->data['comments'];
   }
 
-  public function gen($user_id, $reviewer_id): Feedback {
-    $query = DB::queryFirstRow("SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s", $user_id, $reviewer_id);
-    if(!$query) {
-      return new Feedback();
+  public function getUserID(): int {
+    return (int) $this->data['user_id'];
+  }
+
+  public function getReviewerID(): int {
+    return (int) $this->data['reviewer_id'];
+  }
+
+  /* BEGIN MANUAL SECTION Feedback_footer */
+  // Insert additional methods here
+  public static function loadByUserAndReviewer(int $user_id, int $reviewer_id): ?Feedback {
+    $result = DB::queryFirstRow("SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s", $user_id, $reviewer_id);
+    if (!$result) {
+      return null;
     }
-
-    $feedback = new Feedback();
-    $feedback->comments = $query['comments'];
-    return $feedback;
+    return new Feedback(new Map($result));
   }
+
+  public static function loadByUser(int $user_id): array<Feedback> {
+    $query = DB::query("SELECT * FROM feedback WHERE user_id=%s", $user_id);
+    if(!$query) {
+      return array();
+    }
+    return array_map(function($value) {
+      return new Feedback(new Map($value));
+    }, $query);
+  }
+  /* END MANUAL SECTION */
 }

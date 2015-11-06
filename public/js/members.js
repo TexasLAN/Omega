@@ -65,7 +65,9 @@ $('head').append('<link rel="stylesheet" type="text/css" href="/css/bootstrap-so
 
 
 new Clipboard('#alum .btn-clipboard');
-new Clipboard('#members .btn-clipboard');
+new Clipboard('#candidate .btn-clipboard');
+new Clipboard('#disabled .btn-clipboard');
+new Clipboard('#member .btn-clipboard');
 new Clipboard('#inactive .btn-clipboard');
-new Clipboard('#pledges .btn-clipboard');
-new Clipboard('#applicants .btn-clipboard');
+new Clipboard('#pledge .btn-clipboard');
+new Clipboard('#applicant .btn-clipboard');

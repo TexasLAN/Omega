@@ -24,7 +24,7 @@ class EventDetailsController extends BaseController {
 
   private static function validateActions(Event $event, User $user): bool {
     $curDatetime = new DateTime(date('Y-m-d H:i'));
-    return $event->getEndDate() < $curDatetime || !($user->validateRole(UserRoleEnum::Officer) || $user->validateRole(UserRoleEnum::Admin));
+    return $event->getEndDate() >= $curDatetime && ($user->validateRole(UserRoleEnum::Officer) || $user->validateRole(UserRoleEnum::Admin));
   }
 
   public static function get(): :xhp {
@@ -48,27 +48,27 @@ class EventDetailsController extends BaseController {
 
 
     $action_url = self::getPrePath() . $event->getID();
+    $actionPanel = <div/>;
 
-    $actionPanel = 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h1 class="panel-title">Actions</h1>
-      </div>
-      <div class="panel-body">
-        <form method="post" action={$action_url}>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="text" class="form-control" name="email" />
+    if(self::validateActions($event, $user)) {
+      $actionPanel = 
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h1 class="panel-title">Actions</h1>
           </div>
-          <button name="add_email" class="btn btn-primary" type="submit">
-            Add email
-          </button>
-          <input type="hidden" name="event_id" value={(string) $event->getID()}/>
-        </form>
-      </div>
-    </div>;
-    if(self::validateActions($event, $user)) { // Shouldnt change the values if the event is already over or if they dont have the permissions to
-        $actionPanel = <p/>;
+          <div class="panel-body">
+            <form method="post" action={$action_url}>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="text" class="form-control" name="email" />
+              </div>
+              <button name="add_email" class="btn btn-primary" type="submit">
+                Add email
+              </button>
+              <input type="hidden" name="event_id" value={(string) $event->getID()}/>
+            </form>
+          </div>
+        </div>;
       }
 
     $table = <table class="table table-bordered table-striped sortable" />;
@@ -88,23 +88,25 @@ class EventDetailsController extends BaseController {
     foreach($attendances as $attendance) {
       $load_user = User::load($attendance->getUserID());
       invariant($load_user !== null, "Invalid user");
-      $actions = <form class="btn-toolbar" method="post" action={$action_url}>
-                  <button name="change_status" class="btn btn-primary" value={(string) $attendance->getStatus()} type="submit">
-                    Change Status
-                  </button>
-                  <button name="delete" class="btn btn-danger" value={(string) $load_user->getID()} type="submit">
-                    Delete
-                  </button>
-                  <input type="hidden" name="user_id" value={(string) $load_user->getID()}/>
-                  <input type="hidden" name="event_id" value={(string) $event->getID()}/>
-                </form>;
+      $actions = <div/>;
       if(self::validateActions($event, $user)) { // Shouldnt change the values if the event is already over
-        $actions = <p/>;
+        $actions = 
+          <form class="btn-toolbar" method="post" action={$action_url}>
+            <button name="change_status" class="btn btn-primary" value={(string) $attendance->getStatus()} type="submit">
+              Change Status
+            </button>
+            <button name="delete" class="btn btn-danger" value={(string) $load_user->getID()} type="submit">
+              Delete
+            </button>
+            <input type="hidden" name="user_id" value={(string) $load_user->getID()}/>
+            <input type="hidden" name="event_id" value={(string) $event->getID()}/>
+          </form>;
       }
+      
       $table_body->appendChild(
         <tr>
           <td>{$load_user->getFirstName() . ' ' . $load_user->getLastName()}</td>
-          <td>{$load_user->getUserStateStr()}</td>
+          <td>{$load_user->getStateStr()}</td>
           <td>{($attendance->getStatus() == AttendanceState::Present) ? 'Present' : 'Not Present'}</td>
           <td>
             {$actions}

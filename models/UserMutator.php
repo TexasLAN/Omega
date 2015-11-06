@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<c389f62ad8f10ed1ca2243e2ef969935>>
+ * @partially-generated SignedSource<<0ce48333592a3ab60e575676dfb93c93>>
  */
 
 final class UserMutator {
@@ -40,7 +40,6 @@ final class UserMutator {
 
   public function checkRequiredFields(): void {
     $required = Set {
-      'id',
       'email',
       'fname',
       'lname',
@@ -53,11 +52,6 @@ final class UserMutator {
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),
     );
-  }
-
-  public function setID(int $value): this {
-    $this->data["id"] = $value;
-    return $this;
   }
 
   public function setEmail(string $value): this {
@@ -127,6 +121,17 @@ final class UserMutator {
     };
     DB::insert('users', $paramData->toArray());
     return User::loadUsername($username);
+  }
+
+  public static function deleteByState(UserState $state): void {
+    DB::delete("users", "member_status=%s", $state);
+  }
+
+  public static function disableByState(UserState $state): void {
+    $paramData = Map {
+      'member_status' => UserState::Disabled
+    };
+    DB::update("users", $paramData->toArray(), "member_status=%s", $state);
   }
   /* END MANUAL SECTION */
 }

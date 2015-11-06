@@ -83,7 +83,7 @@ class MembersController extends BaseController {
         }
       }
       
-      $memberContent = self::getMembersByStatus($value);
+      $memberContent = self::getMembersByState($value);
       $contentItem->appendChild($memberContent);
       // If it is disabled only let admins see the tab
       if($value != UserState::Disabled || $user->validateRole(UserRoleEnum::Admin)) {
@@ -106,22 +106,22 @@ class MembersController extends BaseController {
       </div>;
   }
 
-  private static function getMembersByStatus(int $status): :table {
+  private static function getMembersByState(UserState $state): :table {
     $user = Session::getUser();
     $members = <tbody />;
 
     // Loop through all users with the specified status
-    $query = DB::query("SELECT * FROM users WHERE member_status=%s", $status);
-    foreach($query as $row) {
-      $roles = UserRole::getRoles((int)$row['id']);
+    $userList = User::loadStates(Vector {$state});
+    foreach($userList as $row_user) {
+      $roles = UserRole::getRoles((int)$row_user->getID());
       // Generate the action buttons based off the user's role and status
       $buttons = <form class="btn-toolbar" method="post" action="/members" />;
       $buttons->appendChild(
-      <input type="hidden" name="id" value={$row['id']} />
+      <input type="hidden" name="id" value={(string) $row_user->getID()} />
       );
 
       if(self::validateActions($user)) {
-        if($row['member_status'] == UserState::Disabled) {
+        if($row_user->getState() == UserState::Disabled) {
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Applicant} type="submit">
               Enable to Applicant
@@ -134,11 +134,11 @@ class MembersController extends BaseController {
             data-toggle="modal"
             data-target="#deleteConfirm"
             data-type="single"
-            data-id={$row['id']}>
+            data-id={$row_user->getID()}>
             Delete
           </button>
         );
-        } elseif($row['member_status'] == UserState::Applicant) {
+        } elseif($row_user->getState() == UserState::Applicant) {
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Candidate} type="submit">
               Promote to candidate
@@ -151,11 +151,11 @@ class MembersController extends BaseController {
               data-toggle="modal"
               data-target="#disableConfirm"
               data-type="single"
-              data-id={$row['id']}>
+              data-id={$row_user->getID()}>
               Disable
             </button>
           );
-        } elseif ($row['member_status'] == UserState::Candidate) {
+        } elseif ($row_user->getState() == UserState::Candidate) {
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Pledge} type="submit">
               Promote to pledge
@@ -168,11 +168,11 @@ class MembersController extends BaseController {
               data-toggle="modal"
               data-target="#disableConfirm"
               data-type="single"
-              data-id={$row['id']}>
+              data-id={$row_user->getID()}>
               Disable
             </button>
           );
-        } elseif ($row['member_status'] == UserState::Pledge) {
+        } elseif ($row_user->getState() == UserState::Pledge) {
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Member} type="submit">
               Promote to Active
@@ -185,11 +185,11 @@ class MembersController extends BaseController {
               data-toggle="modal"
               data-target="#disableConfirm"
               data-type="single"
-              data-id={$row['id']}>
+              data-id={$row_user->getID()}>
               Disable
             </button>
           );
-        } elseif ($row['member_status'] == UserState::Inactive) {
+        } elseif ($row_user->getState() == UserState::Inactive) {
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Alum} type="submit">
               Promote to Alum
@@ -207,11 +207,11 @@ class MembersController extends BaseController {
               data-toggle="modal"
               data-target="#disableConfirm"
               data-type="single"
-              data-id={$row['id']}>
+              data-id={$row_user->getID()}>
               Disable
             </button>
           );
-        } elseif ($row['member_status'] == UserState::Member){
+        } elseif ($row_user->getState() == UserState::Member){
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Alum} type="submit">
               Promote to Alum
@@ -229,7 +229,7 @@ class MembersController extends BaseController {
               data-toggle="modal"
               data-target="#disableConfirm"
               data-type="single"
-              data-id={$row['id']}>
+              data-id={$row_user->getID()}>
               Disable
             </button>
           );
@@ -239,8 +239,8 @@ class MembersController extends BaseController {
               class="btn btn-primary"
               data-toggle="modal"
               data-target="#editRoles"
-              data-id={$row['id']}
-              data-name={$row['fname'] . ' ' . $row['lname']}
+              data-id={$row_user->getID()}
+              data-name={$row_user->getFirstName() . ' ' . $row_user->getLastName()}
               data-roles={json_encode($roles)}>
               Edit Roles
             </button>
@@ -251,8 +251,8 @@ class MembersController extends BaseController {
       // Append the row to the table
       $members->appendChild(
         <tr>
-          <td><a href={MemberProfileController::getPrePath() . $row['id']}>{$row['fname'] . ' ' . $row['lname']}</a></td>
-          <td>{$row['email']}</td>
+          <td><a href={MemberProfileController::getPrePath() . $row_user->getID()}>{$row_user->getFirstName() . ' ' . $row_user->getLastName()}</a></td>
+          <td>{$row_user->getEmail()}</td>
           <td>{$buttons}</td>
         </tr>
       );
@@ -362,15 +362,16 @@ class MembersController extends BaseController {
       </div>;
   }
 
-  private static function getEmailList(int $status): string {
-    $query = DB::query("SELECT * FROM users WHERE member_status=%s", $status);
+  private static function getEmailList(UserState $state): string {
+    $userList = User::loadStates(Vector {$state});
 
     $email_export_str = '';
     $delim = '';
-    foreach($query as $row) {
-      $email_export_str .= $delim . $row['fname'] . ' ' . $row['lname'] . ' <' . $row['email'] . '>';
+    foreach($userList as $row_user) {
+      $email_export_str .= $delim . $row_user->getFirstName() . ' ' . $row_user->getLastName() . ' <' . $row_user->getEmail() . '>';
       $delim = ', ';
     }
+    error_log('getEmailList: \'' . $email_export_str . '\'');
       
     return $email_export_str;
   }
@@ -381,7 +382,8 @@ class MembersController extends BaseController {
       if(isset($_POST['delete_type']) && $_POST['delete_type'] == 'single') {
         UserMutator::delete((int)$_POST['delete_id']);
       } elseif(isset($_POST['delete_type']) && $_POST['delete_type'] == 'state') {
-        DB::delete("users", "member_status=%s", $_POST['delete_id']);
+        $state = UserState::assert($_POST['delete_id']);
+        UserMutator::deleteByState($state);
       }
     } elseif(isset($_POST['disable'])) {
       // Disables a user by by single or by group
@@ -390,10 +392,8 @@ class MembersController extends BaseController {
         ->setMemberStatus(UserState::Disabled)
         ->save();
       } elseif(isset($_POST['disable_type']) && $_POST['disable_type'] == 'state') {
-        $paramData = Map {
-          'member_status' => UserState::Disabled
-        };
-        DB::update("users", $paramData->toArray(), "member_status=%s", $_POST['disable_id']);
+        $state = UserState::assert($_POST['disable_id']);
+        UserMutator::disableByState($state);
       }
     }elseif (isset($_POST['state_change'])) {
       // Makes a member a candidate

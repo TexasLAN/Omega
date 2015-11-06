@@ -25,7 +25,7 @@ class FeedbackSingleController extends BaseController {
     $email_hash = md5(strtolower(trim($user->getEmail())));
     $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=200';
 
-    $feedback = Feedback::gen($user_id, Session::getUser()->getID());
+    $feedback = Feedback::loadByUserAndReviewer($user_id, Session::getUser()->getID());
 
     return
       <div class="col-md-8 col-md-offset-2">
@@ -47,8 +47,8 @@ class FeedbackSingleController extends BaseController {
             <form method="post" action={'/feedback/' . $user_id}>
               <div class="form-group">
                 <label for="review" class="control-label">Comments</label>
-                <textarea class="form-control" rows={5} id="feedback" name="feedback">
-                  {$feedback->getComments()}
+                <textarea class="fixed-textarea form-control" rows={5} id="feedback" name="feedback">
+                  {(!is_null($feedback)) ? $feedback->getComments() : ''}
                 </textarea>
               </div>
               <button type="submit" name="id" value={(string) $user_id} class="btn btn-default">Submit</button>
@@ -60,13 +60,13 @@ class FeedbackSingleController extends BaseController {
 
   public static function post(): void {
     # Upsert the review
-    Feedback::upsert(
+    FeedbackMutator::upsert(
       $_POST['feedback'],
       (int)$_POST['id'],
       Session::getUser()->getID()
     );
 
     Flash::set('success', 'Feedback submitted!');
-    Route::redirect('/feedback#' . $_POST['id']);
+    Route::redirect('/feedback/' . $_POST['id']);
   }
 }

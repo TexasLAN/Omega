@@ -36,6 +36,15 @@ final class NotifyLog {
   }
 
   /* BEGIN MANUAL SECTION NotifyLog_footer */
-  // Insert additional methods here
+  public static function loadAllDesc(): array<NotifyLog> {
+    $query = DB::query("SELECT * FROM notify_log ORDER BY id DESC");
+    
+    if(!$query) {
+      return array();
+    }
+    return array_map(function($value) {
+      return new NotifyLog(new Map($value));
+    }, $query);
+  }
   /* END MANUAL SECTION */
 }

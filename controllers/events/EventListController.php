@@ -24,7 +24,10 @@ class EventsListController extends BaseController {
     $user = Session::getUser();
 
     // Generate a table of all the actions for the event list controller
-    $action_panel = <div class="panel panel-default">
+    $action_panel = <div/>;
+    if(self::validateActions($user)) {
+      $action_panel = 
+        <div class="panel panel-default">
           <div class="panel-heading">
             <h1 class="panel-title">Actions</h1>
           </div>
@@ -70,9 +73,6 @@ class EventsListController extends BaseController {
             </button>
           </div>
         </div>;
-
-    if(!self::validateActions($user)) {
-      $action_panel = <p/>;
     }
 
     // Generate a table of all future events
@@ -89,12 +89,12 @@ class EventsListController extends BaseController {
     $events = Event::loadFuture();
     foreach($events as $event) {
       $stringID = (string) $event->getID();
-      $upcoming_event_actions = <form class="btn-toolbar" method="post" action={EventsListController::getPath()} />;
-      $upcoming_event_actions->appendChild(
-        <a href={EventDetailsController::getPrePath() . $event->getID()} class="btn btn-primary">
-          View Details
-        </a>
-      );
+      $upcoming_event_actions = 
+        <form class="btn-toolbar" method="post" action={EventsListController::getPath()}>
+          <a href={EventDetailsController::getPrePath() . $event->getID()} class="btn btn-primary">
+            View Details
+          </a>
+        </form>;
 
       if(self::validateActions($user)) {
         $upcoming_event_actions->appendChild(
@@ -126,9 +126,7 @@ class EventsListController extends BaseController {
           <td>{$event->getName()}</td>
           <td>{$event->getLocation()}</td>
           <td>{$event->getStartDateStr()}</td>
-          <td>
-            {$upcoming_event_actions}
-          </td>
+          <td>{$upcoming_event_actions}</td>
         </tr>
       );
     }
@@ -226,7 +224,7 @@ class EventsListController extends BaseController {
                     <label>Description</label>
                   </div>
                   <div class="form-group">
-                    <textarea class="event-textarea" name="description" id="description" />
+                    <textarea class="fixed-textarea" name="description" id="description" />
                   </div>
                 </div>
                 <input type="hidden" name="event_mutator" />
@@ -288,13 +286,13 @@ class EventsListController extends BaseController {
 
         switch ($_POST['type']) {
           case EventType::GeneralMeeting:
-            $userList = User::loadStatus(Vector {
+            $userList = User::loadStates(Vector {
               UserState::Pledge,
               UserState::Member
             });
             break;
           case EventType::PledgeMeeting:
-            $userList = User::loadStatus(Vector {
+            $userList = User::loadStates(Vector {
               UserState::Pledge
             });
             break;

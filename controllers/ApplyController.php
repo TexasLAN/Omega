@@ -14,7 +14,7 @@ class ApplyController extends BaseController {
 
   public static function get(): :xhp {
     $user = Session::getUser();
-    $application = Application::genByUser($user);
+    $application = Application::loadByUser($user->getID());
 
     $disabled =
       $application->isSubmitted() || !Settings::get('applications_open');
@@ -65,7 +65,7 @@ class ApplyController extends BaseController {
               <div class="form-group">
                 <label for="q1" class="control-label">Why do you want to rush Lambda Alpha Nu?</label>
                 <textarea class="form-control" rows={3} id="q1" name="q1">
-                  {$application->getQ1()}
+                  {$application->getQuestion1()}
                 </textarea>
               </div>
               <div class="form-group">
@@ -73,7 +73,7 @@ class ApplyController extends BaseController {
                   Talk about yourself in a couple of sentences.
                 </label>
                 <textarea class="form-control" rows={3} id="q2" name="q2">
-                  {$application->getQ2()}
+                  {$application->getQuestion2()}
                 </textarea>
               </div>
               <div class="form-group">
@@ -81,7 +81,7 @@ class ApplyController extends BaseController {
                   What is your major and why did you choose it?
                 </label>
                 <textarea class="form-control" rows={3} id="q3" name="q3">
-                  {$application->getQ3()}
+                  {$application->getQuestion3()}
                 </textarea>
               </div>
               <div class="form-group">
@@ -89,7 +89,7 @@ class ApplyController extends BaseController {
                   What do you do in your spare time?
                 </label>
                 <textarea class="form-control" rows={3} id="q4" name="q4">
-                  {$application->getQ4()}
+                  {$application->getQuestion4()}
                 </textarea>
               </div>
               <div class="form-group">
@@ -97,13 +97,13 @@ class ApplyController extends BaseController {
                   Talk about a current event in technology and why it interests you.
                 </label>
                 <textarea class="form-control" rows={3} id="q5" name="q5">
-                  {$application->getQ5()}
+                  {$application->getQuestion5()}
                 </textarea>
               </div>
               <div class="form-group">
                 <label for="q6" class="control-label">Impress us.</label>
                 <textarea class="form-control" rows={3} id="q6" name="q6">
-                  {$application->getQ6()}
+                  {$application->getQuestion6()}
                 </textarea>
               </div>
               <span class="help-block">All fields are required</span>
@@ -124,7 +124,7 @@ class ApplyController extends BaseController {
     }
 
     $user = Session::getUser();
-    $application = Application::upsert(
+    $application = ApplicationMutator::upsert(
       $user->getID(),
       $_POST['gender'],
       $_POST['year'],
@@ -142,7 +142,9 @@ class ApplyController extends BaseController {
         Flash::set('error', 'All fields are required');
         Route::redirect(ApplyController::getPath());
       }
-      $application->submit();
+      ApplicationMutator::update($application->getID())
+        ->setStatus(ApplicationState::Submitted)
+        ->save();
     }
 
     Route::redirect(ApplyController::getPath());

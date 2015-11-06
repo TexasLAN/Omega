@@ -23,15 +23,15 @@ class ReviewSingleController extends BaseController {
   public static function get(): :xhp {
     $app_id = (int)$_SESSION['route_params']['id'];
 
-    $application = Application::genByID((int)$app_id);
+    $application = Application::load((int)$app_id);
     $user = User::load($application->getUserID());
     if(is_null($user) || !$user->isReviewable()) {
       return FourOhFourController::get();
     }
 
-    $review = AppReview::genByUserAndApp(Session::getUser(), $application);
+    $review = Review::loadByUserAndApp(Session::getUser()->getID(), $application->getID());
 
-    # Admins get special actions like delete and promote
+    // Admins get special actions like delete and promote
     $admin_controls = null;
     if(Session::getUser()->validateRole(UserRoleEnum::Admin)) {
       $admin_controls =
@@ -55,8 +55,7 @@ class ReviewSingleController extends BaseController {
     $email_hash = md5(strtolower(trim($user->getEmail())));
     $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=200';
 
-    $query = DB::queryFirstRow("SELECT AVG(rating) FROM reviews WHERE application_id=%s", $app_id);
-    $avg_rating = number_format($query['AVG(rating)'], 2);
+    $avg_rating = Review::getAvgRating($app_id);
 
     return
       <div class="col-md-8 col-md-offset-2">
@@ -87,22 +86,22 @@ class ReviewSingleController extends BaseController {
           </table>
           <div class="panel-body">
             <h4>Why do you want to rush Lambda Alpha Nu?</h4>
-            <p>{$application->getQ1()}</p>
+            <p>{$application->getQuestion1()}</p>
             <hr/>
             <h4>Talk about yourself in a couple of sentences.</h4>
-            <p>{$application->getQ2()}</p>
+            <p>{$application->getQuestion2()}</p>
             <hr/>
             <h4>What is your major and why did you choose it?</h4>
-            <p>{$application->getQ3()}</p>
+            <p>{$application->getQuestion3()}</p>
             <hr/>
             <h4>What do you do in your spare time?</h4>
-            <p>{$application->getQ4()}</p>
+            <p>{$application->getQuestion4()}</p>
             <hr/>
             <h4>Talk about a current event in technology and why it interests you.</h4>
-            <p>{$application->getQ5()}</p>
+            <p>{$application->getQuestion5()}</p>
             <hr/>
             <h4>Impress us</h4>
-            <p>{$application->getQ6()}</p>
+            <p>{$application->getQuestion6()}</p>
           </div>
         </div>
         {$admin_controls}
@@ -115,33 +114,33 @@ class ReviewSingleController extends BaseController {
               <div class="form-group">
                 <label for="review" class="control-label">Comments</label>
                 <textarea class="form-control" rows={3} id="review" name="review">
-                  {$review->getComments()}
+                  {(is_null($review)) ? '' : $review->getComments()}
                 </textarea>
               </div>
               <div class="form-group">
                 <div class="radio">
                   <label>
-                    <input type="radio" name="weight" value="1" checked={$review->getRating() == 1} /> Strong No
+                    <input type="radio" name="weight" value="1" checked={(is_null($review)) ? false : $review->getRating() == 1} /> Strong No
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="weight" value="2" checked={$review->getRating() == 2} /> Weak No
+                    <input type="radio" name="weight" value="2" checked={(is_null($review)) ? false : $review->getRating() == 2} /> Weak No
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="weight" value="3" checked={$review->getRating() == 3} /> Neutral
+                    <input type="radio" name="weight" value="3" checked={(is_null($review)) ? false : $review->getRating() == 3} /> Neutral
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="weight" value="4" checked={$review->getRating() == 4} /> Weak Yes
+                    <input type="radio" name="weight" value="4" checked={(is_null($review)) ? false : $review->getRating() == 4} /> Weak Yes
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="weight" value="5" checked={$review->getRating() == 5} /> Strong Yes
+                    <input type="radio" name="weight" value="5" checked={(is_null($review)) ? false : $review->getRating() == 5} /> Strong Yes
                   </label>
                 </div>
               </div>
@@ -162,55 +161,57 @@ class ReviewSingleController extends BaseController {
   }
 
   public static function post(): void {
-    # Upsert the review
-    AppReview::upsert(
+    // Upsert the review
+    ReviewMutator::upsert(
       $_POST['review'],
       (int)$_POST['weight'],
       Session::getUser(),
-      Application::genByID((int)$_POST['id'])
+      Application::load((int)$_POST['id'])
     );
 
-    Route::redirect('/review#' . $_POST['id']);
+    Route::redirect('/review/' . $_POST['id']);
   }
 
   private static function getReviews(Application $application): ?:xhp {
 
     # Loop through the reviews
-    $query = DB::query("SELECT * FROM reviews WHERE application_id=%s", $application->getID());
+    $reviewList = Review::loadByApp($application->getID());
     $reviews = <ul class="list-group" />;
-    foreach($query as $row) {
-      $user = User::load((int) $row['user_id']);
+    foreach($reviewList as $row_app) {
+      $user = User::load((int) $row_app->getUserID());
       $reviews->appendChild(
         <li class="list-group-item">
           <h4>{$user->getFirstName() . ' ' . $user->getLastName()}</h4>
-          <p>{$row['comments']}</p>
+          <p>{$row_app->getComments()}</p>
         </li>
       );
     }
 
     # Loop through member feedback
-    $query = DB::query("SELECT * FROM feedback WHERE user_id=%s", $application->getUserID());
+    $feedbackList = Feedback::loadByUser($application->getUserID());
     $feedback = <ul class="list-group" />;
-    foreach($query as $row) {
+    foreach($feedbackList as $row_feedback) {
       # Skip empty feedback
-      if($row['comments'] === '') {
+      if($row_feedback->getComments() === '') {
         continue;
       }
-      $user = User::load((int) $row['reviewer_id']);
+      $user = User::load((int) $row_feedback->getReviewerID());
       $feedback->appendChild(
         <li class="list-group-item">
           <h4>{$user->getFirstName() . ' ' . $user->getLastName()}</h4>
-          <p>{$row['comments']}</p>
+          <p>{$row_feedback->getComments()}</p>
         </li>
       );
     }
 
-    $attendances = Attendance::genAllForUser($application->getUserID());
+    $attendances = Attendance::loadForUser($application->getUserID());
     $events = <ul class="list-group" />;
     foreach($attendances as $attendance) {
+      $event = Event::load($attendance->getEventID());
+      $attendance = Attendance::loadForUserEvent($application->getUserID(), $event->getID());
       $events->appendChild(
         <li class="list-group-item">
-          <h4>{$attendance->getEventName()}</h4>
+          <h4>{$event->getName() . ' - ' . (($attendance->getStatus() == AttendanceState::Present) ? 'Present' : 'Not Present')}</h4>
         </li>
       );
     }

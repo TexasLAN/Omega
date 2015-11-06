@@ -33,6 +33,13 @@ final class Attendance {
 
   /* BEGIN MANUAL SECTION Attendance_footer */
   // Insert additional methods here
+  public static function loadForUserEvent(int $user_id, int $event_id): ?Attendance {
+    $result = DB::queryFirstRow("SELECT * FROM attendance WHERE user_id=%s AND event_id=%s", $user_id, $event_id);
+    if (!$result) {
+      return null;
+    }
+    return new Attendance(new Map($result));
+  }
   public static function loadForEvent(int $event_id): array<Attendance> {
     $query = DB::query(
       "SELECT *
@@ -64,13 +71,13 @@ final class Attendance {
   }
 
   public static function countUserAttendance(int $user_id, AttendanceState $attendance, EventType $type): int {
-    $query = DB::query("
+    $query = DB::queryFirstRow("
       SELECT COUNT(*)
       FROM attendance, events
       WHERE attendance.status=%s AND attendance.user_id=%s AND events.type=%s",
       $attendance, $user_id, $type
     );
-    return (int) $query;
+    return (int) $query['COUNT(*)'];
   }
   /* END MANUAL SECTION */
 }
