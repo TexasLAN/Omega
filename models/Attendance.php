@@ -72,12 +72,12 @@ final class Attendance {
 
   public static function countUserAttendance(int $user_id, AttendanceState $attendance, EventType $type): int {
     $query = DB::queryFirstRow("
-      SELECT COUNT(*)
+      SELECT COUNT(user_id)
       FROM attendance, events
-      WHERE attendance.status=%s AND attendance.user_id=%s AND events.type=%s",
+      WHERE attendance.status=%s AND attendance.user_id=%s AND events.type=%s AND events.id = attendance.event_id",
       $attendance, $user_id, $type
     );
-    return (int) $query['COUNT(*)'];
+    return (int) $query['COUNT(user_id)'];
   }
   /* END MANUAL SECTION */
 }

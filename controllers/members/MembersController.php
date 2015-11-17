@@ -248,11 +248,18 @@ class MembersController extends BaseController {
         }
       }
 
+      // Calculate gm attendance
+      $gmPresent = Attendance::countUserAttendance($row_user->getID(), AttendanceState::Present, EventType::GeneralMeeting);
+      $gmNotPresent = Attendance::countUserAttendance($row_user->getID(), AttendanceState::NotPresent, EventType::GeneralMeeting);
+      $gmPercent = ($gmPresent / ($gmPresent + $gmNotPresent)) * 100;
+      $gmAttendText = ($gmPresent + $gmNotPresent == 0) ? 'N/A' : $gmPercent . '%';
+
       // Append the row to the table
       $members->appendChild(
         <tr>
           <td><a href={MemberProfileController::getPrePath() . $row_user->getID()}>{$row_user->getFirstName() . ' ' . $row_user->getLastName()}</a></td>
           <td>{$row_user->getEmail()}</td>
+          <td>{$gmAttendText}</td>
           <td>{$buttons}</td>
         </tr>
       );
@@ -264,6 +271,7 @@ class MembersController extends BaseController {
           <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>GM  %</th>
             <th data-defaultsort="disabled">Actions</th>
           </tr>
         </thead>

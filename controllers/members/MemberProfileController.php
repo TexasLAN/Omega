@@ -74,6 +74,26 @@ class MemberProfileController extends BaseController {
         </div>;
     }
 
+    $memberInfo = null;
+    if($profile_user->getState() != UserState::Disabled) {
+      $gmPresent = Attendance::countUserAttendance($profile_user->getID(), AttendanceState::Present, EventType::GeneralMeeting);
+      $gmNotPresent = Attendance::countUserAttendance($profile_user->getID(), AttendanceState::NotPresent, EventType::GeneralMeeting);
+      $omPresent = Attendance::countUserAttendance($profile_user->getID(), AttendanceState::Present, EventType::OfficerMeeting);
+      $omNotPresent = Attendance::countUserAttendance($profile_user->getID(), AttendanceState::NotPresent, EventType::OfficerMeeting);
+      $memberInfo =
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h1 class="panel-title">Member Information</h1>
+            </div>
+            <div class="panel-body">
+              <h5>General Meeting Attendance: </h5>
+              <p>{$gmPresent . " / " . ($gmPresent + $gmNotPresent)}</p>
+              <h5>Officer Meeting Attendance: </h5>
+              <p>{$omPresent . " / " . ($omPresent + $omNotPresent)}</p>
+            </div>
+          </div>;
+    }
+
     $events = null;
     if($profile_user->getState() != UserState::Disabled) {
       $events = Event::loadFuture();
@@ -113,6 +133,7 @@ class MemberProfileController extends BaseController {
           </div>
           {$applicant_info}
         </div>
+        {$memberInfo}
         {$events}
       </x:frag>;
   }
