@@ -36,7 +36,7 @@ class MemberProfileController extends BaseController {
     }
     // Check if valid user to view profile page
     if(!($profile_user->getID() == $user->getID() ||
-     ($user->validateRole(UserRoleEnum::Admin) || ($user->getState() == UserState::Member && $profile_user->getState() == UserState::Disabled)))) {
+     ($user->validateRole(UserRoleEnum::Admin) || ($user->getState() == UserState::Member && $profile_user->getState() != UserState::Disabled)))) {
       Flash::set('error', 'You do not have permission to view this page');
       Route::redirect(MemberProfileController::getPrePath() . $user->getID());
       invariant(false, "Unreachable");

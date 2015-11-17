@@ -153,7 +153,8 @@ class EventDetailsController extends BaseController {
       Flash::set('success', 'Attendance status changed successfully');
     } elseif(isset($_POST['add_email'])) {
       $addUser = User::loadEmail($_POST['email']);
-      if(!$addUser) {
+      $eventUserAttend = ($addUser) ? Attendance::loadForUserEvent($addUser->getID(), (int) $_POST['event_id']) : null;
+      if(!$addUser || $eventUserAttend) {
         Flash::set('error', 'Adding the email failed!');
       } else {
         AttendanceMutator::create()
