@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<c15ca9b9a7a449392149f8f8e4c244d2>>
+ * @generated SignedSource<<6fdad7bdabd7f26fd124d230d6e12229>>
  */
 
 final class URIMap {
@@ -18,6 +18,7 @@ final class URIMap {
       '/login' => 'LoginController',
       '/members' => 'MembersController',
       '/members/(?<id>\\d+)' => 'MemberProfileController',
+      '/members/settings' => 'MemberSettingsController',
       '/notify' => 'NotifyController',
       '/notify/log' => 'NotifyLogController',
       '/review' => 'ReviewListController',

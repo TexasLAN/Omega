@@ -20,7 +20,7 @@ class MemberProfileController extends BaseController {
         UserState::Inactive,
         UserState::Alum
         });
-    $newConfig->setTitle('Dashboard');
+    $newConfig->setTitle('Profile');
     return $newConfig;
   }
 
