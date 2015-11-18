@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<0ce48333592a3ab60e575676dfb93c93>>
+ * @partially-generated SignedSource<<9163e0251b97ba66b7b7e51cb1a437e4>>
  */
 
 final class UserMutator {
@@ -89,6 +89,11 @@ final class UserMutator {
     return $this;
   }
 
+  public function setForgotToken(string $value): this {
+    $this->data["forgot_token"] = $value;
+    return $this;
+  }
+
   /* BEGIN MANUAL SECTION UserMutator_footer */
   // Insert additional methods here
   public static function createUser(
@@ -98,7 +103,7 @@ final class UserMutator {
     string $fname,
     string $lname
   ): ?User {
-    # Make sure a user doesn't already exist with that username or email
+    // Make sure a user doesn't already exist with that username or email
     DB::query(
       "SELECT * FROM users WHERE username=%s OR email=%s",
       $username, $email
@@ -106,14 +111,10 @@ final class UserMutator {
     if(DB::count() != 0) {
       return null;
     }
-    # Create the password hash
-    $salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
-    $salt = sprintf("$2a$%02d$", 10) . $salt;
-    $hash = crypt($password, $salt);
-    # Insert the user
+    // Insert the user
     $paramData = Map {
       'username' => $username,
-      'password' => $hash,
+      'password' => self::encryptPassword($password),
       'email' => $email,
       'fname' => $fname,
       'lname' => $lname,
@@ -121,6 +122,20 @@ final class UserMutator {
     };
     DB::insert('users', $paramData->toArray());
     return User::loadUsername($username);
+  }
+
+  public static function updatePassword(int $userID, string $password): void {
+    UserMutator::update($userID)
+      ->setForgotToken('')
+      ->setPassword(self::encryptPassword($password))
+      ->save();
+  }
+
+  public static function encryptPassword(string $password): string {
+    $salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
+    $salt = sprintf("$2a$%02d$", 10) . $salt;
+    $hash = crypt($password, $salt);
+    return $hash;
   }
 
   public static function deleteByState(UserState $state): void {

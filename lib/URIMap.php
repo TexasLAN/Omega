@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<6fdad7bdabd7f26fd124d230d6e12229>>
+ * @generated SignedSource<<67daecbb70b62e53bedbdbeebb67314c>>
  */
 
 final class URIMap {
@@ -21,6 +21,7 @@ final class URIMap {
       '/members/settings' => 'MemberSettingsController',
       '/notify' => 'NotifyController',
       '/notify/log' => 'NotifyLogController',
+      '/password/(?<forgot_token>\\w+)' => 'ForgotPasswordController',
       '/review' => 'ReviewListController',
       '/review/(?<id>\\d+)' => 'ReviewSingleController',
       '/settings' => 'SettingsController',

@@ -121,17 +121,23 @@ class Auth {
   public static function requestPasswordReset(string $username): bool {
     $user = User::loadUsername($username);
     if(!$user) {
+      $user = User::loadEmail($username);
+    }
+    if(!$user) {
       return false;
     }
 
-    $resetHash = sha1(uniqid(mt_rand(), true));
-    // TODO: $user->setPasswordReset($resetHast);
+    $forgot_token = sha1(uniqid(mt_rand(), true));
+
+    UserMutator::update($user->getID())
+      ->setForgotToken($forgot_token)
+      ->save();
 
     Email::send(
       $user->getEmail(),
       'Omega password reset',
       'To reset your password, follow this link:
-       http://omega.texaslan.org/password?token=' . $resetHash
+       http://omega.texaslan.org/password/' . $forgot_token
     );
 
     return true;

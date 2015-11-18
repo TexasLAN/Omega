@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<138667f69888656efbb3185d9d395b52>>
+ * @partially-generated SignedSource<<94e58a4efcb9fbcee6a3ee3b4f85279d>>
  */
 
 final class User {
@@ -45,6 +45,11 @@ final class User {
 
   public function getToken(): ?string {
     return isset($this->data['token']) ? (string) $this->data['token'] : null;
+  }
+
+  public function getForgotToken(): ?string {
+    return isset($this->data['forgot_token'])
+      ? (string) $this->data['forgot_token'] : null;
   }
 
   /* BEGIN MANUAL SECTION User_footer */
@@ -117,6 +122,19 @@ final class User {
     return array_map(function($value) {
       return new User(new Map($value));
     }, $query);
+  }
+
+  /*
+    Loads the User obj from a string forgotToken
+    Used for resetting passwords
+    Returns a user obj with the email or null if it doesnt exist.
+   */
+  public static function loadForgotToken(string $forgotToken): ?User {
+    $result = DB::queryFirstRow("SELECT * FROM users WHERE forgot_token=%s", $forgotToken);
+    if (!$result) {
+      return null;
+    }
+    return new User(new Map($result));
   }
 
 

@@ -52,19 +52,19 @@ class SignupController extends BaseController {
       Route::redirect(self::getPath());
     }
 
-    # Verify password length
+    // Verify password length
     if(strlen($_POST['password']) < 6) {
       Flash::set('error', 'Password must be longer than 6 characters');
       Route::redirect(self::getPath());
     }
 
-    # Verify passwords match
+    // Verify passwords match
     if($_POST['password'] != $_POST['password2']) {
       Flash::set('error', 'Passwords do not match');
       Route::redirect(self::getPath());
     }
 
-    # Create the user
+    // Create the user
     $user = UserMutator::createUser(
       $_POST['uname'],
       $_POST['password'],
@@ -73,7 +73,7 @@ class SignupController extends BaseController {
       $_POST['lname']
     );
 
-    # User creation failed
+    // User creation failed
     if(!$user) {
       Flash::set('error', 'Username or Email is taken');
       Route::redirect(self::getPath());
