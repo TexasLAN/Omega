@@ -9,6 +9,7 @@ class UserSchema implements ModelSchema {
       'Username' => ModelField::string_field('username'),
       'Password' => ModelField::string_field('password'),
       'MemberStatus' => ModelField::int_field('member_status'),
+      'PhoneNumber' => ModelField::string_field('phone_number'),
       'Token' => ModelField::string_field('token')->optional(),
       'ForgotToken' => ModelField::string_field('forgot_token')->optional()
     };

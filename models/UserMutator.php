@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<9163e0251b97ba66b7b7e51cb1a437e4>>
+ * @partially-generated SignedSource<<b2a122736cfddd7065b88fb10fcdba36>>
  */
 
 final class UserMutator {
@@ -46,6 +46,7 @@ final class UserMutator {
       'username',
       'password',
       'member_status',
+      'phone_number',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(
@@ -84,6 +85,11 @@ final class UserMutator {
     return $this;
   }
 
+  public function setPhoneNumber(string $value): this {
+    $this->data["phone_number"] = $value;
+    return $this;
+  }
+
   public function setToken(string $value): this {
     $this->data["token"] = $value;
     return $this;
@@ -100,6 +106,7 @@ final class UserMutator {
     string $username,
     string $password,
     string $email,
+    string $phone,
     string $fname,
     string $lname
   ): ?User {
@@ -116,6 +123,7 @@ final class UserMutator {
       'username' => $username,
       'password' => self::encryptPassword($password),
       'email' => $email,
+      'phone_number' => $phone,
       'fname' => $fname,
       'lname' => $lname,
       'member_status' => 0

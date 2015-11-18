@@ -64,9 +64,11 @@ final class Application {
     return (int) $this->data['id'];
   }
 
-  public static function loadByUser(int $user_id): Application {
+  public static function loadByUser(int $user_id): ?Application {
     $result = DB::queryFirstRow("SELECT * FROM applications WHERE user_id=%s", $user_id);
-
+    if (!$result) {
+      return null;
+    }
     return new Application(new Map($result));
   }
 

@@ -1,4 +1,4 @@
-<?hh
+<?hh //decl
 
 class ApplyController extends BaseController {
   public static function getPath() {
@@ -15,6 +15,9 @@ class ApplyController extends BaseController {
   public static function get(): :xhp {
     $user = Session::getUser();
     $application = Application::loadByUser($user->getID());
+    if(!$application) {
+      $application = ApplicationMutator::upsert($user->getID(), '', '', '', '', '', '', '', '' );
+    }
 
     $disabled =
       $application->isSubmitted() || !Settings::get('applications_open');
@@ -108,7 +111,7 @@ class ApplyController extends BaseController {
               </div>
               <span class="help-block">All fields are required</span>
               <div class="btn-toolbar">
-                <button type="submit" class="btn btn-default">Save</button>
+                <button type="submit" name="save" value ="1" class="btn btn-default">Save</button>
                 <button type="submit" name="submit" value="1" class="btn btn-primary">Submit</button>
               </div>
             </fieldset>
@@ -144,6 +147,11 @@ class ApplyController extends BaseController {
       }
       ApplicationMutator::update($application->getID())
         ->setStatus(ApplicationState::Submitted)
+        ->save();
+    } elseif(isset($_POST['save'])) {
+      Flash::set('success', 'Application saved');
+      ApplicationMutator::update($application->getID())
+        ->setStatus(ApplicationState::Started)
         ->save();
     }
 

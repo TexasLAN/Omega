@@ -8,7 +8,8 @@ class SignupController extends BaseController {
   public static function get(): :xhp {
 
     if(Session::isActive()) {
-      Route::redirect(DashboardController::getPath());
+      $user = Session::getUser();
+      Route::redirect(MemberProfileController::getPrePath() . $user->getID());
     }
 
     return
@@ -32,6 +33,10 @@ class SignupController extends BaseController {
             <input type="email" class="form-control" name="email" placeholder="Email" />
           </div>
           <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" class="form-control" name="phone" placeholder="Phone Number" />
+          </div>
+          <div class="form-group">
             <label>First Name</label>
             <input type="text" class="form-control" name="fname" placeholder="First Name" />
           </div>
@@ -45,8 +50,9 @@ class SignupController extends BaseController {
   }
 
   public static function post(): void {
-    if($_POST['uname'] == '' || $_POST['password'] == '' ||
-       $_POST['password2'] == '' || $_POST['email'] == '' ||
+    if($_POST['uname'] == '' || 
+       $_POST['password'] == '' || $_POST['password2'] == '' ||
+       $_POST['email'] == '' || $_POST['phone'] == '' ||
        $_POST['fname'] == '' || $_POST['lname'] == '') {
       Flash::set('error', 'All fields are required');
       Route::redirect(self::getPath());
@@ -69,6 +75,7 @@ class SignupController extends BaseController {
       $_POST['uname'],
       $_POST['password'],
       $_POST['email'],
+      $_POST['phone'],
       $_POST['fname'],
       $_POST['lname']
     );
@@ -80,6 +87,6 @@ class SignupController extends BaseController {
     }
 
     Session::create($user);
-    Route::redirect(DashboardController::getPath());
+    Route::redirect(MemberProfileController::getPrePath() . $user->getID());
   }
 }

@@ -1,4 +1,4 @@
-<?hh
+<?hh //decl
 
 class MemberProfileController extends BaseController {
   public static function getPrePath(): string {
@@ -61,6 +61,10 @@ class MemberProfileController extends BaseController {
     $applicant_info = null;
     if($profile_user->getID() == $user->getID() && $profile_user->getState() == UserState::Applicant) {
       $application = Application::loadByUser($profile_user->getID());
+      if(!$application) {
+        $application = ApplicationMutator::upsert($profile_user->getID(), '', '', '', '', '', '', '', '' );
+      }
+
       if(!$application->isStarted() && !$application->isSubmitted()) {
         $status = <a href="/apply" class="btn btn-primary btn-lg wide">Start Application</a>;
       } elseif($application->isStarted() && !$application->isSubmitted()) {
@@ -86,6 +90,10 @@ class MemberProfileController extends BaseController {
               <h1 class="panel-title">Member Information</h1>
             </div>
             <div class="panel-body">
+              <h5>Email: </h5>
+              <p>{$profile_user->getEmail()}</p>
+              <h5>Phone Number: </h5>
+              <p>{$profile_user->getPhoneNumber()}</p>
               <h5>General Meeting Attendance: </h5>
               <p>{$gmPresent . " / " . ($gmPresent + $gmNotPresent)}</p>
               <h5>Officer Meeting Attendance: </h5>
@@ -127,13 +135,12 @@ class MemberProfileController extends BaseController {
             </div>
             <div class="col-md-9">
               <h1>{$profile_user->getFirstName() . ' ' . $profile_user->getLastName()}</h1>
-              <p>{$profile_user->getEmail()}</p>
               {$badges}
+              {$memberInfo}
             </div>
           </div>
           {$applicant_info}
         </div>
-        {$memberInfo}
         {$events}
       </x:frag>;
   }

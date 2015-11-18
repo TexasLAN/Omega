@@ -119,7 +119,7 @@ final class ApplicationMutator {
     string $q4,
     string $q5,
     string $q6
-  ): Application {
+  ): ?Application {
     # Make sure the user doesn't already have an application active
     $query = DB::query("SELECT * FROM applications WHERE user_id=%s", $user_id);
 
@@ -154,7 +154,7 @@ final class ApplicationMutator {
         'q4' => $q4,
         'q5' => $q5,
         'q6' => $q6,
-        'status' => 1
+        'status' => ApplicationState::NotStarted
       };
       DB::insert('applications', $paramData->toArray());
     }
