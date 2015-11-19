@@ -21,11 +21,14 @@ DB::$password = $configs['db']['password'];
 DB::$dbName = $configs['db']['name'];
 DB::$port = $configs['db']['port'];
 
-// Setup Mailgun and email
-use Mailgun\Mailgun;
-Email::$mg = new Mailgun($configs['mailgun']['key']);
-Email::$domain = $configs['mailgun']['domain'];
-Email::$from = $configs['mailgun']['from'];
+// Setup Sendgrid and email
+Email::$sendgrid = new SendGrid($configs['sendgrid']['user'], $configs['sendgrid']['password']);
+Email::$from = $configs['sendgrid']['from'];
+Email::$webmaster_test = $configs['sendgrid']['webmaster_test'];
+
+// Setup venmo
+Venmo::$client_id = $configs['venmo']['client_id'];
+Venmo::$client_secret = $configs['venmo']['client_secret'];
 
 // Get the user session going
 Session::init();

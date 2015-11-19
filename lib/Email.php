@@ -1,21 +1,23 @@
 <?hh //decl
 
 class Email {
-  public static Mailgun $mg;
+  public static SendGrid $sendgrid;
   public static string $domain = 'example.com';
   public static string $from = 'hello@example.com';
+  public static string $webmaster_test = 'hello@example.com';
 
   public static function send(
-    string $list,
+    array $toList,
     string $subject,
     string $body
   ): void {
-    self::$mg->sendMessage(self::$domain, array(
-      'from' => self::$from,
-      'to' => $list,
-      'subject' => $subject,
-      'html' => self::getHtmlMessage($body)
-    ));
+    $email = new SendGrid\Email();
+    $email
+      ->setSmtpapiTos($toList)
+      ->setFrom(self::$from)
+      ->setSubject($subject)
+      ->setHtml(self::getHtmlMessage($body));
+    self::$sendgrid->send($email);
   }
 
   private static function getHtmlMessage(string $message): string {
@@ -58,16 +60,36 @@ class Email {
   </div>;
   }
 
-  public static function subscribe(string $list, User $user): void {
-    self::$mg->post('lists/' . $list . '/members' , array(
-      'address' => $user->getEmail(),
-      'name' => $user->getFirstName() . ' ' . $user->getLastName(),
-      'subscribed' => true
-    ));
+  public static function getEmailList(string $emailListStr): array {
+    $emailList = array();
+    if($_POST['email'] == 'Webmaster Test') {
+      array_push($emailList, Email::$webmaster_test);
+    } else {
+      $userState = null;
+      foreach(UserState::getValues() as $name => $value) {
+        if($_POST['email'] == $name) {
+          $userState = UserState::assert($value);
+          break;
+        }
+      }
+      if(is_null($userState)) {
+        $emailList = self::getUserStateEmailList($userState);
+      } else {
+        array_push($emailList, Email::$webmaster_test);
+      }
+    }
+
+    return $emailList;
   }
 
-  public static function getLists(): array {
-    $result = self::$mg->get('lists');
-    return $result->http_response_body->items;
+  private static function getUserStateEmailList(UserState $state): array {
+    $userList = User::loadStates(Vector {$state});
+
+    $emailList = array();
+    foreach($userList as $row_user) {
+      array_push($emailList, $row_user->getEmail());
+    }
+      
+    return $emailList;
   }
 }

@@ -2,7 +2,7 @@
   "require": {
     "bshaffer/oauth2-server-php": "v1.6",
     "facebook/xhp-lib": "2.x",
-    "mailgun/mailgun-php": "~1.7.2",
+    "sendgrid/sendgrid": "~4.0",
     "sergeytsalkov/meekrodb": "*"
   },
   "require-dev": {

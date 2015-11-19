@@ -21,12 +21,15 @@ class NotifyController extends BaseController {
   }
 
   public static function get(): :xhp {
-    # Get the mailing lists and parse them
-    $lists = Email::getLists();
+    // Get the mailing lists and parse them
+    $lists = array("Webmaster Test");
+    foreach(UserState::getValues() as $name => $value) {
+      array_push($lists, $name);
+    }
     $options = <select class="form-control" name="email" />;
     foreach($lists as $list) {
       $options->appendChild(
-        <option>{$list->address}</option>
+        <option>{$list}</option>
       );
     }
     return
@@ -62,7 +65,8 @@ class NotifyController extends BaseController {
       Route::redirect(NotifyController::getPath());
     }
 
-    if($_POST['email'] == 'actives@texaslan.org') {
+    // Save email to notification log
+    if($_POST['email'] == 'Member') {
       NotifyLogMutator::create()
       ->setNotifyTitle($_POST['subject'])
       ->setNotifyText($_POST['body'])
@@ -71,7 +75,10 @@ class NotifyController extends BaseController {
       ->save();
     }
 
-    Email::send($_POST['email'], $_POST['subject'], $_POST['body']);
+    // Find email list
+    $emailList = Email::getEmailList($_POST['email']);
+
+    Email::send($emailList, $_POST['subject'], $_POST['body']);
     Flash::set('success', 'Your email was sent successfully');
     Route::redirect(NotifyController::getPath());
   }

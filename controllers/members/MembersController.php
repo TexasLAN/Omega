@@ -51,11 +51,11 @@ class MembersController extends BaseController {
       }
 
       if(self::validateActions($user)) {
-        $contentItem->appendChild(
-        <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList($value)}>
-          Email List
-        </button>
-        );
+        // $contentItem->appendChild(
+        // <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList($value)}>
+        //   Email List
+        // </button>
+        // );
         if($value == UserState::Pledge || $value == UserState::Candidate || $value == UserState::Applicant) {
           $contentItem->appendChild(
             <button
@@ -368,20 +368,6 @@ class MembersController extends BaseController {
           </div>
         </div>
       </div>;
-  }
-
-  private static function getEmailList(UserState $state): string {
-    $userList = User::loadStates(Vector {$state});
-
-    $email_export_str = '';
-    $delim = '';
-    foreach($userList as $row_user) {
-      $email_export_str .= $delim . $row_user->getFirstName() . ' ' . $row_user->getLastName() . ' <' . $row_user->getEmail() . '>';
-      $delim = ', ';
-    }
-    error_log('getEmailList: \'' . $email_export_str . '\'');
-      
-    return $email_export_str;
   }
 
   public static function post(): void {
