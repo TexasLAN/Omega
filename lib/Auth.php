@@ -138,6 +138,7 @@ class Auth {
       'Omega password reset',
       'To reset your password, follow this link:
        http://omega.texaslan.org/password/' . $forgot_token,
+       true,
        true
     );
 

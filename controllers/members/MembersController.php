@@ -61,6 +61,7 @@ class MembersController extends BaseController {
             <button
               type="button"
               class="btn btn-danger"
+              style="margin-bottom: 10px;"
               data-toggle="modal"
               data-target="#disableConfirm"
               data-type="state"
@@ -68,19 +69,20 @@ class MembersController extends BaseController {
               Disable
             </button>
           );
-        } elseif($value == UserState::Disabled) {
-          $contentItem->appendChild(
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-toggle="modal"
-              data-target="#deleteConfirm"
-              data-type="state"
-              data-id={(string) $value}>
-              Delete
-            </button>
-          );
-        }
+        } 
+        // elseif($value == UserState::Disabled) {
+        //   $contentItem->appendChild(
+        //     <button
+        //       type="button"
+        //       class="btn btn-danger"
+        //       data-toggle="modal"
+        //       data-target="#deleteConfirm"
+        //       data-type="state"
+        //       data-id={(string) $value}>
+        //       Delete
+        //     </button>
+        //   );
+        // }
       }
       
       $memberContent = self::getMembersByState($value);

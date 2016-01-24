@@ -57,6 +57,11 @@ class NotifyController extends BaseController {
                   <input type="checkbox" name="default_footer" checked={false}/> Default Footer
                 </label>
               </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="html_parser" checked={false}/> Default HTML Parser
+                </label>
+              </div>
               <button type="submit" class="btn btn-default">Send</button>
             </form>
           </div>
@@ -71,22 +76,24 @@ class NotifyController extends BaseController {
     }
 
     $default_footer = isset($_POST['default_footer']);
-    error_log($default_footer ? 'true' : 'false');
+    $html_parser = isset($_POST['html_parser']);
 
-    // Save email to notification log
+    // Save email to notification log 
     if($_POST['email'] == 'Member') {
       NotifyLogMutator::create()
       ->setNotifyTitle($_POST['subject'])
       ->setNotifyText($_POST['body'])
       ->setSenderUserId(Session::getUser()->getID())
       ->_setSentTime(new DateTime(date('Y-m-d H:i')))
+      ->setDefaultFooter($default_footer)
+      ->setHtmlParsed($html_parser)
       ->save();
     }
 
     // Find email list
     $emailList = Email::getEmailList($_POST['email']);
 
-    Email::send($emailList, $_POST['subject'], $_POST['body'], $default_footer);
+    Email::send($emailList, $_POST['subject'], $_POST['body'], $default_footer, $html_parser);
     Flash::set('success', 'Your email was sent successfully');
     Route::redirect(NotifyController::getPath());
   }

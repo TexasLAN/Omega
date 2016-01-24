@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<4cef6a84c31f77001eb743dd189f773e>>
+ * @partially-generated SignedSource<<0b34dd17f17058bd310064c0a751fff1>>
  */
 
 final class NotifyLogMutator {
@@ -44,6 +44,8 @@ final class NotifyLogMutator {
       'notify_text',
       'sender_user_id',
       'sent_time',
+      'default_footer',
+      'html_parsed',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(
@@ -69,6 +71,16 @@ final class NotifyLogMutator {
 
   public function setSentTime(DateTime $value): this {
     $this->data["sent_time"] = $value->format("Y-m-d");
+    return $this;
+  }
+
+  public function setDefaultFooter(bool $value): this {
+    $this->data["default_footer"] = $value;
+    return $this;
+  }
+
+  public function setHtmlParsed(bool $value): this {
+    $this->data["html_parsed"] = $value;
     return $this;
   }
 

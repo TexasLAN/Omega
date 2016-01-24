@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<754b7784c9910699df9f59ee3d207727>>
+ * @partially-generated SignedSource<<9628998d213f51082f39ed7df0c270e2>>
  */
 
 final class NotifyLog {
@@ -33,6 +33,14 @@ final class NotifyLog {
 
   public function getSentTime(): DateTime {
     return new DateTime($this->data['sent_time']);
+  }
+
+  public function getDefaultFooter(): bool {
+    return (bool) $this->data['default_footer'];
+  }
+
+  public function getHtmlParsed(): bool {
+    return (bool) $this->data['html_parsed'];
   }
 
   /* BEGIN MANUAL SECTION NotifyLog_footer */

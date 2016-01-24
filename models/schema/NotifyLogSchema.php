@@ -6,7 +6,9 @@ class NotifyLogSchema implements ModelSchema {
       'NotifyTitle' => ModelField::string_field('notify_title'),
       'NotifyText' => ModelField::string_field('notify_text'),
       'SenderUserId' => ModelField::int_field('sender_user_id'),
-      'SentTime' => ModelField::date_field('sent_time')
+      'SentTime' => ModelField::date_field('sent_time'),
+      'DefaultFooter' => ModelField::bool_field('default_footer'),
+      'HtmlParsed' => ModelField::bool_field('html_parsed')
     };
   }
 

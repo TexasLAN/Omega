@@ -30,15 +30,14 @@ class NotifyLogController extends BaseController {
       $content->appendChild(
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h1 class="panel-title">{$row_log->getNotifyTitle() . ' - ' . ((string) $row_log->getSentTime())}</h1>
+            <h1 class="panel-title">{$row_log->getNotifyTitle() . ' - ' . ($row_log->getSentTime()->format("Y-m-d H:i"))}</h1>
           </div>
           <div class="panel-body">
-            {Email::getXhpMessage($row_log->getNotifyText())}
+            {Email::getXhpMessage($row_log->getNotifyText(), $row_log->getDefaultFooter(), $row_log->getHtmlParsed())}
           </div>
         </div>
       );
     }
-
 
     return $content;
   }
