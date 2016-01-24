@@ -137,7 +137,8 @@ class Auth {
       array($user->getEmail()),
       'Omega password reset',
       'To reset your password, follow this link:
-       http://omega.texaslan.org/password/' . $forgot_token
+       http://omega.texaslan.org/password/' . $forgot_token,
+       true
     );
 
     return true;

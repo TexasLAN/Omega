@@ -52,6 +52,11 @@ class NotifyController extends BaseController {
                 <label>Body</label>
                 <textarea class="form-control" rows={3} name="body"></textarea>
               </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="default_footer" checked={false}/> Default Footer
+                </label>
+              </div>
               <button type="submit" class="btn btn-default">Send</button>
             </form>
           </div>
@@ -64,6 +69,9 @@ class NotifyController extends BaseController {
       Flash::set('error', 'All fields must be filled out');
       Route::redirect(NotifyController::getPath());
     }
+
+    $default_footer = isset($_POST['default_footer']);
+    error_log($default_footer ? 'true' : 'false');
 
     // Save email to notification log
     if($_POST['email'] == 'Member') {
@@ -78,7 +86,7 @@ class NotifyController extends BaseController {
     // Find email list
     $emailList = Email::getEmailList($_POST['email']);
 
-    Email::send($emailList, $_POST['subject'], $_POST['body']);
+    Email::send($emailList, $_POST['subject'], $_POST['body'], $default_footer);
     Flash::set('success', 'Your email was sent successfully');
     Route::redirect(NotifyController::getPath());
   }

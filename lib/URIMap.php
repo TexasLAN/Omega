@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<67daecbb70b62e53bedbdbeebb67314c>>
+ * @generated SignedSource<<fe9b7c6effce34e37ddca47b802cce6b>>
  */
 
 final class URIMap {
@@ -26,6 +26,7 @@ final class URIMap {
       '/review/(?<id>\\d+)' => 'ReviewSingleController',
       '/settings' => 'SettingsController',
       '/signup' => 'SignupController',
+      '/venmo' => 'VenmoController',
     };
   }
 }

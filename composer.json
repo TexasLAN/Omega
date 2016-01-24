@@ -1,6 +1,7 @@
 {
   "require": {
     "bshaffer/oauth2-server-php": "v1.6",
+    "erusev/parsedown": "1.6.0",
     "facebook/xhp-lib": "2.x",
     "sendgrid/sendgrid": "~4.0",
     "sergeytsalkov/meekrodb": "*"

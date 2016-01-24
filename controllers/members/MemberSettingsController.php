@@ -25,6 +25,29 @@ class MemberSettingsController extends BaseController {
   public static function get(): :xhp {
     $user = Session::getUser();
 
+    // Update Venmo if applied
+    // if(isset($_GET['code'])) {
+    //   $venmo_code = $_GET['code'];
+    //   $access_obj = Venmo::exchangeToken($venmo_code);
+
+    //   if(isset(json_decode($access_obj)->access_token)) {
+    //     $durationEndTime = new DateTime(date(DateTime::ISO8601));
+    //     date_add($durationEndTime, DateInterval::createFromDateString(json_decode($access_obj)->expires_in . ' seconds'));
+    //     error_log(serialize(json_decode($access_obj)));
+    //     error_log($durationEndTime->format(DateTime::ISO8601));
+    //     UserMutator::update($user->getID())
+    //       ->setVenmoToken(json_decode($access_obj)->access_token)
+    //       ->setVenmoRefresh(json_decode($access_obj)->refresh_token)
+    //       ->_setVenmoDuration($durationEndTime)
+    //       ->save();
+    //   }
+    // }
+
+    // $disabledLoginButton = '';
+    // if(isset($user->_getVenmoToken())) {
+    //   $disabledLoginButton = ' disabled';
+    // }
+
     return
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -37,7 +60,7 @@ class MemberSettingsController extends BaseController {
               <input type="email" class="form-control" name="email" placeholder="Email" value={$user->getEmail()}/>
             </div>
             <div class="form-group">
-              <label>Email</label>
+              <label>Phone Number</label>
               <input type="text" class="form-control" name="phone" placeholder="Phone Number" value={$user->getPhoneNumber()}/>
             </div>
             <input type="hidden" name="user_id" id="user_id" value={(string) $user->getID()}/>

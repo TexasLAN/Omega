@@ -21,6 +21,7 @@ class SettingsController extends BaseController {
 
   public static function get(): :xhp {
     $applications_open = Settings::get('applications_open');
+    $voting_open = Settings::get('voting_open');
     return
       <div class="col-md-6 col-md-offset-3">
         <div class="panel panel-default">
@@ -33,6 +34,11 @@ class SettingsController extends BaseController {
                 <div class="checkbox">
                   <label>
                     <input type="checkbox" name="applications_disabled" checked={!$applications_open}/> Disable Applications
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="voting_disabled" checked={!$applications_open}/> Disable Voting
                   </label>
                 </div>
               </div>
@@ -50,6 +56,12 @@ class SettingsController extends BaseController {
       Settings::set('applications_open', false);
     } else {
       Settings::set('applications_open', true);
+    }
+    
+    if(isset($_POST['voting_disabled'])) {
+      Settings::set('voting_open', false);
+    } else {
+      Settings::set('voting_open', true);
     }
 
     Route::redirect(SettingsController::getPath());
