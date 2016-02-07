@@ -140,7 +140,7 @@ class ReviewSingleController extends BaseController {
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="weight" value="5" checked={(is_null($review)) ? false : $review->getRating() == 5} /> Strong Yes
+                    <input type="radio" name="weight" value="5" checked={(is_null($review)) ? false : $review->getRating() == 5} /> Skrong Yes
                   </label>
                 </div>
               </div>
