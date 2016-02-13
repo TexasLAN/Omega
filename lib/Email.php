@@ -61,7 +61,7 @@ class Email {
     </div>
     <div class="email_content" style="background: #fafcff;box-shadow: inset 1px 0px  #e3eaf1, 1px 0px #e3eaf1; border-bottom: 2px solid #d1ddf2;padding-left: 5%; padding-right: 5%; padding-top: 15px;">
       <div class="email_text">
-        <p style="font-size: 16px;font-weight: 300;line-height: 27px;color: #161b21;"> {$parsed_message} </p>
+        <omega:email-message message={$parsed_message} />
         {$footer}
       </div>
     </div>
@@ -75,19 +75,26 @@ class Email {
 
   public static function getEmailList(string $emailListStr): array {
     $emailList = array();
-    if($_POST['email'] == 'Webmaster Test') {
+    error_log("getEmailList START " . $_POST['email'] . " " . $emailListStr);
+    if(!strcmp($_POST['email'], 'Webmaster Test')) {
+
       array_push($emailList, Email::$webmaster_test);
     } else {
       $userState = null;
       foreach(UserState::getValues() as $name => $value) {
-        if($_POST['email'] == $name) {
+        error_log("getEmailList Loop: " . $_POST['email'] . " " . $name . " " . $value);
+        if(!strcmp($_POST['email'], $name)) {
+          error_log("getEmailList Check: " . $name);
           $userState = UserState::assert($value);
           break;
         }
       }
-      if(is_null($userState)) {
+      error_log("getEmailList: " . (is_null($userState)) ? "is null" : "isnt null");
+      if(!is_null($userState)) {
+        error_log("emailList: is working");
         $emailList = self::getUserStateEmailList($userState);
       } else {
+        error_log("emailList: is null send to webmaster");
         array_push($emailList, Email::$webmaster_test);
       }
     }

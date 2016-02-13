@@ -9,7 +9,7 @@ class FeedbackListController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
-        UserState::Member
+        UserState::Active
         });
     $newConfig->setTitle('Feedback');
     return $newConfig;
@@ -43,7 +43,7 @@ class FeedbackListController extends BaseController {
       // Append the applicant to the table as a new row
       $table_body->appendChild(
         <tr id={(string) $cur_user->getID()}>
-          <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
+          <td class="name">{$user->getFullName()}</td>
           <td><a href={'/feedback/' . $cur_user->getID()} class="btn btn-primary">Review</a></td>
           <td>{!is_null($feedback) ? "✔" : ""}</td>
         </tr>

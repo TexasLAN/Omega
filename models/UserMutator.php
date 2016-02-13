@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<b2a122736cfddd7065b88fb10fcdba36>>
+ * @partially-generated SignedSource<<0a441ecd3d69635fee4119021c023d23>>
  */
 
 final class UserMutator {
@@ -41,12 +41,14 @@ final class UserMutator {
   public function checkRequiredFields(): void {
     $required = Set {
       'email',
-      'fname',
-      'lname',
+      'full_name',
+      'nick_name',
       'username',
       'password',
       'member_status',
       'phone_number',
+      'grad_year',
+      'has_voted',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(
@@ -60,13 +62,13 @@ final class UserMutator {
     return $this;
   }
 
-  public function setFirstName(string $value): this {
-    $this->data["fname"] = $value;
+  public function setFullName(string $value): this {
+    $this->data["full_name"] = $value;
     return $this;
   }
 
-  public function setLastName(string $value): this {
-    $this->data["lname"] = $value;
+  public function setNickName(string $value): this {
+    $this->data["nick_name"] = $value;
     return $this;
   }
 
@@ -90,6 +92,21 @@ final class UserMutator {
     return $this;
   }
 
+  public function setGraduationYear(int $value): this {
+    $this->data["grad_year"] = $value;
+    return $this;
+  }
+
+  public function setHasVoted(bool $value): this {
+    $this->data["has_voted"] = $value;
+    return $this;
+  }
+
+  public function setClass(int $value): this {
+    $this->data["class"] = $value;
+    return $this;
+  }
+
   public function setToken(string $value): this {
     $this->data["token"] = $value;
     return $this;
@@ -107,8 +124,8 @@ final class UserMutator {
     string $password,
     string $email,
     string $phone,
-    string $fname,
-    string $lname
+    string $full_name,
+    string $nick_name
   ): ?User {
     // Make sure a user doesn't already exist with that username or email
     DB::query(
@@ -124,9 +141,10 @@ final class UserMutator {
       'password' => self::encryptPassword($password),
       'email' => $email,
       'phone_number' => $phone,
-      'fname' => $fname,
-      'lname' => $lname,
-      'member_status' => 0
+      'full_name' => $full_name,
+      'nick_name' => $nick_name,
+      'member_status' => 0,
+      'has_voted' => false
     };
     DB::insert('users', $paramData->toArray());
     return User::loadUsername($username);

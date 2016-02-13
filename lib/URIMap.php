@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<fe9b7c6effce34e37ddca47b802cce6b>>
+ * @generated SignedSource<<f021379c28cd304a1051eeac0d4e0ff2>>
  */
 
 final class URIMap {
@@ -27,6 +27,12 @@ final class URIMap {
       '/settings' => 'SettingsController',
       '/signup' => 'SignupController',
       '/venmo' => 'VenmoController',
+      '/vote' => 'VoteController',
+      '/voteapply' => 'VoteApplyController',
+      '/voteapply/(?<id>\\d+)' => 'VoteApplicationController',
+      '/voteapply/(?<id>\\d+)/(?<user_id>\\d+)' =>
+        'VoteApplicationProfileController',
+      '/votesetup' => 'VoteSetupController',
     };
   }
 }

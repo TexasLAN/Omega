@@ -5,7 +5,7 @@ final class :omega:head extends :x:element {
 
   final protected function render(): :head {
     $title = "Omega | Texas LAN";
-    if($this->:title) {
+    if(!is_null($this->:title)) {
       $title = $this->:title . " | Texas LAN";
     }
 

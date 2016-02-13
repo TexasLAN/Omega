@@ -9,7 +9,7 @@ class MembersController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
-        UserState::Member
+        UserState::Active
         });
     $newConfig->setTitle('Review');
     return $newConfig;
@@ -27,7 +27,7 @@ class MembersController extends BaseController {
     foreach(UserState::getValues() as $name => $value) {
       // Tab List
       $href = "#" . strtolower($name);
-      if($value == UserState::Member) {
+      if($value == UserState::Active) {
         $listItem = <li role="presentation" class="active"/>;
         $listItem->appendChild(
           <a href={$href} aria-controls="home" role="tab" data-toggle="tab">{$name}</a>
@@ -46,16 +46,11 @@ class MembersController extends BaseController {
       // Tab Content
       $id = strtolower($name);
       $contentItem = <div role="tabpanel" class="btn-toolbar tab-pane" id={$id}/>;
-      if($value == UserState::Member) {
+      if($value == UserState::Active) {
         $contentItem = <div role="tabpanel" class="btn-toolbar tab-pane active" id={$id}/>;
       }
 
       if(self::validateActions($user)) {
-        // $contentItem->appendChild(
-        // <button class="btn btn-primary btn-clipboard" data-clipboard-text={self::getEmailList($value)}>
-        //   Email List
-        // </button>
-        // );
         if($value == UserState::Pledge || $value == UserState::Candidate || $value == UserState::Applicant) {
           $contentItem->appendChild(
             <button
@@ -69,20 +64,7 @@ class MembersController extends BaseController {
               Disable
             </button>
           );
-        } 
-        // elseif($value == UserState::Disabled) {
-        //   $contentItem->appendChild(
-        //     <button
-        //       type="button"
-        //       class="btn btn-danger"
-        //       data-toggle="modal"
-        //       data-target="#deleteConfirm"
-        //       data-type="state"
-        //       data-id={(string) $value}>
-        //       Delete
-        //     </button>
-        //   );
-        // }
+        }
       }
       
       $memberContent = self::getMembersByState($value);
@@ -176,7 +158,7 @@ class MembersController extends BaseController {
           );
         } elseif ($row_user->getState() == UserState::Pledge) {
           $buttons->appendChild(
-            <button name="state_change" class="btn btn-primary" value={(string) UserState::Member} type="submit">
+            <button name="state_change" class="btn btn-primary" value={(string) UserState::Active} type="submit">
               Promote to Active
             </button>
           );
@@ -198,7 +180,7 @@ class MembersController extends BaseController {
             </button>
           );
           $buttons->appendChild(
-            <button name="state_change" class="btn btn-primary" value={(string) UserState::Member} type="submit">
+            <button name="state_change" class="btn btn-primary" value={(string) UserState::Active} type="submit">
               Promote to Active
             </button>
           );
@@ -213,7 +195,7 @@ class MembersController extends BaseController {
               Disable
             </button>
           );
-        } elseif ($row_user->getState() == UserState::Member){
+        } elseif ($row_user->getState() == UserState::Active){
           $buttons->appendChild(
             <button name="state_change" class="btn btn-primary" value={(string) UserState::Alum} type="submit">
               Promote to Alum
@@ -242,13 +224,19 @@ class MembersController extends BaseController {
               data-toggle="modal"
               data-target="#editRoles"
               data-id={$row_user->getID()}
-              data-name={$row_user->getFirstName() . ' ' . $row_user->getLastName()}
+              data-name={$row_user->getFullName()}
               data-roles={json_encode($roles)}>
               Edit Roles
             </button>
           );
         }
       }
+
+      // Calculate event attendance
+      $eventPresent = Attendance::countUserAttendance($row_user->getID(), AttendanceState::Present, NULL);
+      $eventNotPresent = Attendance::countUserAttendance($row_user->getID(), AttendanceState::NotPresent, NULL);
+      $eventPercent = ($eventPresent / ($eventPresent + $eventNotPresent)) * 100;
+      $eventAttendText = ($eventPresent + $eventNotPresent == 0) ? 'N/A' : $eventPercent . '%';
 
       // Calculate gm attendance
       $gmPresent = Attendance::countUserAttendance($row_user->getID(), AttendanceState::Present, EventType::GeneralMeeting);
@@ -259,9 +247,10 @@ class MembersController extends BaseController {
       // Append the row to the table
       $members->appendChild(
         <tr>
-          <td><a href={MemberProfileController::getPrePath() . $row_user->getID()}>{$row_user->getFirstName() . ' ' . $row_user->getLastName()}</a></td>
+          <td><a href={MemberProfileController::getPrePath() . $row_user->getID()}>{$row_user->getFullName()}</a></td>
           <td>{$row_user->getEmail()}</td>
-          <td>{$gmAttendText}</td>
+          <td>{number_format($eventAttendText, 2, '.', '')}</td>
+          <td>{number_format($gmAttendText, 2, '.', '')}</td>
           <td>{$buttons}</td>
         </tr>
       );
@@ -273,6 +262,7 @@ class MembersController extends BaseController {
           <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Event  %</th>
             <th>GM  %</th>
             <th data-defaultsort="disabled">Actions</th>
           </tr>
@@ -391,8 +381,13 @@ class MembersController extends BaseController {
         $state = UserState::assert($_POST['disable_id']);
         UserMutator::disableByState($state);
       }
-    }elseif (isset($_POST['state_change'])) {
+    } elseif (isset($_POST['state_change'])) {
       // Makes a member a candidate
+      if(UserState::Pledge == (int)$_POST['state_change']) {
+        UserMutator::update((int)$_POST['id'])
+        ->setClass(Settings::getCurrentClass())
+        ->save();
+      }
       UserMutator::update((int)$_POST['id'])
         ->setMemberStatus((int)$_POST['state_change'])
         ->save();

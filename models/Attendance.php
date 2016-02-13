@@ -70,13 +70,22 @@ final class Attendance {
     }, $query);
   }
 
-  public static function countUserAttendance(int $user_id, AttendanceState $attendance, EventType $type): int {
-    $query = DB::queryFirstRow("
-      SELECT COUNT(user_id)
-      FROM attendance, events
-      WHERE attendance.status=%s AND attendance.user_id=%s AND events.type=%s AND events.id = attendance.event_id",
-      $attendance, $user_id, $type
-    );
+  public static function countUserAttendance(int $user_id, AttendanceState $attendance, ?EventType $type): int {
+    if(!is_null($type)) {
+      $query = DB::queryFirstRow("
+        SELECT COUNT(user_id)
+        FROM attendance, events
+        WHERE attendance.status=%s AND attendance.user_id=%s AND events.type=%s AND events.id = attendance.event_id",
+        $attendance, $user_id, $type
+      );
+    } else {
+      $query = DB::queryFirstRow("
+        SELECT COUNT(user_id)
+        FROM attendance, events
+        WHERE attendance.status=%s AND attendance.user_id=%s AND events.id = attendance.event_id",
+        $attendance, $user_id
+      );
+    }
     return (int) $query['COUNT(user_id)'];
   }
   /* END MANUAL SECTION */

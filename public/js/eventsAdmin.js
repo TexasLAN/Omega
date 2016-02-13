@@ -17,7 +17,9 @@ $('#eventMutator').on('show.bs.modal', function(event) {
   var startDateStr = button.data('startdate');
   var endDateStr = button.data('enddate');
   var startDate = new Date(startDateStr);
+  if(isNaN(startDate.getTime())) startDate = new Date();
   var endDate = new Date(endDateStr);
+  if(isNaN(endDate.getTime())) endDate = new Date();
   var description = button.data('description');
 
   var modal = $(this);
@@ -32,9 +34,9 @@ $('#eventMutator').on('show.bs.modal', function(event) {
   // Set form attributes to button values
   modal.find('#name').val(name);
   modal.find('#location').val(location);
-  modal.find('#start_date').val(startDate.getFullYear() + "-" + (startDate.getMonth()+1) + "-" + startDate.getUTCDate());
+  modal.find('#start_date').val(startDate.toISOString().slice(0,10));
   modal.find('#start_time').val(assertTwoDigit(startDate.getUTCHours()) + ":" + assertTwoDigit(startDate.getMinutes()) + ":" + assertTwoDigit(startDate.getSeconds()));
-  modal.find('#end_date').val(endDate.getFullYear() + "-" + (endDate.getMonth()+1) + "-" + endDate.getUTCDate());
+  modal.find('#end_date').val(endDate.toISOString().slice(0,10));
   modal.find('#end_time').val(assertTwoDigit(endDate.getUTCHours()) + ":" + assertTwoDigit(endDate.getMinutes()) + ":" + assertTwoDigit(endDate.getSeconds()));
   modal.find('#description').val(description);
 });

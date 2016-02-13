@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<9bd80728877a1313dd17edd36f04ca3c>>
+ * @partially-generated SignedSource<<8fa1a076bfb1d09d3ffd1f2eb242e48f>>
  */
 
 final class Application {
@@ -49,6 +49,10 @@ final class Application {
 
   public function getQuestion6(): string {
     return (string) $this->data['q6'];
+  }
+
+  public function getQuestion7(): string {
+    return (string) $this->data['q7'];
   }
 
   public function getUserID(): int {

@@ -9,7 +9,7 @@ class FeedbackSingleController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
-        UserState::Member
+        UserState::Active
         });
     $newConfig->setTitle('Feedback');
     return $newConfig;
@@ -31,7 +31,7 @@ class FeedbackSingleController extends BaseController {
       <div class="col-md-8 col-md-offset-2">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h1>{$user->getFirstName() . ' ' . $user->getLastName()}</h1>
+            <h1>{$user->getFullName()}</h1>
           </div>
           <div class="panel-body">
             <p class="text-center">

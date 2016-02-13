@@ -10,7 +10,7 @@ class EventsListController extends BaseController {
     $newConfig->setUserState(
       Vector {
         UserState::Pledge,
-        UserState::Member
+        UserState::Active
     });
     $newConfig->setTitle('Events');
     return $newConfig;
@@ -144,16 +144,39 @@ class EventsListController extends BaseController {
 
     $events = Event::loadPast();
     foreach($events as $event) {
+      $stringID = (string) $event->getID();
+      $past_events_actions = 
+        <form class="btn-toolbar" method="post" action={EventsListController::getPath()}>
+          <a href={EventDetailsController::getPrePath() . $event->getID()} class="btn btn-primary">
+            View Details
+          </a>
+        </form>;
+      if(self::validateActions($user)) {
+        $past_events_actions->appendChild(
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target="#eventMutator"
+            data-method="update"
+            data-type="normal"
+            data-id={(string) $event->getID()}
+            data-name={$event->getName()}
+            data-location={$event->getLocation()}
+            data-startdate={$event->getStartDateWeb()}
+            data-enddate={$event->getEndDateWeb()}
+            data-description={$event->getDescription()}>
+            Update
+          </button>
+        );
+      }
+
       $past_events->appendChild(
         <tr>
           <td>{$event->getName()}</td>
           <td>{$event->getLocation()}</td>
           <td>{$event->getStartDateStr()}</td>
-          <td>
-            <a href={EventDetailsController::getPrePath() . $event->getID()} class="btn btn-primary">
-              View Details
-            </a>
-          </td>
+          <td>{$past_events_actions}</td>
         </tr>
       );
     }
@@ -288,7 +311,7 @@ class EventsListController extends BaseController {
           case EventType::GeneralMeeting:
             $userList = User::loadStates(Vector {
               UserState::Pledge,
-              UserState::Member
+              UserState::Active
             });
             break;
           case EventType::PledgeMeeting:
@@ -310,7 +333,7 @@ class EventsListController extends BaseController {
         }
 
       } elseif($_POST['method'] == 'update') {
-          EventMutator::update((int) $_POST['id'])
+        EventMutator::update((int) $_POST['id'])
           ->setName($_POST['name'])
           ->setLocation($_POST['location'])
           ->_setStartDate(Event::strToDatetime($_POST['start_date'], $_POST['start_time']))

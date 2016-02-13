@@ -24,7 +24,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Member List
-    if($user->getState() == UserState::Member) {
+    if($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li class={$controller === 'MembersController' ? 'active' : ''}>
           <a href={MembersController::getPath()}>Members</a>
@@ -33,7 +33,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Feedback List
-    if($user->getState() == UserState::Member) {
+    if($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li class={($controller === 'FeedbackListController' || $controller === 'FeedbackSingleController') ? 'active' : ''}>
           <a href={FeedbackListController::getPath()}>Applicant Feedback</a>
@@ -51,7 +51,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Events
-    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Member) {
+    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li class={($controller === 'EventsListController' || $controller === 'EventDetailsController') ? 'active' : ''}>
           <a href={EventsListController::getPath()}>Events</a>
@@ -60,7 +60,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Notify Log
-    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Member) {
+    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li class={($controller === 'NotifyLogController' || $controller === 'NotifyLogController') ? 'active' : ''}>
           <a href={NotifyLogController::getPath()}>Notification Logs</a>
@@ -77,7 +77,23 @@ final class :omega:nav-buttons extends :x:element {
       );
     }
 
-    // Admin only Settings
+    // Voting Apply
+    if(Settings::get('voting_open') && $user->getState() == UserState::Active) {
+      $nav_buttons->appendChild(
+        <li class={$controller === 'VoteApplyController' ? 'active' : ''}>
+          <a href={VoteApplyController::getPath()}>Election Apply</a>
+        </li>
+      );
+    }
+
+    // Admin only VoteSetup && Settings
+    if(Settings::get('voting_open') && $user->validateRole(UserRoleEnum::Admin)) {
+      $nav_buttons->appendChild(
+        <li class={$controller === 'VoteSetupController' ? 'active' : ''}>
+          <a href={VoteSetupController::getPath()}>Vote Setup</a>
+        </li>
+      );
+    }
     if($user->validateRole(UserRoleEnum::Admin)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'SettingsController' ? 'active' : ''}>

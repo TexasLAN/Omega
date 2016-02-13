@@ -9,7 +9,7 @@ class NotifyController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
-        UserState::Member
+        UserState::Active
         });
     $newConfig->setUserRoles(
       Vector {

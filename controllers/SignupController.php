@@ -37,12 +37,12 @@ class SignupController extends BaseController {
             <input type="text" class="form-control" name="phone" placeholder="Phone Number" />
           </div>
           <div class="form-group">
-            <label>First Name</label>
-            <input type="text" class="form-control" name="fname" placeholder="First Name" />
+            <label>Full Name</label>
+            <input type="text" class="form-control" name="full_name" placeholder="Full Name" />
           </div>
           <div class="form-group">
-            <label>Last Name</label>
-            <input type="text" class="form-control" name="lname" placeholder="Last Name" />
+            <label>Nick Name</label>
+            <input type="text" class="form-control" name="nick_name" placeholder="Nick Name" />
           </div>
           <button type="submit" class="btn btn-default">Submit</button>
         </form>
@@ -53,7 +53,7 @@ class SignupController extends BaseController {
     if($_POST['uname'] == '' || 
        $_POST['password'] == '' || $_POST['password2'] == '' ||
        $_POST['email'] == '' || $_POST['phone'] == '' ||
-       $_POST['fname'] == '' || $_POST['lname'] == '') {
+       $_POST['full_name'] == '' || $_POST['nick_name'] == '') {
       Flash::set('error', 'All fields are required');
       Route::redirect(self::getPath());
     }
@@ -76,8 +76,8 @@ class SignupController extends BaseController {
       $_POST['password'],
       $_POST['email'],
       $_POST['phone'],
-      $_POST['fname'],
-      $_POST['lname']
+      $_POST['full_name'],
+      $_POST['nick_name']
     );
 
     // User creation failed

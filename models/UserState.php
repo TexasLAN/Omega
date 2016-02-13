@@ -1,11 +1,11 @@
 <?hh // strict
 
 enum UserState : int as int {
-	Applicant = 0;
-	Pledge = 1;
-	Member = 2;
 	Disabled = 3;
+	Applicant = 0;
+	Candidate = 6;
+	Pledge = 1;
+	Active = 2;
 	Inactive = 4;
 	Alum = 5;
-	Candidate = 6;
 }

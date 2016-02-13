@@ -16,7 +16,7 @@ class EventDetailsController extends BaseController {
         UserState::Applicant,
         UserState::Candidate,
         UserState::Pledge,
-        UserState::Member
+        UserState::Active
     });
     $newConfig->setTitle('Event Details');
     return $newConfig;
@@ -46,6 +46,16 @@ class EventDetailsController extends BaseController {
       </div>
     </div>;
 
+    $full_user_list = User::loadForAutoComplete();
+    $user_list = array();
+    foreach($full_user_list as $row) {
+      $row_data = Map{};
+      $row_data->add(Pair {'value', $row->getFullName() . ' (' . $row->getEmail() . ')'})
+               ->add(Pair {'data', (string) $row->getID()});
+
+      array_push($user_list, $row_data);
+    }
+
 
     $action_url = self::getPrePath() . $event->getID();
     $actionPanel = <div/>;
@@ -58,14 +68,15 @@ class EventDetailsController extends BaseController {
           </div>
           <div class="panel-body">
             <form method="post" action={$action_url}>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="text" class="form-control" name="email" />
+              <div id="searchfield" class="form-group">
+                <input type="text" class="form-control biginput" id="autocomplete" />
               </div>
-              <button name="add_email" class="btn btn-primary" type="submit">
-                Add email
+              <button name="add_user_btn" class="btn btn-primary" type="submit">
+                Mark Present
               </button>
+              <input type="hidden" id="user_list" value={json_encode($user_list)}/>
               <input type="hidden" name="event_id" value={(string) $event->getID()}/>
+              <input type="hidden" id="user_id" name="add_user" value="0"/>
             </form>
           </div>
         </div>;
@@ -105,7 +116,7 @@ class EventDetailsController extends BaseController {
       
       $table_body->appendChild(
         <tr>
-          <td>{$load_user->getFirstName() . ' ' . $load_user->getLastName()}</td>
+          <td>{$load_user->getFullName()}</td>
           <td>{$load_user->getStateStr()}</td>
           <td>{($attendance->getStatus() == AttendanceState::Present) ? 'Present' : 'Not Present'}</td>
           <td>
@@ -129,6 +140,8 @@ class EventDetailsController extends BaseController {
         </div>
         <script src="/js/moment.min.js"></script>
         <script src="/js/bootstrap-sortable.js"></script>
+        <script src="/js/jquery-1.9.1.min.js"></script>
+        <script src="/js/jquery.autocomplete.min.js"></script>
         <script src="/js/attendance.js"></script>
       </div>;
   }
@@ -151,18 +164,21 @@ class EventDetailsController extends BaseController {
       }
       AttendanceMutator::updateStatus((int) $_POST['user_id'], (int) $_POST['event_id'], $newStatus);
       Flash::set('success', 'Attendance status changed successfully');
-    } elseif(isset($_POST['add_email'])) {
-      $addUser = User::loadEmail($_POST['email']);
+    } elseif(isset($_POST['add_user'])) {
+      $addUser = User::load((int)$_POST['add_user']);
       $eventUserAttend = ($addUser) ? Attendance::loadForUserEvent($addUser->getID(), (int) $_POST['event_id']) : null;
-      if(!$addUser || $eventUserAttend) {
-        Flash::set('error', 'Adding the email failed!');
-      } else {
+      if(!$addUser) {
+        Flash::set('error', 'Adding the user failed!');
+      } elseif(!$eventUserAttend) {
         AttendanceMutator::create()
         ->setUserID((int) $addUser->getID())
         ->setEventID((int) $_POST['event_id'])
-        ->setStatus(AttendanceState::NotPresent)
+        ->setStatus(AttendanceState::Present)
         ->save();
-        Flash::set('success', 'Adding the email succeeded!');
+        Flash::set('success', 'Adding the user succeeded!');
+      } else {
+        AttendanceMutator::updateStatus($eventUserAttend->getUserID(), $eventUserAttend->getEventID(), AttendanceState::Present);
+        Flash::set('success', 'Marking the user succeeded!');
       }
     }
 

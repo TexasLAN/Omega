@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<0ea0ae58f60401956e53beb71a5aaff5>>
+ * @partially-generated SignedSource<<8e97f45826c739077accd65fb58c5285>>
  */
 
 final class ApplicationMutator {
@@ -48,6 +48,7 @@ final class ApplicationMutator {
       'q4',
       'q5',
       'q6',
+      'q7',
       'user_id',
       'status',
     };
@@ -98,6 +99,11 @@ final class ApplicationMutator {
     return $this;
   }
 
+  public function setQuestion7(string $value): this {
+    $this->data["q7"] = $value;
+    return $this;
+  }
+
   public function setUserID(int $value): this {
     $this->data["user_id"] = $value;
     return $this;
@@ -118,7 +124,8 @@ final class ApplicationMutator {
     string $q3,
     string $q4,
     string $q5,
-    string $q6
+    string $q6,
+    string $q7
   ): ?Application {
     # Make sure the user doesn't already have an application active
     $query = DB::query("SELECT * FROM applications WHERE user_id=%s", $user_id);
@@ -139,7 +146,8 @@ final class ApplicationMutator {
         'q3' => $q3,
         'q4' => $q4,
         'q5' => $q5,
-        'q6' => $q6
+        'q6' => $q6,
+        'q7' => $q7
       };
       DB::update('applications', $paramData->toArray(), 'user_id=%s', $user_id);
     } else {
@@ -154,6 +162,7 @@ final class ApplicationMutator {
         'q4' => $q4,
         'q5' => $q5,
         'q6' => $q6,
+        'q7' => $q7,
         'status' => ApplicationState::NotStarted
       };
       DB::insert('applications', $paramData->toArray());

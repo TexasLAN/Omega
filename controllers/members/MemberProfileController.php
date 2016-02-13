@@ -15,7 +15,7 @@ class MemberProfileController extends BaseController {
         UserState::Applicant,
         UserState::Candidate,
         UserState::Pledge,
-        UserState::Member,
+        UserState::Active,
         UserState::Disabled,
         UserState::Inactive,
         UserState::Alum
@@ -36,7 +36,7 @@ class MemberProfileController extends BaseController {
     }
     // Check if valid user to view profile page
     if(!($profile_user->getID() == $user->getID() ||
-     ($user->validateRole(UserRoleEnum::Admin) || ($user->getState() == UserState::Member && $profile_user->getState() != UserState::Disabled)))) {
+     ($user->validateRole(UserRoleEnum::Admin) || ($user->getState() == UserState::Active && $profile_user->getState() != UserState::Disabled)))) {
       Flash::set('error', 'You do not have permission to view this page');
       Route::redirect(MemberProfileController::getPrePath() . $user->getID());
       invariant(false, "Unreachable");
@@ -62,7 +62,7 @@ class MemberProfileController extends BaseController {
     if($profile_user->getID() == $user->getID() && $profile_user->getState() == UserState::Applicant) {
       $application = Application::loadByUser($profile_user->getID());
       if(!$application) {
-        $application = ApplicationMutator::upsert($profile_user->getID(), '', '', '', '', '', '', '', '' );
+        $application = ApplicationMutator::upsert($profile_user->getID(), '', '', '', '', '', '', '', '', '');
       }
 
       if(!$application->isStarted() && !$application->isSubmitted()) {
@@ -94,6 +94,10 @@ class MemberProfileController extends BaseController {
               <p>{$profile_user->getEmail()}</p>
               <h5>Phone Number: </h5>
               <p>{$profile_user->getPhoneNumber()}</p>
+              <h5>Class: </h5>
+              <p>{$profile_user->getClass()}</p>
+              <h5>Graduation Year: </h5>
+              <p>{$profile_user->getGraduationYear()}</p>
               <h5>General Meeting Attendance: </h5>
               <p>{$gmPresent . " / " . ($gmPresent + $gmNotPresent)}</p>
               <h5>Officer Meeting Attendance: </h5>
@@ -134,7 +138,7 @@ class MemberProfileController extends BaseController {
               </div>
             </div>
             <div class="col-md-9">
-              <h1>{$profile_user->getFirstName() . ' ' . $profile_user->getLastName()}</h1>
+              <h1>{$profile_user->getFullName()}</h1>
               {$badges}
               {$memberInfo}
             </div>

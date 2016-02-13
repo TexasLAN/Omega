@@ -9,7 +9,7 @@ class ReviewSingleController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
-        UserState::Member
+        UserState::Active
         });
     $newConfig->setUserRoles(
       Vector {
@@ -40,9 +40,9 @@ class ReviewSingleController extends BaseController {
             <h1 class="panel-title">Admin Actions</h1>
           </div>
           <div class="panel-body">
-            <form class="btn-toolbar" method="post" action="/members">
-              <button name="pledge" class="btn btn-primary" value={(string) $user->getID()} type="submit">
-                Promote to Pledge
+            <form class="btn-toolbar" method="post" action={ReviewListController::getPath()}>
+              <button name="candidate" class="btn btn-primary" value={(string) $user->getID()} type="submit">
+                Promote to Candidate
               </button>
               <button name="delete" class="btn btn-danger" value={(string) $user->getID()} type="submit">
                 Delete this application
@@ -61,7 +61,7 @@ class ReviewSingleController extends BaseController {
       <div class="col-md-8 col-md-offset-2">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h1>{$user->getFirstName() . ' ' . $user->getLastName()}</h1>
+            <h1>{$user->getFullName()}</h1>
           </div>
           <div class="panel-body">
             <p class="text-center">
@@ -102,6 +102,9 @@ class ReviewSingleController extends BaseController {
             <hr/>
             <h4>Impress us</h4>
             <p>{$application->getQuestion6()}</p>
+            <hr/>
+            <h4>If you were to work on a personal project this semester that you could put on your resume, what would it be? (ex: an iOS app that is Tinder for dogs)</h4>
+            <p>{$application->getQuestion7()}</p>
           </div>
         </div>
         {$admin_controls}
@@ -160,18 +163,6 @@ class ReviewSingleController extends BaseController {
       </div>;
   }
 
-  public static function post(): void {
-    // Upsert the review
-    ReviewMutator::upsert(
-      $_POST['review'],
-      (int)$_POST['weight'],
-      Session::getUser(),
-      Application::load((int)$_POST['id'])
-    );
-
-    Route::redirect('/review/' . $_POST['id']);
-  }
-
   private static function getReviews(Application $application): ?:xhp {
 
     # Loop through the reviews
@@ -181,7 +172,7 @@ class ReviewSingleController extends BaseController {
       $user = User::load((int) $row_app->getUserID());
       $reviews->appendChild(
         <li class="list-group-item">
-          <h4>{$user->getFirstName() . ' ' . $user->getLastName()}</h4>
+          <h4>{$user->getFullName()}</h4>
           <p>{$row_app->getComments()}</p>
         </li>
       );
@@ -198,7 +189,7 @@ class ReviewSingleController extends BaseController {
       $user = User::load((int) $row_feedback->getReviewerID());
       $feedback->appendChild(
         <li class="list-group-item">
-          <h4>{$user->getFirstName() . ' ' . $user->getLastName()}</h4>
+          <h4>{$user->getFullName()}</h4>
           <p>{$row_feedback->getComments()}</p>
         </li>
       );

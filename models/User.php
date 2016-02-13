@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<8e3a2e5a2db6948d579240e1dc80198a>>
+ * @partially-generated SignedSource<<44f31be5dea8ac13bd6367fd0ae572f2>>
  */
 
 final class User {
@@ -23,12 +23,12 @@ final class User {
     return (string) $this->data['email'];
   }
 
-  public function getFirstName(): string {
-    return (string) $this->data['fname'];
+  public function getFullName(): string {
+    return (string) $this->data['full_name'];
   }
 
-  public function getLastName(): string {
-    return (string) $this->data['lname'];
+  public function getNickName(): string {
+    return (string) $this->data['nick_name'];
   }
 
   public function getUsername(): string {
@@ -45,6 +45,18 @@ final class User {
 
   public function getPhoneNumber(): string {
     return (string) $this->data['phone_number'];
+  }
+
+  public function getGraduationYear(): int {
+    return (int) $this->data['grad_year'];
+  }
+
+  public function getHasVoted(): bool {
+    return (bool) $this->data['has_voted'];
+  }
+
+  public function getClass(): ?int {
+    return isset($this->data['class']) ? (int) $this->data['class'] : null;
   }
 
   public function getToken(): ?string {
@@ -123,6 +135,14 @@ final class User {
     if(!$query) {
       return array();
     }
+    return array_map(function($value) {
+      return new User(new Map($value));
+    }, $query);
+  }
+
+  public static function loadForAutoComplete(): array<User> {
+    $query = DB::query("SELECT * FROM users");
+    
     return array_map(function($value) {
       return new User(new Map($value));
     }, $query);

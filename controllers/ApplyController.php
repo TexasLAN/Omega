@@ -109,6 +109,12 @@ class ApplyController extends BaseController {
                   {$application->getQuestion6()}
                 </textarea>
               </div>
+              <div class="form-group">
+                <label for="q7" class="control-label">If you were to work on a personal project this semester that you could put on your resume, what would it be? (ex: an iOS app that is Tinder for dogs)</label>
+                <textarea class="form-control" rows={3} id="q7" name="q7">
+                  {$application->getQuestion7()}
+                </textarea>
+              </div>
               <span class="help-block">All fields are required</span>
               <div class="btn-toolbar">
                 <button type="submit" name="save" value ="1" class="btn btn-default">Save</button>
@@ -136,12 +142,14 @@ class ApplyController extends BaseController {
       $_POST['q3'],
       $_POST['q4'],
       $_POST['q5'],
-      $_POST['q6']
+      $_POST['q6'],
+      $_POST['q7']
     );
 
     if(isset($_POST['submit'])) {
       if($_POST['q1'] === '' || $_POST['q2'] === '' || $_POST['q3'] === '' ||
-         $_POST['q4'] === '' || $_POST['q5'] === '' || $_POST['q6'] === '') {
+         $_POST['q4'] === '' || $_POST['q5'] === '' || $_POST['q6'] === '' || 
+         $_POST['q7'] === '') {
         Flash::set('error', 'All fields are required');
         Route::redirect(ApplyController::getPath());
       }

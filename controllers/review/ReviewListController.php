@@ -9,7 +9,7 @@ class ReviewListController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(
       Vector {
-        UserState::Member
+        UserState::Active
         });
     $newConfig->setUserRoles(
       Vector {
@@ -58,7 +58,7 @@ class ReviewListController extends BaseController {
       $table_body->appendChild(
         <tr id={(string) $row_app->getID()}>
           <td>{(string) $row_app->getID()}</td>
-          <td class="name">{$user->getFirstName() . ' ' . $user->getLastName()}</td>
+          <td class="name">{$user->getFullName()}</td>
           <td class="email">{$user->getEmail()}</td>
           <td class="text-center">{$count}</td>
           <td class="text-center">{$avg_rating}</td>
@@ -82,5 +82,29 @@ class ReviewListController extends BaseController {
         <script src="/js/moment.min.js"></script>
         <script src="/js/bootstrap-sortable.js"></script>
       </x:frag>;
+  }
+
+  public static function post(): void {
+    if(isset($_POST['delete'])) {
+      $user = User::load((int)$_POST['delete']);
+      $app = Application::loadByUser($user->getID());
+      UserMutator::delete($user->getID());
+      ApplicationMutator::delete($app->getID());
+      Flash::set('success', 'Application deleted successfully');
+    } elseif(isset($_POST['candidate'])) {
+      UserMutator::update((int)$_POST['candidate'])
+        ->setMemberStatus(UserState::Candidate)
+        ->save();
+      Flash::set('success', 'Application promoted successfully');
+    } else {
+      // Upsert the review
+      ReviewMutator::upsert(
+        $_POST['review'],
+        (int)$_POST['weight'],
+        Session::getUser(),
+        Application::load((int)$_POST['id'])
+      );
+    }
+    Route::redirect(self::getPath());
   }
 }

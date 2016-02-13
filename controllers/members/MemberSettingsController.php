@@ -13,7 +13,7 @@ class MemberSettingsController extends BaseController {
         UserState::Applicant,
         UserState::Candidate,
         UserState::Pledge,
-        UserState::Member,
+        UserState::Active,
         UserState::Disabled,
         UserState::Inactive,
         UserState::Alum
