@@ -71,9 +71,14 @@ class EventDetailsController extends BaseController {
               <div id="searchfield" class="form-group">
                 <input type="text" class="form-control biginput" id="autocomplete" />
               </div>
-              <button name="add_user_btn" class="btn btn-primary" type="submit">
-                Mark Present
-              </button>
+              <div class="btn-toolbar">
+                <button name="add_present_user_btn" class="btn btn-primary" type="submit">
+                  Mark Present
+                </button>
+                <button name="add_not_present_user_btn" class="btn btn-primary" type="submit">
+                  Mark Not Present
+                </button>
+              </div>
               <input type="hidden" id="user_list" value={json_encode($user_list)}/>
               <input type="hidden" name="event_id" value={(string) $event->getID()}/>
               <input type="hidden" id="user_id" name="add_user" value="0"/>
@@ -118,7 +123,7 @@ class EventDetailsController extends BaseController {
         <tr>
           <td>{$load_user->getFullName()}</td>
           <td>{$load_user->getStateStr()}</td>
-          <td>{($attendance->getStatus() == AttendanceState::Present) ? 'Present' : 'Not Present'}</td>
+          <td>{AttendanceStateInfo::toString(AttendanceState::assert($attendance->getStatus()))}</td>
           <td>
             {$actions}
           </td>
@@ -165,6 +170,10 @@ class EventDetailsController extends BaseController {
       AttendanceMutator::updateStatus((int) $_POST['user_id'], (int) $_POST['event_id'], $newStatus);
       Flash::set('success', 'Attendance status changed successfully');
     } elseif(isset($_POST['add_user'])) {
+      $attendanceState = AttendanceState::NotPresent;
+      if(isset($_POST['add_present_user_btn']) && !isset($_POST['add_not_present_user_btn'])) {
+        $attendanceState = AttendanceState::Present;
+      }
       $addUser = User::load((int)$_POST['add_user']);
       $eventUserAttend = ($addUser) ? Attendance::loadForUserEvent($addUser->getID(), (int) $_POST['event_id']) : null;
       if(!$addUser) {
@@ -173,12 +182,16 @@ class EventDetailsController extends BaseController {
         AttendanceMutator::create()
         ->setUserID((int) $addUser->getID())
         ->setEventID((int) $_POST['event_id'])
-        ->setStatus(AttendanceState::Present)
+        ->setStatus($attendanceState)
         ->save();
-        Flash::set('success', 'Adding the user succeeded!');
+        Flash::set('success', 'Adding user as ' . AttendanceStateInfo::toString($attendanceState) . ' succeeded!');
       } else {
-        AttendanceMutator::updateStatus($eventUserAttend->getUserID(), $eventUserAttend->getEventID(), AttendanceState::Present);
-        Flash::set('success', 'Marking the user succeeded!');
+        if($eventUserAttend->getStatus() == $attendanceState) {
+          Flash::set('error', 'User has already been marked as '. AttendanceStateInfo::toString($attendanceState) . '!');
+        } else {
+          AttendanceMutator::updateStatus($eventUserAttend->getUserID(), $eventUserAttend->getEventID(), $attendanceState);
+          Flash::set('success', 'Marking the user as ' . AttendanceStateInfo::toString($attendanceState) . ' succeeded!');
+        }
       }
     }
 

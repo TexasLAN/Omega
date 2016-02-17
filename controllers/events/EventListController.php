@@ -67,9 +67,9 @@ class EventsListController extends BaseController {
               data-toggle="modal"
               data-target="#eventMutator"
               data-method="create"
-              data-type={EventType::PledgeMeeting}
+              data-type={EventType::PledgeBonding}
               data-name="Pledge Meeting">
-              New Pledge Meeting
+              New Pledge Bonding
             </button>
           </div>
         </div>;
@@ -312,11 +312,6 @@ class EventsListController extends BaseController {
             $userList = User::loadStates(Vector {
               UserState::Pledge,
               UserState::Active
-            });
-            break;
-          case EventType::PledgeMeeting:
-            $userList = User::loadStates(Vector {
-              UserState::Pledge
             });
             break;
           case EventType::OfficerMeeting:

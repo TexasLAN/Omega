@@ -86,14 +86,16 @@ final class :omega:nav-buttons extends :x:element {
       );
     }
 
-    // Admin only VoteSetup && Settings
-    if(Settings::get('voting_open') && $user->validateRole(UserRoleEnum::Admin)) {
+    // Voting
+    if((Settings::get('voting_open') && $user->validateRole(UserRoleEnum::Admin)) || (Settings::get('voting_in_progress') && $user->getState() == UserState::Active)) {
       $nav_buttons->appendChild(
-        <li class={$controller === 'VoteSetupController' ? 'active' : ''}>
-          <a href={VoteSetupController::getPath()}>Vote Setup</a>
+        <li class={$controller === 'VoteController' ? 'active' : ''}>
+          <a href={VoteController::getPath()}>Vote</a>
         </li>
       );
     }
+
+    // Admin only Settings
     if($user->validateRole(UserRoleEnum::Admin)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'SettingsController' ? 'active' : ''}>

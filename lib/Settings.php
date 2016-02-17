@@ -17,6 +17,14 @@ class Settings {
     return (int) $query['value'];
   }
 
+  public static function getVotingID(): int {
+    $query = DB::queryFirstRow("SELECT * FROM settings WHERE name=%s", "voting_id");
+    if (!$query) {
+      return 0;
+    }
+    return (int) $query['value'];
+  }
+
   public static function set(string $key, mixed $value): void {
     $paramData = Map {
       'name' => $key,

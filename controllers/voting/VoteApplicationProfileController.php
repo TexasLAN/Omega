@@ -22,7 +22,7 @@ class VoteApplicationProfileController extends BaseController {
     $vote_role_id = (int)$_SESSION['route_params']['id'];
     $user_id = (int)$_SESSION['route_params']['user_id'];
 
-  	if(!Settings::get('voting_open')) {
+    if(!Settings::get('voting_open')) {
       return
       <h1>Voting is closed</h1>;
     }
@@ -35,16 +35,30 @@ class VoteApplicationProfileController extends BaseController {
         <h1>There is no application for this user on this position.</h1>
       </div>;
     }
-
+    
+    $email_hash = md5(strtolower(trim($user->getEmail())));
+    $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=200';
 
     return
-      <x:frag>
+    <x:frag>
+      <div class="col-md-8 col-md-offset-2">
         <div class="panel panel-default">
+          <div class="panel-heading">
+            <h1>{$user->getFullName()} for {VoteRole::getRoleName($vote_role_id)}</h1>
+          </div>
           <div class="panel-body">
-            <h1>Persons application yay</h1>
+            <div class="col-md-3">
+              <div class="thumbnail">
+                <img src={$gravatar_url} class="img-thumbnail" />
+              </div>
+            </div>
+            <div class="col-md-9">
+              <h4>{$voteCandidate->getDescription()}</h4>
+            </div>
           </div>
         </div>
-      </x:frag>;
+      </div>
+    </x:frag>;
   }
 
   public static function post(): void {

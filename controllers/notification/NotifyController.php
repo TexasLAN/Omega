@@ -78,8 +78,16 @@ class NotifyController extends BaseController {
     $default_footer = isset($_POST['default_footer']);
     $html_parser = isset($_POST['html_parser']);
 
+    $userState = null;
+    foreach(UserState::getValues() as $name => $value) {
+      if(!strcmp($_POST['email'], $name)) {
+        $userState = UserState::assert($value);
+        break;
+      }
+    }
+
     // Save email to notification log 
-    if($_POST['email'] == 'Member') {
+    if($userState == UserState::Active) {
       NotifyLogMutator::create()
       ->setNotifyTitle($_POST['subject'])
       ->setNotifyText($_POST['body'])
@@ -91,7 +99,7 @@ class NotifyController extends BaseController {
     }
 
     // Find email list
-    $emailList = Email::getEmailList($_POST['email']);
+    $emailList = Email::getEmailList($_POST['email'], $userState);
 
     Email::send($emailList, $_POST['subject'], $_POST['body'], $default_footer, $html_parser);
     Flash::set('success', 'Your email was sent successfully');

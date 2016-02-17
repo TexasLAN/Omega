@@ -73,28 +73,14 @@ class Email {
   </div>;
   }
 
-  public static function getEmailList(string $emailListStr): array {
+  public static function getEmailList(string $emailListStr, ?UserState $userState): array {
     $emailList = array();
-    error_log("getEmailList START " . $_POST['email'] . " " . $emailListStr);
     if(!strcmp($_POST['email'], 'Webmaster Test')) {
-
       array_push($emailList, Email::$webmaster_test);
     } else {
-      $userState = null;
-      foreach(UserState::getValues() as $name => $value) {
-        error_log("getEmailList Loop: " . $_POST['email'] . " " . $name . " " . $value);
-        if(!strcmp($_POST['email'], $name)) {
-          error_log("getEmailList Check: " . $name);
-          $userState = UserState::assert($value);
-          break;
-        }
-      }
-      error_log("getEmailList: " . (is_null($userState)) ? "is null" : "isnt null");
       if(!is_null($userState)) {
-        error_log("emailList: is working");
         $emailList = self::getUserStateEmailList($userState);
       } else {
-        error_log("emailList: is null send to webmaster");
         array_push($emailList, Email::$webmaster_test);
       }
     }

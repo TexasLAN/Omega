@@ -52,7 +52,7 @@ class VoteApplicationController extends BaseController {
                 </textarea>
               </div>
               <button
-                name="submit"
+                name="create_vote_app"
                 type="submit"
                 class="btn btn-primary">
                 Submit
@@ -64,6 +64,19 @@ class VoteApplicationController extends BaseController {
   }
 
   public static function post(): void {
+    $vote_role_id = (int)$_SESSION['route_params']['id'];
+    if(isset($_POST['create_vote_app'])) {
+      VoteCandidateMutator::create()
+        ->setVoteRole($vote_role_id)
+        ->setUserID(Session::getUser()->getID())
+        ->setDescription($_POST['description'])
+        ->setScore(0)
+        ->setVotingID(Settings::getVotingID())
+        ->save();
 
+      Route::redirect(VoteApplicationProfileController::getPrePath() . $vote_role_id . '/' . Session::getUser()->getID());
+    }
+
+    Route::redirect(VoteApplyController::getPath());
   }
 }

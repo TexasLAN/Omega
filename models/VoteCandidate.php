@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<4363bbdcafa75b0f93ba17b9ac295e7f>>
+ * @partially-generated SignedSource<<4515643cfb7cce08fb6d2b38c18eb873>>
  */
 
 final class VoteCandidate {
@@ -35,11 +35,25 @@ final class VoteCandidate {
     return (string) $this->data['description'];
   }
 
+  public function getVotingID(): int {
+    return (int) $this->data['voting_id'];
+  }
+
   /* BEGIN MANUAL SECTION VoteCandidate_footer */
   // Insert additional methods here
+  public static function countCandidates(): int {
+    $query = DB::query("SELECT * FROM vote_candidates WHERE voting_id=%d", Settings::getVotingID());
+    if (!$query) {
+      return 0;
+    }
+    $array = array_map(function($value) {
+      return new VoteCandidate(new Map($value));
+    }, $query);
+    return count($array);
+  }
 
   public static function loadByRoleAndUser(int $role_id, int $user_id): ?VoteCandidate {
-    $result = DB::queryFirstRow("SELECT * FROM vote_candidates WHERE vote_role=%d AND user_id=%d", $role_id, $user_id);
+    $result = DB::queryFirstRow("SELECT * FROM vote_candidates WHERE vote_role=%d AND user_id=%d AND voting_id=%d", $role_id, $user_id, Settings::getVotingID());
     if (!$result) {
       return null;
     }
@@ -47,11 +61,7 @@ final class VoteCandidate {
   }
 
   public static function loadRole(VoteRoleEnum $role): array<VoteCandidate> {
-    $whereMsg = '';
-    $delim = '';
-    $whereMsg .= $delim . "vote_role=" . $role;
-
-    $query = DB::query("SELECT * FROM vote_candidates WHERE " . $whereMsg);
+    $query = DB::query('SELECT * FROM vote_candidates WHERE vote_role=' . $role . ' AND voting_id=' . Settings::getVotingID());
     if(!$query) {
       return array();
     }
@@ -61,11 +71,7 @@ final class VoteCandidate {
   }
 
   public static function loadRoleByScore(VoteRoleEnum $role): array<VoteCandidate> {
-    $whereMsg = '';
-    $delim = '';
-    $whereMsg .= $delim . "vote_role=" . $role;
-
-    $query = DB::query("SELECT * FROM vote_candidates WHERE " . $whereMsg . " ORDER BY score DESC");
+    $query = DB::query("SELECT * FROM vote_candidates WHERE vote_role=" . $role . ' AND voting_id=' . Settings::getVotingID() . ' ORDER BY score DESC');
     if(!$query) {
       return array();
     }

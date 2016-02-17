@@ -113,7 +113,7 @@ class ReviewSingleController extends BaseController {
             <h1 class="panel-title">Review</h1>
           </div>
           <div class="panel-body">
-            <form method="post" action={'/review/' . $user->getID()}>
+            <form method="post" action={ReviewListController::getPath()}>
               <div class="form-group">
                 <label for="review" class="control-label">Comments</label>
                 <textarea class="form-control" rows={3} id="review" name="review">

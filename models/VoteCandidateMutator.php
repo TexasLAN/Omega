@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<265bf451a0f8ef02372dbec5986950e6>>
+ * @partially-generated SignedSource<<575a174cf29970ef9d5b036e43331d7c>>
  */
 
 final class VoteCandidateMutator {
@@ -44,6 +44,7 @@ final class VoteCandidateMutator {
       'user_id',
       'score',
       'description',
+      'voting_id',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(
@@ -69,6 +70,11 @@ final class VoteCandidateMutator {
 
   public function setDescription(string $value): this {
     $this->data["description"] = $value;
+    return $this;
+  }
+
+  public function setVotingID(int $value): this {
+    $this->data["voting_id"] = $value;
     return $this;
   }
 
