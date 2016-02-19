@@ -95,7 +95,7 @@ class MemberProfileController extends BaseController {
               <h5>Phone Number: </h5>
               <p>{$profile_user->getPhoneNumber()}</p>
               <h5>Class: </h5>
-              <p>{$profile_user->getClass()}</p>
+              <p>{LanClassInfo::getName($profile_user->getClass())}</p>
               <h5>Graduation Year: </h5>
               <p>{$profile_user->getGraduationYear()}</p>
               <h5>General Meeting Attendance: </h5>

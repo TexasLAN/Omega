@@ -22,7 +22,7 @@ class VoteApplicationProfileController extends BaseController {
     $vote_role_id = (int)$_SESSION['route_params']['id'];
     $user_id = (int)$_SESSION['route_params']['user_id'];
 
-    if(!Settings::get('voting_open')) {
+    if(Settings::getVotingStatus() == VotingStatus::Closed) {
       return
       <h1>Voting is closed</h1>;
     }

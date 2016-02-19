@@ -78,7 +78,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Voting Apply
-    if(Settings::get('voting_open') && $user->getState() == UserState::Active) {
+    if(Settings::getVotingStatus() == VotingStatus::Apply && $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li class={$controller === 'VoteApplyController' ? 'active' : ''}>
           <a href={VoteApplyController::getPath()}>Election Apply</a>
@@ -87,7 +87,8 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Voting
-    if((Settings::get('voting_open') && $user->validateRole(UserRoleEnum::Admin)) || (Settings::get('voting_in_progress') && $user->getState() == UserState::Active)) {
+    if(($user->validateRole(UserRoleEnum::Admin)) || 
+      ((Settings::getVotingStatus() == VotingStatus::Voting || Settings::getVotingStatus() == VotingStatus::Results) && $user->getState() == UserState::Active)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'VoteController' ? 'active' : ''}>
           <a href={VoteController::getPath()}>Vote</a>

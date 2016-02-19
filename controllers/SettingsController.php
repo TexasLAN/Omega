@@ -66,11 +66,6 @@ class SettingsController extends BaseController {
                     <input type="checkbox" name="applications_disabled" checked={!$applications_open}/> Disable Applications
                   </label>
                 </div>
-                <div class="checkbox">
-                  <label>
-                    <input type="checkbox" name="voting_disabled" checked={!$voting_open}/> Disable Voting
-                  </label>
-                </div>
               </div>
               <div class="form-group">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -92,12 +87,6 @@ class SettingsController extends BaseController {
       Settings::set('applications_open', false);
     } else {
       Settings::set('applications_open', true);
-    }
-    
-    if(isset($_POST['voting_disabled'])) {
-      Settings::set('voting_open', false);
-    } else {
-      Settings::set('voting_open', true);
     }
 
     Route::redirect(SettingsController::getPath());

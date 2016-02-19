@@ -8,3 +8,17 @@ enum LanClass : int as int {
 	Delta = 4;
 	Epsilon = 5;
 }
+
+class LanClassInfo {
+	public static function getName(?int $value): string {
+		if(is_null($value)) return '';
+		switch ($value) {
+      case LanClass::Founder: return 'Founder';
+      case LanClass::Alpha: return 'Alpha';
+      case LanClass::Beta: return 'Beta';
+      case LanClass::Gamma: return 'Gamma';
+      case LanClass::Delta: return 'Delta';
+      default: return '';
+    }
+	}
+}

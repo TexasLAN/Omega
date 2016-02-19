@@ -33,4 +33,23 @@ class VoteRole {
       default: return '';
     }
   }
+
+  public static function isVotingPosition(int $value): bool {
+    switch ($value) {
+      case VoteRoleEnum::President:
+      case VoteRoleEnum::Administration:
+      case VoteRoleEnum::Treasurer:
+      case VoteRoleEnum::Social:
+      case VoteRoleEnum::Service:
+      case VoteRoleEnum::NewMember:
+      case VoteRoleEnum::Standards:
+        return true;
+      case VoteRoleEnum::Risk:
+      case VoteRoleEnum::Webmaster:
+      case VoteRoleEnum::Brotherhood:
+      case VoteRoleEnum::Historian:
+      default: 
+        return false;
+    }
+  }
 }

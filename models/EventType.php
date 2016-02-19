@@ -3,6 +3,8 @@
 enum EventType: string as string {
   OfficerMeeting = 'om';
   GeneralMeeting = 'gm';
-  PledgeBonding = 'pm';
+  PledgeBonding = 'pb';
+  Service = 'service';
+  Special = 'lan';
   Other = 'other';
 }

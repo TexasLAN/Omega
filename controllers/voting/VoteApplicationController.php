@@ -21,15 +21,9 @@ class VoteApplicationController extends BaseController {
   public static function get(): :xhp {
     $vote_role_id = (int)$_SESSION['route_params']['id'];
 
-  	if(!Settings::get('voting_open')) {
+  	if(Settings::getVotingStatus() != VotingStatus::Apply) {
       return
-      <h1>Voting is closed</h1>;
-    }
-    if(Settings::get('voting_in_progress')) {
-      return
-      <div>
-      	<h1>Voting is in progress, one can not apply at this time.</h1>
-      </div>;
+      <h1>Election applications are closed</h1>;
     }
     if(!is_null(VoteCandidate::loadByRoleAndUser($vote_role_id, Session::getUser()->getID()))) {
       return

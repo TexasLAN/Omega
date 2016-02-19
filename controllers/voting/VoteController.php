@@ -21,7 +21,7 @@ class VoteController extends BaseController {
 
   public static function get(): :xhp {
 
-  	if(!Settings::get('voting_open')) {
+  	if(Settings::getVotingStatus() == VotingStatus::Closed) {
       return
       <h1>Voting is closed</h1>;
     }
@@ -32,10 +32,17 @@ class VoteController extends BaseController {
     $admin_action_panel = <div/>;
     if(self::validateActions($user)) {
       $admin_form = <form class="btn-toolbar" method="post" action={self::getPath()} />;
-      $no_candidates = VoteCandidate::countCandidates() == 0;
-      if(!Settings::get('voting_in_progress')) {
-        if($no_candidates) {
-          // Voting hasnt started
+      switch (Settings::getVotingStatus()) {
+        case VotingStatus::Closed:
+          $admin_form->appendChild(
+            <button
+              name="open_voting"
+              type="submit"
+              class="btn btn-primary">
+              Open Voting
+            </button>);
+          break;
+        case VotingStatus::Apply:
           $admin_form->appendChild(
             <button
               name="start_voting"
@@ -43,8 +50,17 @@ class VoteController extends BaseController {
               class="btn btn-primary">
               Start Voting
             </button>);
-        } else {
-          // Voting has ended
+          break;
+        case VotingStatus::Voting:
+          $admin_form->appendChild(
+            <button
+              name="stop_voting"
+              type="submit"
+              class="btn btn-primary">
+              Stop Voting
+            </button>);
+          break;
+        case VotingStatus::Results:
           $admin_form->appendChild(
             <button
               name="close_voting"
@@ -52,15 +68,7 @@ class VoteController extends BaseController {
               class="btn btn-primary">
               Close Voting
             </button>);
-        }
-      } else {
-        $admin_form->appendChild(
-          <button
-            name="end_voting"
-            type="submit"
-            class="btn btn-primary">
-            End Voting
-          </button>);
+          break;
       }
 
       $admin_action_panel = 
@@ -75,24 +83,16 @@ class VoteController extends BaseController {
     }
 
     $action_panel = <div/>;
-    $voting_dialog = <div/>;
-    if(Settings::get('voting_in_progress')) {
-      $voting_dialog->appendChild(self::getVotingModal());
-      $form = <form class="btn-toolbar" method="post" action={self::getPath()} />;
-      $form->appendChild(
-        <button
-          name="vote"
-          type="submit"
-          class="btn btn-primary">
-          Vote
-        </button>);
+    if(Settings::getVotingStatus() == VotingStatus::Voting && !Session::getUser()->getHasVoted()) {
       $action_panel = 
         <div class="panel panel-default">
           <div class="panel-heading">
             <h1 class="panel-title">Actions</h1>
           </div>
           <div class="panel-body">
-            {$form}
+          <a href={VoteCandidateController::getPath()} class="btn btn-primary">
+            Vote
+          </a>
           </div>
         </div>;
     }
@@ -112,7 +112,10 @@ class VoteController extends BaseController {
         $user = User::load($candidate->getUserID());
         if(is_null($user)) continue;
 
-        $roleMain->appendChild(<a href={VoteApplicationProfileController::getPrePath() . $value . '/' . $user->getID()}><h5>{$user->getFullName()} - Score: {$candidate->getScore()}</h5></a>);
+        $roleMain->appendChild(
+          <a href={VoteApplicationProfileController::getPrePath() . $value . '/' . $user->getID()}>
+            <h5>{$user->getFullName()} {(Settings::getVotingStatus() == VotingStatus::Results) ? ($candidate->getScore() == 1) ? ' - Won Position' : '' : ''}</h5>
+         </a>);
       }
       $main->appendChild($roleMain);
     }
@@ -129,76 +132,26 @@ class VoteController extends BaseController {
       </x:frag>;
   }
 
-  private static function getVotingModal(): :xhp {
-    return
-      <div class="modal fade" id="eventMutator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h3 class="modal-title" id="eventName" />
-            </div>
-            <div class="modal-body">
-              <form action={self::getPath()} method="post">
-                <div>
-                  <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-control" name="name" id="name" />
-                  </div>
-                  <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" class="form-control" name="location" id="location" />
-                  </div>
-                  <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" class="form-control" name="start_date" id="start_date" />
-                  </div>
-                  <div class="form-group">
-                    <label>Start Time</label>
-                    <input type="time" class="form-control" name="start_time" id="start_time" />
-                  </div>
-                  <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" class="form-control" name="end_date" id="end_date" />
-                  </div>
-                  <div class="form-group">
-                    <label>End Time</label>
-                    <input type="time" class="form-control" name="end_time" id="end_time" />
-                  </div>
-                  <div class="form-group">
-                    <label>Description</label>
-                  </div>
-                  <div class="form-group">
-                    <textarea class="fixed-textarea" name="description" id="description" />
-                  </div>
-                </div>
-                <input type="hidden" name="event_mutator" />
-                <input type="hidden" name="method" id="method"/>
-                <input type="hidden" name="id" id="id"/>
-                <input type="hidden" name="type" id="type"/>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-primary" id="submit">Save</button>
-            </div>
-          </div>
-        </div>
-      </div>;
-  }
-
   public static function post(): void {
-    if(isset($_POST['start_voting'])) {
+    if(isset($_POST['open_voting'])) {
+      Settings::set('voting_status', VotingStatus::Apply);
+    } elseif(isset($_POST['start_voting'])) {
       // Verify there is enough applicants
       foreach(VoteRoleEnum::getValues() as $name => $value) {
         $roleCandidates = VoteCandidate::loadRole(VoteRoleEnum::assert($value));
-        if (count($roleCandidates) == 0) {
-          Flash::set('error', 'Not all positions have been applied for!');
+        if (count($roleCandidates) == 0 && VoteRole::isVotingPosition($value)) {
+          Flash::set('error', 'Not all voting positions have been applied for!');
           Route::redirect(self::getPath());
         }
       }
 
-      Settings::set('voting_in_progress', 1);
+      Settings::set('voting_status', VotingStatus::Voting);
+    } elseif(isset($_POST['stop_voting'])) {
+      Settings::set('voting_status', VotingStatus::Results);
+      Vote::tally();
+    } elseif(isset($_POST['close_voting'])) {
+      Settings::set('voting_status', VotingStatus::Closed);
+      Vote::closeVoting();
     }
     Route::redirect(self::getPath());
   }

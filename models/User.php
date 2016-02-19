@@ -72,6 +72,7 @@ final class User {
   public function getID(): int {
     return (int) $this->data['id'];
   }
+
   /*
     Loads the User obj from a string username
     Returns a user obj with the username or null if it doesnt exist.
@@ -141,7 +142,7 @@ final class User {
   }
 
   public static function loadForAutoComplete(): array<User> {
-    $query = DB::query("SELECT * FROM users");
+    $query = DB::query("SELECT * FROM users where member_status != " . UserState::Disabled);
     
     return array_map(function($value) {
       return new User(new Map($value));

@@ -17,15 +17,9 @@ class VoteApplyController extends BaseController {
 
   public static function get(): :xhp {
 
-  	if(!Settings::get('voting_open')) {
+  	if(Settings::getVotingStatus() != VotingStatus::Apply) {
       return
-      <h1>Voting is closed</h1>;
-    }
-    if(Settings::get('voting_in_progress')) {
-      return
-      <div>
-      	<h1>Voting is in progress, one can not apply at this time.</h1>
-      </div>;
+      <h1>Election applications are closed</h1>;
     }
 
     $main = <div/>;

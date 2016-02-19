@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<5362b5d6c55ec336a024a89297312589>>
+ * @generated SignedSource<<ab02b27daf67857e5606a3b4030f4bd9>>
  */
 
 final class URIMap {
@@ -32,6 +32,7 @@ final class URIMap {
       '/voteapply/(?<id>\\d+)' => 'VoteApplicationController',
       '/voteapply/(?<id>\\d+)/(?<user_id>\\d+)' =>
         'VoteApplicationProfileController',
+      '/votecandidate' => 'VoteCandidateController',
     };
   }
 }

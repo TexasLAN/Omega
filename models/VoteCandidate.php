@@ -41,6 +41,10 @@ final class VoteCandidate {
 
   /* BEGIN MANUAL SECTION VoteCandidate_footer */
   // Insert additional methods here
+  public function getID(): int {
+    return (int) $this->data['id'];
+  }
+  
   public static function countCandidates(): int {
     $query = DB::query("SELECT * FROM vote_candidates WHERE voting_id=%d", Settings::getVotingID());
     if (!$query) {
