@@ -9,9 +9,6 @@ final class :omega:nav-buttons extends :x:element {
 
     $nav_buttons =
       <ul class="nav navbar-nav">
-        <li class={$controller === 'MemberProfileController' ? 'active' : ''}>
-          <a href={MemberProfileController::getPrePath() . $user->getID()}>Profile</a>
-        </li>
       </ul>;
 
     // Application Screen
@@ -26,25 +23,22 @@ final class :omega:nav-buttons extends :x:element {
     // Member List
     if($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={$controller === 'MembersController' ? 'active' : ''}>
+        <li class={$controller === 'MembersController' ||  
+                    $controller === 'MemberProfileController' ||  
+                    $controller === 'MemberSettingsController' 
+                    ? 'active' : ''}>
           <a href={MembersController::getPath()}>Members</a>
         </li>
       );
     }
 
-    // Feedback List
+    // Review List
     if($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={($controller === 'FeedbackListController' || $controller === 'FeedbackSingleController') ? 'active' : ''}>
-          <a href={FeedbackListController::getPath()}>Applicant Feedback</a>
-        </li>
-      );
-    }
-
-    // Review List
-    if($user->validateRole(UserRoleEnum::Admin) || $user->validateRole(UserRoleEnum::Reviewer)) {
-      $nav_buttons->appendChild(
-        <li class={($controller === 'ReviewListController' || $controller === 'ReviewSingleController') ? 'active' : ''}>
+        <li class={($controller === 'ReviewListController' || 
+                    $controller === 'ReviewSingleController' ||
+                    $controller === 'FeedbackSingleController') 
+                    ? 'active' : ''}>
           <a href={ReviewListController::getPath()}>Review</a>
         </li>
       );
@@ -55,6 +49,15 @@ final class :omega:nav-buttons extends :x:element {
       $nav_buttons->appendChild(
         <li class={($controller === 'EventsListController' || $controller === 'EventDetailsController') ? 'active' : ''}>
           <a href={EventsListController::getPath()}>Events</a>
+        </li>
+      );
+    }
+
+    // Suggestions
+    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Active) {
+      $nav_buttons->appendChild(
+        <li class={($controller === 'SuggestionBoxController') ? 'active' : ''}>
+          <a href={SuggestionBoxController::getPath()}>Suggestion Box</a>
         </li>
       );
     }

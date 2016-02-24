@@ -56,6 +56,14 @@ final class VoteCandidate {
     return count($array);
   }
 
+  public static function loadWinnerByRole(int $role_id): ?VoteCandidate {
+    $result = DB::queryFirstRow("SELECT * FROM vote_candidates WHERE vote_role=%d AND score=1 AND voting_id=%d", $role_id, Settings::getVotingID());
+    if (!$result) {
+      return null;
+    }
+    return new VoteCandidate(new Map($result));
+  }
+
   public static function loadByRoleAndUser(int $role_id, int $user_id): ?VoteCandidate {
     $result = DB::queryFirstRow("SELECT * FROM vote_candidates WHERE vote_role=%d AND user_id=%d AND voting_id=%d", $role_id, $user_id, Settings::getVotingID());
     if (!$result) {

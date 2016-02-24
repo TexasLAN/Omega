@@ -1,8 +1,11 @@
 <?hh //decl
 
 class FeedbackSingleController extends BaseController {
+  public static function getPrePath(): string {
+    return '/feedback/';
+  }
   public static function getPath(): string {
-    return '/feedback/(?<id>\d+)';
+    return self::getPrePath() . '(?<id>\d+)';
   }
 
   public static function getConfig(): ControllerConfig {

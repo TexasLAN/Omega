@@ -17,6 +17,7 @@ final class :omega:nav-bar extends :x:element {
         <li>
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{$user->getUsername()} <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
+            <li><a href={MemberProfileController::getPrePath() . $user->getID()}>Profile</a></li>
             <li><a href={MemberSettingsController::getPath()}>Settings</a></li>
             <li><a href="/login?action=logout">Logout</a></li>
           </ul>

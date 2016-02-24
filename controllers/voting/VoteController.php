@@ -148,7 +148,10 @@ class VoteController extends BaseController {
       Settings::set('voting_status', VotingStatus::Voting);
     } elseif(isset($_POST['stop_voting'])) {
       Settings::set('voting_status', VotingStatus::Results);
-      Vote::tally();
+      $unfinished_voting = Vote::tally();
+      if($unfinished_voting) {
+        Settings::set('voting_status', VotingStatus::Apply);
+      }
     } elseif(isset($_POST['close_voting'])) {
       Settings::set('voting_status', VotingStatus::Closed);
       Vote::closeVoting();

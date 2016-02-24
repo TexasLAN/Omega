@@ -210,7 +210,7 @@ class ReviewSingleController extends BaseController {
     return
       <div class="panel panel-default" role="tabpanel">
         <div class="panel-heading">
-          <ul class="nav nav-pills" role="tablist">
+          <ul class="nav nav-tabs nav-justified" role="tablist">
             <li role="presentation" class="active">
               <a href="#reviews" aria-controls="home" role="tab" data-toggle="tab">Reviews</a>
             </li>

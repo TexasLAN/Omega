@@ -143,7 +143,9 @@ final class User {
 
   public static function loadForAutoComplete(): array<User> {
     $query = DB::query("SELECT * FROM users where member_status != " . UserState::Disabled);
-    
+    if(!$query) {
+      return array();
+    }
     return array_map(function($value) {
       return new User(new Map($value));
     }, $query);

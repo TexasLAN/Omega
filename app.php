@@ -30,7 +30,6 @@ Email::$webmaster_test = $configs['sendgrid']['webmaster_test'];
 Venmo::$client_id = $configs['venmo']['client_id'];
 Venmo::$client_secret = $configs['venmo']['client_secret'];
 Venmo::$lan_dues = (int) $configs['venmo']['lan_dues'];
-error_log(Venmo::$lan_dues);
 
 // Get the user session going
 Session::init();
