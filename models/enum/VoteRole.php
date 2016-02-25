@@ -1,6 +1,6 @@
 <?hh
 
-enum VoteRoleEnum: int as int {
+enum VoteRoleEnum : int as int {
 
   President = 0;
   Administration = 1;
@@ -19,18 +19,30 @@ enum VoteRoleEnum: int as int {
 class VoteRole {
   public static function getRoleName(int $value): string {
     switch ($value) {
-      case VoteRoleEnum::President: return 'President';
-      case VoteRoleEnum::Administration: return 'VP of Administration';
-      case VoteRoleEnum::Treasurer: return 'Treasurer';
-      case VoteRoleEnum::Social: return 'VP of Social Affairs';
-      case VoteRoleEnum::Service: return 'VP of Service Activities';
-      case VoteRoleEnum::NewMember: return 'VP of New Member Services';
-      case VoteRoleEnum::Standards: return 'VP of Standards';
-      case VoteRoleEnum::Risk: return 'Risk Management';
-      case VoteRoleEnum::Webmaster: return 'Webmaster';
-      case VoteRoleEnum::Brotherhood: return 'Brotherhood';
-      case VoteRoleEnum::Historian: return 'Historian';
-      default: return '';
+      case VoteRoleEnum::President:
+        return 'President';
+      case VoteRoleEnum::Administration:
+        return 'VP of Administration';
+      case VoteRoleEnum::Treasurer:
+        return 'Treasurer';
+      case VoteRoleEnum::Social:
+        return 'VP of Social Affairs';
+      case VoteRoleEnum::Service:
+        return 'VP of Service Activities';
+      case VoteRoleEnum::NewMember:
+        return 'VP of New Member Services';
+      case VoteRoleEnum::Standards:
+        return 'VP of Standards';
+      case VoteRoleEnum::Risk:
+        return 'Risk Management';
+      case VoteRoleEnum::Webmaster:
+        return 'Webmaster';
+      case VoteRoleEnum::Brotherhood:
+        return 'Brotherhood';
+      case VoteRoleEnum::Historian:
+        return 'Historian';
+      default:
+        return '';
     }
   }
 
@@ -48,7 +60,7 @@ class VoteRole {
       case VoteRoleEnum::Webmaster:
       case VoteRoleEnum::Brotherhood:
       case VoteRoleEnum::Historian:
-      default: 
+      default:
         return false;
     }
   }

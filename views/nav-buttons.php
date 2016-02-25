@@ -7,12 +7,10 @@ final class :omega:nav-buttons extends :x:element {
     $user = $this->getAttribute('user');
     $controller = $this->getAttribute('controller');
 
-    $nav_buttons =
-      <ul class="nav navbar-nav">
-      </ul>;
+    $nav_buttons = <ul class="nav navbar-nav"></ul>;
 
     // Application Screen
-    if($user->getState() == UserState::Applicant) {
+    if ($user->getState() == UserState::Applicant) {
       $nav_buttons->appendChild(
         <li class={$controller === 'ApplyController' ? 'active' : ''}>
           <a href={ApplyController::getPath()}>Apply</a>
@@ -21,58 +19,72 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Member List
-    if($user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={$controller === 'MembersController' ||  
-                    $controller === 'MemberProfileController' ||  
-                    $controller === 'MemberSettingsController' 
-                    ? 'active' : ''}>
+        <li
+          class=
+            {$controller === 'MembersController' || $controller === 'MemberProfileController' || $controller === 'MemberSettingsController'
+              ? 'active'
+              : ''}>
           <a href={MembersController::getPath()}>Members</a>
         </li>
       );
     }
 
     // Review List
-    if($user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={($controller === 'ReviewListController' || 
-                    $controller === 'ReviewSingleController' ||
-                    $controller === 'FeedbackSingleController') 
-                    ? 'active' : ''}>
+        <li
+          class=
+            {($controller === 'ReviewListController' ||
+              $controller === 'ReviewSingleController' ||
+              $controller === 'FeedbackSingleController') ? 'active' : ''}>
           <a href={ReviewListController::getPath()}>Review</a>
         </li>
       );
     }
 
     // Events
-    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Pledge ||
+        $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={($controller === 'EventsListController' || $controller === 'EventDetailsController') ? 'active' : ''}>
+        <li
+          class=
+            {($controller === 'EventsListController' ||
+              $controller === 'EventDetailsController') ? 'active' : ''}>
           <a href={EventsListController::getPath()}>Events</a>
         </li>
       );
     }
 
     // Suggestions
-    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Pledge ||
+        $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={($controller === 'SuggestionBoxController') ? 'active' : ''}>
+        <li
+          class=
+            {($controller === 'SuggestionBoxController') ? 'active' : ''}>
           <a href={SuggestionBoxController::getPath()}>Suggestion Box</a>
         </li>
       );
     }
 
     // Notify Log
-    if($user->getState() == UserState::Pledge || $user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Pledge ||
+        $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
-        <li class={($controller === 'NotifyLogController' || $controller === 'NotifyLogController') ? 'active' : ''}>
+        <li
+          class=
+            {($controller === 'NotifyLogController' ||
+              $controller === 'NotifyLogController') ? 'active' : ''}>
           <a href={NotifyLogController::getPath()}>Notification Logs</a>
         </li>
       );
     }
 
     // Notify Creation Screen
-    if($user->validateRole(UserRoleEnum::Admin) || $user->validateRole(UserRoleEnum::Officer)) {
+    if ($user->validateRole(UserRoleEnum::Admin) ||
+        $user->validateRole(UserRoleEnum::Officer)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'NotifyController' ? 'active' : ''}>
           <a href={NotifyController::getPath()}>Send Notification</a>
@@ -81,7 +93,8 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Voting Apply
-    if(Settings::getVotingStatus() == VotingStatus::Apply && $user->getState() == UserState::Active) {
+    if (Settings::getVotingStatus() == VotingStatus::Apply &&
+        $user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li class={$controller === 'VoteApplyController' ? 'active' : ''}>
           <a href={VoteApplyController::getPath()}>Election Apply</a>
@@ -90,8 +103,10 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Voting
-    if(($user->validateRole(UserRoleEnum::Admin)) || 
-      ((Settings::getVotingStatus() == VotingStatus::Voting || Settings::getVotingStatus() == VotingStatus::Results) && $user->getState() == UserState::Active)) {
+    if (($user->validateRole(UserRoleEnum::Admin)) ||
+        ((Settings::getVotingStatus() == VotingStatus::Voting ||
+          Settings::getVotingStatus() == VotingStatus::Results) &&
+         $user->getState() == UserState::Active)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'VoteController' ? 'active' : ''}>
           <a href={VoteController::getPath()}>Vote</a>
@@ -100,7 +115,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Admin only Settings
-    if($user->validateRole(UserRoleEnum::Admin)) {
+    if ($user->validateRole(UserRoleEnum::Admin)) {
       $nav_buttons->appendChild(
         <li class={$controller === 'SettingsController' ? 'active' : ''}>
           <a href={SettingsController::getPath()}>Site Settings</a>

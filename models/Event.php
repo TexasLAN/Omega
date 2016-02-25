@@ -8,8 +8,7 @@
 
 final class Event {
 
-  private function __construct(private Map<string, mixed> $data) {
-  }
+  private function __construct(private Map<string, mixed> $data) {}
 
   public static function load(int $id): ?Event {
     $result = DB::queryFirstRow("SELECT * FROM events WHERE id=%s", $id);
@@ -50,9 +49,9 @@ final class Event {
   }
 
   public static function strToDatetime(string $date, string $time): DateTime {
-    $datetime = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
+    $datetime = DateTime::createFromFormat('Y-m-d H:i', $date.' '.$time);
     if (!$datetime) { // Checks if it is some weird javashit nonsense
-      $datetime = DateTime::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time);
+      $datetime = DateTime::createFromFormat('Y-m-d H:i:s', $date.' '.$time);
     }
     return $datetime;
   }
@@ -94,28 +93,32 @@ final class Event {
     $query = DB::query("
       SELECT * FROM events
       WHERE start_date >= CURDATE()
-      ORDER BY start_date ASC"
-    );
-    if(!$query) {
+      ORDER BY start_date ASC");
+    if (!$query) {
       return array();
     }
-    return array_map(function($value) {
-      return new Event(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new Event(new Map($value));
+      },
+      $query,
+    );
   }
 
   public static function loadPast(): array<Event> {
     $query = DB::query("
       SELECT * FROM events
       WHERE start_date < CURDATE()
-      ORDER BY start_date DESC"
-    );
-    if(!$query) {
+      ORDER BY start_date DESC");
+    if (!$query) {
       return array();
     }
-    return array_map(function($value) {
-      return new Event(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new Event(new Map($value));
+      },
+      $query,
+    );
   }
   /* END MANUAL SECTION */
 }

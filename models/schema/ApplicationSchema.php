@@ -13,7 +13,7 @@ class ApplicationSchema implements ModelSchema {
       'Question6' => ModelField::string_field('q6'),
       'Question7' => ModelField::string_field('q7'),
       'UserID' => ModelField::int_field('user_id'),
-      'Status' => ModelField::int_field('status')
+      'Status' => ModelField::int_field('status'),
     };
   }
 

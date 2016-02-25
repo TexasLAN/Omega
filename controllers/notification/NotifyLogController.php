@@ -7,11 +7,7 @@ class NotifyLogController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(
-      Vector {
-        UserState::Pledge,
-        UserState::Active
-        });
+    $newConfig->setUserState(Vector {UserState::Pledge, UserState::Active});
     $newConfig->setTitle('Notify Log');
     return $newConfig;
   }
@@ -21,19 +17,26 @@ class NotifyLogController extends BaseController {
     $content = <div class="col-md-12" />;
     $notifyLogList = NotifyLog::loadAllDesc();
 
-    if(empty($notifyLogList)) {
-      return
-      <h1>No notification logs found</h1>;
+    if (empty($notifyLogList)) {
+      return <h1>No notification logs found</h1>;
     }
 
-    foreach($notifyLogList as $row_log) {
+    foreach ($notifyLogList as $row_log) {
       $content->appendChild(
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h1 class="panel-title">{$row_log->getNotifyTitle() . ' - ' . ($row_log->getSentTime()->format("Y-m-d H:i"))}</h1>
+            <h1 class="panel-title">
+              {$row_log->getNotifyTitle().
+              ' - '.
+              ($row_log->getSentTime()->format("Y-m-d H:i"))}
+            </h1>
           </div>
           <div class="panel-body">
-            {Email::getXhpMessage($row_log->getNotifyText(), $row_log->getDefaultFooter(), $row_log->getHtmlParsed())}
+            {Email::getXhpMessage(
+              $row_log->getNotifyText(),
+              $row_log->getDefaultFooter(),
+              $row_log->getHtmlParsed(),
+            )}
           </div>
         </div>
       );

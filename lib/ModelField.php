@@ -4,10 +4,7 @@ class ModelField {
   private bool $optional = false;
   private bool $manual = false;
 
-  public function __construct(
-    private string $dbColumn,
-    private string $type,
-  ) {}
+  public function __construct(private string $dbColumn, private string $type) {}
 
   public function getDbColumn(): string {
     return $this->dbColumn;

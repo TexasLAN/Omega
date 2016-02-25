@@ -10,7 +10,8 @@ class Settings {
   }
 
   public static function getCurrentClass(): int {
-    $query = DB::queryFirstRow("SELECT * FROM settings WHERE name=%s", "cur_class");
+    $query =
+      DB::queryFirstRow("SELECT * FROM settings WHERE name=%s", "cur_class");
     if (!$query) {
       return 0;
     }
@@ -18,7 +19,8 @@ class Settings {
   }
 
   public static function getVotingID(): int {
-    $query = DB::queryFirstRow("SELECT * FROM settings WHERE name=%s", "voting_id");
+    $query =
+      DB::queryFirstRow("SELECT * FROM settings WHERE name=%s", "voting_id");
     if (!$query) {
       return 0;
     }
@@ -26,7 +28,10 @@ class Settings {
   }
 
   public static function getVotingStatus(): VotingStatus {
-    $query = DB::queryFirstRow("SELECT * FROM settings WHERE name=%s", "voting_status");
+    $query = DB::queryFirstRow(
+      "SELECT * FROM settings WHERE name=%s",
+      "voting_status",
+    );
     if (!$query) {
       return VotingStatus::Closed;
     }
@@ -34,10 +39,7 @@ class Settings {
   }
 
   public static function set(string $key, mixed $value): void {
-    $paramData = Map {
-      'name' => $key,
-      'value' => $value
-    };
+    $paramData = Map {'name' => $key, 'value' => $value};
     DB::insertUpdate('settings', $paramData->toArray());
   }
 }

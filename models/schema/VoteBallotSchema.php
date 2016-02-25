@@ -4,7 +4,7 @@ class VoteBallotSchema implements ModelSchema {
   public function getFields(): Map<string, ModelField> {
     return Map {
       'VotingID' => ModelField::int_field('voting_id'),
-      'VoteList' => ModelField::string_field('vote_list')
+      'VoteList' => ModelField::string_field('vote_list'),
     };
   }
 

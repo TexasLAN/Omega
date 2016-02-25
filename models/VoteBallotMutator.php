@@ -8,11 +8,9 @@
 
 final class VoteBallotMutator {
 
-  private Map<string, mixed> $data = Map {
-  };
+  private Map<string, mixed> $data = Map {};
 
-  private function __construct(private ?int $id = null) {
-  }
+  private function __construct(private ?int $id = null) {}
 
   public static function create(): this {
     return new VoteBallotMutator();
@@ -39,11 +37,9 @@ final class VoteBallotMutator {
   }
 
   public function checkRequiredFields(): void {
-    $required = Set {
-      'voting_id',
-      'vote_list',
-    };
-    $missing = $required->removeAll($this->data->keys());;
+    $required = Set {'voting_id', 'vote_list'};
+    $missing = $required->removeAll($this->data->keys());
+    ;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),

@@ -8,8 +8,7 @@
 
 final class Feedback {
 
-  private function __construct(private Map<string, mixed> $data) {
-  }
+  private function __construct(private Map<string, mixed> $data) {}
 
   public static function load(int $id): ?Feedback {
     $result = DB::queryFirstRow("SELECT * FROM feedback WHERE =%s", $id);
@@ -33,8 +32,15 @@ final class Feedback {
 
   /* BEGIN MANUAL SECTION Feedback_footer */
   // Insert additional methods here
-  public static function loadByUserAndReviewer(int $user_id, int $reviewer_id): ?Feedback {
-    $result = DB::queryFirstRow("SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s", $user_id, $reviewer_id);
+  public static function loadByUserAndReviewer(
+    int $user_id,
+    int $reviewer_id,
+  ): ?Feedback {
+    $result = DB::queryFirstRow(
+      "SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s",
+      $user_id,
+      $reviewer_id,
+    );
     if (!$result) {
       return null;
     }
@@ -43,12 +49,15 @@ final class Feedback {
 
   public static function loadByUser(int $user_id): array<Feedback> {
     $query = DB::query("SELECT * FROM feedback WHERE user_id=%s", $user_id);
-    if(!$query) {
+    if (!$query) {
       return array();
     }
-    return array_map(function($value) {
-      return new Feedback(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new Feedback(new Map($value));
+      },
+      $query,
+    );
   }
   /* END MANUAL SECTION */
 }

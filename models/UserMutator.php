@@ -8,11 +8,9 @@
 
 final class UserMutator {
 
-  private Map<string, mixed> $data = Map {
-  };
+  private Map<string, mixed> $data = Map {};
 
-  private function __construct(private ?int $id = null) {
-  }
+  private function __construct(private ?int $id = null) {}
 
   public static function create(): this {
     return new UserMutator();
@@ -50,7 +48,8 @@ final class UserMutator {
       'grad_year',
       'has_voted',
     };
-    $missing = $required->removeAll($this->data->keys());;
+    $missing = $required->removeAll($this->data->keys());
+    ;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),
@@ -125,14 +124,15 @@ final class UserMutator {
     string $email,
     string $phone,
     string $full_name,
-    string $nick_name
+    string $nick_name,
   ): ?User {
     // Make sure a user doesn't already exist with that username or email
     DB::query(
       "SELECT * FROM users WHERE username=%s OR email=%s",
-      $username, $email
+      $username,
+      $email,
     );
-    if(DB::count() != 0) {
+    if (DB::count() != 0) {
       return null;
     }
     // Insert the user
@@ -144,7 +144,7 @@ final class UserMutator {
       'full_name' => $full_name,
       'nick_name' => $nick_name,
       'member_status' => 0,
-      'has_voted' => false
+      'has_voted' => false,
     };
     DB::insert('users', $paramData->toArray());
     return User::loadUsername($username);
@@ -158,8 +158,12 @@ final class UserMutator {
   }
 
   public static function encryptPassword(string $password): string {
-    $salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
-    $salt = sprintf("$2a$%02d$", 10) . $salt;
+    $salt = strtr(
+      base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)),
+      '+',
+      '.',
+    );
+    $salt = sprintf("$2a$%02d$", 10).$salt;
     $hash = crypt($password, $salt);
     return $hash;
   }
@@ -169,9 +173,7 @@ final class UserMutator {
   }
 
   public static function disableByState(UserState $state): void {
-    $paramData = Map {
-      'member_status' => UserState::Disabled
-    };
+    $paramData = Map {'member_status' => UserState::Disabled};
     DB::update("users", $paramData->toArray(), "member_status=%s", $state);
   }
   /* END MANUAL SECTION */

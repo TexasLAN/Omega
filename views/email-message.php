@@ -8,15 +8,14 @@ class ExampleUnsafeRenderable implements XHPUnsafeRenderable {
 }
 //, XHPAlwaysValidChild
 class ExampleVeryUnsafeRenderable extends ExampleUnsafeRenderable
-implements XHPUnsafeRenderable {
-}
+  implements XHPUnsafeRenderable {}
 
 final class :omega:email-message extends :x:element {
   attribute ?string message;
 
   final protected function render(): :div {
     $message = $this->:message;
-    if(is_null($message)) {
+    if (is_null($message)) {
       $message = '';
     }
     $message_xhp = new ExampleUnsafeRenderable($message);

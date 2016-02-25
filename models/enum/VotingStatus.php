@@ -1,6 +1,6 @@
 <?hh
 
-enum VotingStatus: int as int {
+enum VotingStatus : int as int {
 
   Closed = 0;
   Apply = 1;

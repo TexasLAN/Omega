@@ -8,11 +8,11 @@
 
 final class Application {
 
-  private function __construct(private Map<string, mixed> $data) {
-  }
+  private function __construct(private Map<string, mixed> $data) {}
 
   public static function load(int $id): ?Application {
-    $result = DB::queryFirstRow("SELECT * FROM applications WHERE id=%s", $id);
+    $result =
+      DB::queryFirstRow("SELECT * FROM applications WHERE id=%s", $id);
     if (!$result) {
       return null;
     }
@@ -69,22 +69,30 @@ final class Application {
   }
 
   public static function loadByUser(int $user_id): ?Application {
-    $result = DB::queryFirstRow("SELECT * FROM applications WHERE user_id=%s", $user_id);
+    $result = DB::queryFirstRow(
+      "SELECT * FROM applications WHERE user_id=%s",
+      $user_id,
+    );
     if (!$result) {
       return null;
     }
     return new Application(new Map($result));
   }
 
-  public static function loadState(ApplicationState $state): array<Application> {
+  public static function loadState(
+    ApplicationState $state,
+  ): array<Application> {
 
     $query = DB::query("SELECT * FROM applications WHERE status=%s", $state);
-    if(!$query) {
+    if (!$query) {
       return array();
     }
-    return array_map(function($value) {
-      return new Application(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new Application(new Map($value));
+      },
+      $query,
+    );
   }
 
   public function getAppState(): ApplicationState {

@@ -8,11 +8,9 @@
 
 final class ReviewMutator {
 
-  private Map<string, mixed> $data = Map {
-  };
+  private Map<string, mixed> $data = Map {};
 
-  private function __construct(private ?int $id = null) {
-  }
+  private function __construct(private ?int $id = null) {}
 
   public static function create(): this {
     return new ReviewMutator();
@@ -39,13 +37,9 @@ final class ReviewMutator {
   }
 
   public function checkRequiredFields(): void {
-    $required = Set {
-      'comments',
-      'rating',
-      'user_id',
-      'application_id',
-    };
-    $missing = $required->removeAll($this->data->keys());;
+    $required = Set {'comments', 'rating', 'user_id', 'application_id'};
+    $missing = $required->removeAll($this->data->keys());
+    ;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),
@@ -77,22 +71,29 @@ final class ReviewMutator {
     string $comments,
     int $rating,
     User $user,
-    Application $application
+    Application $application,
   ): void {
-    DB::query("SELECT * FROM reviews WHERE user_id=%s AND application_id=%s", $user->getID(), $application->getID());
+    DB::query(
+      "SELECT * FROM reviews WHERE user_id=%s AND application_id=%s",
+      $user->getID(),
+      $application->getID(),
+    );
 
-    if(DB::count() != 0) {
-      $paramData = Map {
-        'comments' => $comments,
-        'rating' => $rating
-      };
-      DB::update('reviews', $paramData->toArray(), 'user_id=%s AND application_id=%s', $user->getID(), $application->getID());
+    if (DB::count() != 0) {
+      $paramData = Map {'comments' => $comments, 'rating' => $rating};
+      DB::update(
+        'reviews',
+        $paramData->toArray(),
+        'user_id=%s AND application_id=%s',
+        $user->getID(),
+        $application->getID(),
+      );
     } else {
       $paramData = Map {
         'comments' => $comments,
         'rating' => $rating,
         'user_id' => $user->getID(),
-        'application_id' => $application->getID()
+        'application_id' => $application->getID(),
       };
       DB::insert('reviews', $paramData->toArray());
     }

@@ -6,7 +6,7 @@ class ReviewSchema implements ModelSchema {
       'Comments' => ModelField::string_field('comments'),
       'Rating' => ModelField::int_field('rating'),
       'UserID' => ModelField::int_field('user_id'),
-      'AppID' => ModelField::int_field('application_id')
+      'AppID' => ModelField::int_field('application_id'),
     };
   }
 

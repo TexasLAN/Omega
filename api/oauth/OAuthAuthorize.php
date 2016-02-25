@@ -8,8 +8,8 @@ class OAuthAuthorize {
     $response = new OAuth2\Response();
 
     if (!$server->validateAuthorizeRequest($request, $response)) {
-        $response->send();
-        die;
+      $response->send();
+      die;
     }
 
     return
@@ -18,11 +18,25 @@ class OAuthAuthorize {
           <h1>{$server->getAuthorizeController()->getClientId()}</h1>
           <h3>would like to access the following info:</h3>
           <ul class="list-group">
-            <li class="list-group-item">{$server->getAuthorizeController()->getScope()}</li>
+            <li class="list-group-item">
+              {$server->getAuthorizeController()->getScope()}
+            </li>
           </ul>
-          <hr/>
-          <button type="submit" name="authorized" value="yes" class="btn btn-primary">Authorize</button>
-          <button type="submit" name="authorized" value="no" class="btn btn-default">Cancel</button>
+          <hr />
+          <button
+            type="submit"
+            name="authorized"
+            value="yes"
+            class="btn btn-primary">
+            Authorize
+          </button>
+          <button
+            type="submit"
+            name="authorized"
+            value="no"
+            class="btn btn-default">
+            Cancel
+          </button>
         </form>
       </div>;
   }
@@ -35,7 +49,12 @@ class OAuthAuthorize {
 
     $is_authorized = ($_POST['authorized'] === 'yes');
     $user = Session::getUser();
-    $server->handleAuthorizeRequest($request, $response, $is_authorized, $user->getID());
+    $server->handleAuthorizeRequest(
+      $request,
+      $response,
+      $is_authorized,
+      $user->getID(),
+    );
     $response->send();
     die;
   }

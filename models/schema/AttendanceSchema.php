@@ -5,7 +5,7 @@ class AttendanceSchema implements ModelSchema {
     return Map {
       'UserID' => ModelField::int_field('user_id'),
       'EventID' => ModelField::int_field('event_id'),
-      'Status' => ModelField::int_field('status')
+      'Status' => ModelField::int_field('status'),
     };
   }
 

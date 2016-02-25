@@ -8,8 +8,7 @@
 
 final class Suggestions {
 
-  private function __construct(private Map<string, mixed> $data) {
-  }
+  private function __construct(private Map<string, mixed> $data) {}
 
   public static function load(int $id): ?Suggestions {
     $result = DB::queryFirstRow("SELECT * FROM suggestions WHERE id=%s", $id);
@@ -38,15 +37,20 @@ final class Suggestions {
     return <div><omega:email-message message={$parsed_message} /></div>;
   }
   // Insert additional methods here
-  public static function loadByStatus(SuggestionStatus $status): array<Suggestions> {
+  public static function loadByStatus(
+    SuggestionStatus $status,
+  ): array<Suggestions> {
     $query = DB::query("SELECT * FROM suggestions where status=%d", $status);
-    if(!$query) {
+    if (!$query) {
       return array();
     }
 
-    return array_map(function($value) {
-      return new Suggestions(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new Suggestions(new Map($value));
+      },
+      $query,
+    );
   }
   /* END MANUAL SECTION */
 }

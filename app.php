@@ -7,7 +7,7 @@ require 'lib/Config.php';
 // Set the app's timezone to central
 date_default_timezone_set('America/Chicago');
 
-if(!file_exists('config.ini')) {
+if (!file_exists('config.ini')) {
   error_log("Config file does not exist");
   die;
 }
@@ -22,7 +22,10 @@ DB::$dbName = $configs['db']['name'];
 DB::$port = $configs['db']['port'];
 
 // Setup Sendgrid and email
-Email::$sendgrid = new SendGrid($configs['sendgrid']['user'], $configs['sendgrid']['password']);
+Email::$sendgrid = new SendGrid(
+  $configs['sendgrid']['user'],
+  $configs['sendgrid']['password'],
+);
 Email::$from = $configs['sendgrid']['from'];
 Email::$webmaster_test = $configs['sendgrid']['webmaster_test'];
 
@@ -37,5 +40,5 @@ Session::init();
 // Call the dispatcher to do its thing
 Route::dispatch(
   parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
-  $_SERVER['REQUEST_METHOD']
+  $_SERVER['REQUEST_METHOD'],
 );

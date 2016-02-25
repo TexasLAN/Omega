@@ -8,7 +8,7 @@ class EventSchema implements ModelSchema {
       'StartDate' => ModelField::date_field('start_date'),
       'EndDate' => ModelField::date_field('end_date'),
       'Type' => ModelField::string_field('type'),
-      'Description' => ModelField::string_field('description')
+      'Description' => ModelField::string_field('description'),
     };
   }
 

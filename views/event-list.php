@@ -1,8 +1,7 @@
 <?hh
 
 final class :omega:event-list extends :x:element {
-  attribute
-    array<Event> events = array();
+  attribute array<Event> events = array();
 
   final protected function render(): :table {
     $events = $this->getAttribute('events');
@@ -16,7 +15,7 @@ final class :omega:event-list extends :x:element {
         </tr>
       </table>;
 
-    foreach($events as $event) {
+    foreach ($events as $event) {
       $event_list->appendChild(
         <tr>
           <td>{$event->getName()}</td>

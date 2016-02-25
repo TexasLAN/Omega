@@ -8,11 +8,9 @@
 
 final class SuggestionsMutator {
 
-  private Map<string, mixed> $data = Map {
-  };
+  private Map<string, mixed> $data = Map {};
 
-  private function __construct(private ?int $id = null) {
-  }
+  private function __construct(private ?int $id = null) {}
 
   public static function create(): this {
     return new SuggestionsMutator();
@@ -39,11 +37,9 @@ final class SuggestionsMutator {
   }
 
   public function checkRequiredFields(): void {
-    $required = Set {
-      'message',
-      'status',
-    };
-    $missing = $required->removeAll($this->data->keys());;
+    $required = Set {'message', 'status'};
+    $missing = $required->removeAll($this->data->keys());
+    ;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),

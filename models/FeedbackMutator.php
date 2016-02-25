@@ -8,11 +8,9 @@
 
 final class FeedbackMutator {
 
-  private Map<string, mixed> $data = Map {
-  };
+  private Map<string, mixed> $data = Map {};
 
-  private function __construct(private ?int $id = null) {
-  }
+  private function __construct(private ?int $id = null) {}
 
   public static function create(): this {
     return new FeedbackMutator();
@@ -39,12 +37,9 @@ final class FeedbackMutator {
   }
 
   public function checkRequiredFields(): void {
-    $required = Set {
-      'comments',
-      'user_id',
-      'reviewer_id',
-    };
-    $missing = $required->removeAll($this->data->keys());;
+    $required = Set {'comments', 'user_id', 'reviewer_id'};
+    $missing = $required->removeAll($this->data->keys());
+    ;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),
@@ -70,20 +65,28 @@ final class FeedbackMutator {
   public static function upsert(
     string $comments,
     int $user_id,
-    int $reviewer_id
+    int $reviewer_id,
   ): void {
-    DB::query("SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s", $user_id, $reviewer_id);
+    DB::query(
+      "SELECT * FROM feedback WHERE user_id=%s AND reviewer_id=%s",
+      $user_id,
+      $reviewer_id,
+    );
 
-    if(DB::count() != 0) {
-      $paramData = Map {
-        'comments' => $comments
-      };
-      DB::update('feedback', $paramData->toArray(), 'user_id=%s AND reviewer_id=%s', $user_id, $reviewer_id);
+    if (DB::count() != 0) {
+      $paramData = Map {'comments' => $comments};
+      DB::update(
+        'feedback',
+        $paramData->toArray(),
+        'user_id=%s AND reviewer_id=%s',
+        $user_id,
+        $reviewer_id,
+      );
     } else {
       $paramData = Map {
         'comments' => $comments,
         'user_id' => $user_id,
-        'reviewer_id' => $reviewer_id
+        'reviewer_id' => $reviewer_id,
       };
       DB::insert('feedback', $paramData->toArray());
     }

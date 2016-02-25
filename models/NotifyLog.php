@@ -8,8 +8,7 @@
 
 final class NotifyLog {
 
-  private function __construct(private Map<string, mixed> $data) {
-  }
+  private function __construct(private Map<string, mixed> $data) {}
 
   public static function load(int $id): ?NotifyLog {
     $result = DB::queryFirstRow("SELECT * FROM notify_log WHERE id=%s", $id);
@@ -46,13 +45,16 @@ final class NotifyLog {
   /* BEGIN MANUAL SECTION NotifyLog_footer */
   public static function loadAllDesc(): array<NotifyLog> {
     $query = DB::query("SELECT * FROM notify_log ORDER BY id DESC");
-    
-    if(!$query) {
+
+    if (!$query) {
       return array();
     }
-    return array_map(function($value) {
-      return new NotifyLog(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new NotifyLog(new Map($value));
+      },
+      $query,
+    );
   }
   /* END MANUAL SECTION */
 }

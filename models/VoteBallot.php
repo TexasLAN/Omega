@@ -8,8 +8,7 @@
 
 final class VoteBallot {
 
-  private function __construct(private Map<string, mixed> $data) {
-  }
+  private function __construct(private Map<string, mixed> $data) {}
 
   public static function load(int $id): ?VoteBallot {
     $result = DB::queryFirstRow("SELECT * FROM vote_ballot WHERE id=%s", $id);
@@ -32,7 +31,7 @@ final class VoteBallot {
 
   public function _getVoteList(): array {
     $decoded_json = json_decode((string) $this->data['vote_list']);
-    if(is_null($decoded_json)) {
+    if (is_null($decoded_json)) {
       return array();
     } else {
       return $decoded_json;
@@ -40,13 +39,18 @@ final class VoteBallot {
   }
 
   public static function loadBallots(): array<VoteCandidate> {
-    $query = DB::query('SELECT * FROM vote_ballot WHERE voting_id=' . Settings::getVotingID());
-    if(!$query) {
+    $query = DB::query(
+      'SELECT * FROM vote_ballot WHERE voting_id='.Settings::getVotingID(),
+    );
+    if (!$query) {
       return array();
     }
-    return array_map(function($value) {
-      return new VoteBallot(new Map($value));
-    }, $query);
+    return array_map(
+      function($value) {
+        return new VoteBallot(new Map($value));
+      },
+      $query,
+    );
   }
   /* END MANUAL SECTION */
 }

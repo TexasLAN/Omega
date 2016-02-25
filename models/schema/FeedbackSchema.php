@@ -5,7 +5,7 @@ class FeedbackSchema implements ModelSchema {
     return Map {
       'Comments' => ModelField::string_field('comments'),
       'UserID' => ModelField::int_field('user_id'),
-      'ReviewerID' => ModelField::int_field('reviewer_id')
+      'ReviewerID' => ModelField::int_field('reviewer_id'),
     };
   }
 

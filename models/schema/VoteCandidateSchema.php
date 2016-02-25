@@ -7,7 +7,7 @@ class VoteCandidateSchema implements ModelSchema {
       'UserID' => ModelField::int_field('user_id'),
       'Score' => ModelField::int_field('score'),
       'Description' => ModelField::string_field('description'),
-      'VotingID' => ModelField::int_field('voting_id')
+      'VotingID' => ModelField::int_field('voting_id'),
     };
   }
 

@@ -7,10 +7,7 @@ class VoteController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(
-      Vector {
-        UserState::Active
-        });
+    $newConfig->setUserState(Vector {UserState::Active});
     $newConfig->setTitle('Vote Setup');
     return $newConfig;
   }
@@ -21,17 +18,17 @@ class VoteController extends BaseController {
 
   public static function get(): :xhp {
 
-  	if(Settings::getVotingStatus() == VotingStatus::Closed) {
-      return
-      <h1>Voting is closed</h1>;
+    if (Settings::getVotingStatus() == VotingStatus::Closed) {
+      return <h1>Voting is closed</h1>;
     }
 
     $user = Session::getUser();
 
     // Generate a table of all the actions for the event list controller
-    $admin_action_panel = <div/>;
-    if(self::validateActions($user)) {
-      $admin_form = <form class="btn-toolbar" method="post" action={self::getPath()} />;
+    $admin_action_panel = <div />;
+    if (self::validateActions($user)) {
+      $admin_form =
+        <form class="btn-toolbar" method="post" action={self::getPath()} />;
       switch (Settings::getVotingStatus()) {
         case VotingStatus::Closed:
           $admin_form->appendChild(
@@ -40,7 +37,8 @@ class VoteController extends BaseController {
               type="submit"
               class="btn btn-primary">
               Open Voting
-            </button>);
+            </button>,
+          );
           break;
         case VotingStatus::Apply:
           $admin_form->appendChild(
@@ -49,7 +47,8 @@ class VoteController extends BaseController {
               type="submit"
               class="btn btn-primary">
               Start Voting
-            </button>);
+            </button>,
+          );
           break;
         case VotingStatus::Voting:
           $admin_form->appendChild(
@@ -58,7 +57,8 @@ class VoteController extends BaseController {
               type="submit"
               class="btn btn-primary">
               Stop Voting
-            </button>);
+            </button>,
+          );
           break;
         case VotingStatus::Results:
           $admin_form->appendChild(
@@ -67,11 +67,12 @@ class VoteController extends BaseController {
               type="submit"
               class="btn btn-primary">
               Close Voting
-            </button>);
+            </button>,
+          );
           break;
       }
 
-      $admin_action_panel = 
+      $admin_action_panel =
         <div class="panel panel-default">
           <div class="panel-heading">
             <h1 class="panel-title">Admin Actions</h1>
@@ -82,40 +83,58 @@ class VoteController extends BaseController {
         </div>;
     }
 
-    $action_panel = <div/>;
-    if(Settings::getVotingStatus() == VotingStatus::Voting && !Session::getUser()->getHasVoted()) {
-      $action_panel = 
+    $action_panel = <div />;
+    if (Settings::getVotingStatus() == VotingStatus::Voting &&
+        !Session::getUser()->getHasVoted()) {
+      $action_panel =
         <div class="panel panel-default">
           <div class="panel-heading">
             <h1 class="panel-title">Actions</h1>
           </div>
           <div class="panel-body">
-          <a href={VoteCandidateController::getPath()} class="btn btn-primary">
-            Vote
-          </a>
+            <a
+              href={VoteCandidateController::getPath()}
+              class="btn btn-primary">
+              Vote
+            </a>
           </div>
         </div>;
     }
 
-
     // Show candidates
-    $main = <div/>;
+    $main = <div />;
 
-    foreach(VoteRoleEnum::getValues() as $name => $value) {
-      $roleMain = <div><h3>{VoteRole::getRoleName(VoteRoleEnum::assert($value))}</h3></div>;
+    foreach (VoteRoleEnum::getValues() as $name => $value) {
+      $roleMain =
+        <div>
+          <h3>{VoteRole::getRoleName(VoteRoleEnum::assert($value))}</h3>
+        </div>;
 
-      $roleCandidates = VoteCandidate::loadRoleByScore(VoteRoleEnum::assert($value));
+      $roleCandidates =
+        VoteCandidate::loadRoleByScore(VoteRoleEnum::assert($value));
       if (count($roleCandidates) == 0) {
         $roleMain->appendChild(<h5>No applicants yet</h5>);
       }
-      foreach($roleCandidates as $candidate) {
+      foreach ($roleCandidates as $candidate) {
         $user = User::load($candidate->getUserID());
-        if(is_null($user)) continue;
+        if (is_null($user))
+          continue;
 
         $roleMain->appendChild(
-          <a href={VoteApplicationProfileController::getPrePath() . $value . '/' . $user->getID()}>
-            <h5>{$user->getFullName()} {(Settings::getVotingStatus() == VotingStatus::Results) ? ($candidate->getScore() == 1) ? ' - Won Position' : '' : ''}</h5>
-         </a>);
+          <a
+            href=
+              {VoteApplicationProfileController::getPrePath().
+              $value.
+              '/'.
+              $user->getID()}>
+            <h5>
+              {$user->getFullName()}
+              {(Settings::getVotingStatus() == VotingStatus::Results)
+                ? ($candidate->getScore() == 1) ? ' - Won Position' : ''
+                : ''}
+            </h5>
+          </a>,
+        );
       }
       $main->appendChild($roleMain);
     }
@@ -133,26 +152,31 @@ class VoteController extends BaseController {
   }
 
   public static function post(): void {
-    if(isset($_POST['open_voting'])) {
+    if (isset($_POST['open_voting'])) {
       Settings::set('voting_status', VotingStatus::Apply);
-    } elseif(isset($_POST['start_voting'])) {
+    } else if (isset($_POST['start_voting'])) {
       // Verify there is enough applicants
-      foreach(VoteRoleEnum::getValues() as $name => $value) {
-        $roleCandidates = VoteCandidate::loadRole(VoteRoleEnum::assert($value));
-        if (count($roleCandidates) == 0 && VoteRole::isVotingPosition($value)) {
-          Flash::set('error', 'Not all voting positions have been applied for!');
+      foreach (VoteRoleEnum::getValues() as $name => $value) {
+        $roleCandidates =
+          VoteCandidate::loadRole(VoteRoleEnum::assert($value));
+        if (count($roleCandidates) == 0 &&
+            VoteRole::isVotingPosition($value)) {
+          Flash::set(
+            'error',
+            'Not all voting positions have been applied for!',
+          );
           Route::redirect(self::getPath());
         }
       }
 
       Settings::set('voting_status', VotingStatus::Voting);
-    } elseif(isset($_POST['stop_voting'])) {
+    } else if (isset($_POST['stop_voting'])) {
       Settings::set('voting_status', VotingStatus::Results);
       $unfinished_voting = Vote::tally();
-      if($unfinished_voting) {
+      if ($unfinished_voting) {
         Settings::set('voting_status', VotingStatus::Apply);
       }
-    } elseif(isset($_POST['close_voting'])) {
+    } else if (isset($_POST['close_voting'])) {
       Settings::set('voting_status', VotingStatus::Closed);
       Vote::closeVoting();
     }

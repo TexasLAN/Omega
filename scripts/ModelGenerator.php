@@ -9,54 +9,51 @@ namespace Facebook\HackCodegen;
  */
 class ModelGenerator {
 
-  public function __construct(
-    private \ModelSchema $schema,
-  ) {}
+  public function __construct(private \ModelSchema $schema) {}
 
   private function getSchemaName(): string {
     $ref = new \ReflectionClass($this->schema);
     $name = $ref->getShortName();
-    return Str::endsWith($name, 'Schema')
-      ? Str::substr($name, 0, -6)
-      : $name;
+    return Str::endsWith($name, 'Schema') ? Str::substr($name, 0, -6) : $name;
   }
 
   public function generate(): void {
-    $class = codegen_class($this->getSchemaName())
-      ->setIsFinal()
-      ->setConstructor($this->getConstructor())
-      ->addMethod($this->getLoad())
-      ->addMethods($this->getGetters())
-      ->setHasManualMethodSection();
+    $class =
+      codegen_class($this->getSchemaName())
+        ->setIsFinal()
+        ->setConstructor($this->getConstructor())
+        ->addMethod($this->getLoad())
+        ->addMethods($this->getGetters())
+        ->setHasManualMethodSection();
 
-    codegen_file(dirname(__FILE__).'/../models/'.$this->getSchemaName().'.php')
-      ->addClass($class)
-      ->save();
+    codegen_file(
+      dirname(__FILE__).'/../models/'.$this->getSchemaName().'.php',
+    )->addClass($class)->save();
   }
 
   private function getConstructor(): CodegenConstructor {
-    return codegen_constructor()
-      ->setPrivate()
-      ->addParameter('private Map<string, mixed> $data');
+    return
+      codegen_constructor()
+        ->setPrivate()
+        ->addParameter('private Map<string, mixed> $data');
   }
 
   private function getLoad(): CodegenMethod {
-    $body = hack_builder()
-      ->addLine(
-        '$result = DB::queryFirstRow("SELECT * FROM %s WHERE %s=%%s", $id);',
-        $this->schema->getTableName(),
-        $this->schema->getIdField()
-      )
-      ->startIfBlock('!$result')
-      ->addReturn('null')
-      ->endIfBlock()
-      ->addReturn('new %s(new Map($result))', $this->getSchemaName());
+    $body = hack_builder()->addLine(
+      '$result = DB::queryFirstRow("SELECT * FROM %s WHERE %s=%%s", $id);',
+      $this->schema->getTableName(),
+      $this->schema->getIdField(),
+    )->startIfBlock('!$result')->addReturn('null')->endIfBlock()->addReturn(
+      'new %s(new Map($result))',
+      $this->getSchemaName(),
+    );
 
-    return codegen_method('load')
-      ->setIsStatic()
-      ->addParameter('int $id')
-      ->setReturnType('?'.$this->getSchemaName())
-      ->setBody($body->getCode());
+    return
+      codegen_method('load')
+        ->setIsStatic()
+        ->addParameter('int $id')
+        ->setReturnType('?'.$this->getSchemaName())
+        ->setBody($body->getCode());
   }
 
   private function getGetters(): Vector<CodegenMethod> {
@@ -86,9 +83,10 @@ class ModelGenerator {
       } else {
         $body = 'return '.$return_data.';';
       }
-      $methods[] = codegen_method('get'.$name)
-        ->setReturnType($return_type)
-        ->setBody($body);
+      $methods[] =
+        codegen_method('get'.$name)
+          ->setReturnType($return_type)
+          ->setBody($body);
     }
     return $methods;
   }

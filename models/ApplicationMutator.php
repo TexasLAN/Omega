@@ -8,11 +8,9 @@
 
 final class ApplicationMutator {
 
-  private Map<string, mixed> $data = Map {
-  };
+  private Map<string, mixed> $data = Map {};
 
-  private function __construct(private ?int $id = null) {
-  }
+  private function __construct(private ?int $id = null) {}
 
   public static function create(): this {
     return new ApplicationMutator();
@@ -52,7 +50,8 @@ final class ApplicationMutator {
       'user_id',
       'status',
     };
-    $missing = $required->removeAll($this->data->keys());;
+    $missing = $required->removeAll($this->data->keys());
+    ;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),
@@ -125,16 +124,19 @@ final class ApplicationMutator {
     string $q4,
     string $q5,
     string $q6,
-    string $q7
+    string $q7,
   ): ?Application {
     # Make sure the user doesn't already have an application active
-    $query = DB::query("SELECT * FROM applications WHERE user_id=%s", $user_id);
+    $query =
+      DB::query("SELECT * FROM applications WHERE user_id=%s", $user_id);
 
-    if(DB::count() != 0) {
+    if (DB::count() != 0) {
       # The user has submitted their app, don't allow them to update
-      if($query['submitted']) {
+      if ($query['submitted']) {
         Flash::set('error', 'You have already submitted an application');
-        Route::redirect(MemberProfileController::getPrePath() . Session::getUser()->getID());
+        Route::redirect(
+          MemberProfileController::getPrePath().Session::getUser()->getID(),
+        );
       }
 
       # An application exists, just update it
@@ -147,9 +149,14 @@ final class ApplicationMutator {
         'q4' => $q4,
         'q5' => $q5,
         'q6' => $q6,
-        'q7' => $q7
+        'q7' => $q7,
       };
-      DB::update('applications', $paramData->toArray(), 'user_id=%s', $user_id);
+      DB::update(
+        'applications',
+        $paramData->toArray(),
+        'user_id=%s',
+        $user_id,
+      );
     } else {
       # Insert the application
       $paramData = Map {
@@ -163,7 +170,7 @@ final class ApplicationMutator {
         'q5' => $q5,
         'q6' => $q6,
         'q7' => $q7,
-        'status' => ApplicationState::NotStarted
+        'status' => ApplicationState::NotStarted,
       };
       DB::insert('applications', $paramData->toArray());
     }

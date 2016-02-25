@@ -9,7 +9,7 @@ class Session {
       $user = User::load($_SESSION['user']->getID());
       $_SESSION['user'] = $user;
       return $user;
-    } elseif(Auth::loginWithCookie()) {
+    } else if (Auth::loginWithCookie()) {
       return Session::getUser();
     }
 

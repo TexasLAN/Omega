@@ -14,7 +14,7 @@ class UserSchema implements ModelSchema {
       'HasVoted' => ModelField::bool_field('has_voted'),
       'Class' => ModelField::int_field('class')->optional(),
       'Token' => ModelField::string_field('token')->optional(),
-      'ForgotToken' => ModelField::string_field('forgot_token')->optional()
+      'ForgotToken' => ModelField::string_field('forgot_token')->optional(),
     };
   }
 

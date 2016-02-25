@@ -9,17 +9,17 @@ class LoginController extends BaseController {
     // Check to see if we're going to perform an action
     $query_params = array();
     parse_str($_SERVER['QUERY_STRING'], $query_params);
-    if(isset($query_params['action'])) {
+    if (isset($query_params['action'])) {
       // Log the user out
-      if($query_params['action'] === 'logout') {
+      if ($query_params['action'] === 'logout') {
         Auth::logout();
         Route::redirect(FrontpageController::getPath());
       }
     }
 
-    if(Session::isActive()) {
+    if (Session::isActive()) {
       $user = Session::getUser();
-      Route::redirect(MemberProfileController::getPrePath() . $user->getID());
+      Route::redirect(MemberProfileController::getPrePath().$user->getID());
     }
 
     return
@@ -27,11 +27,21 @@ class LoginController extends BaseController {
         <form method="post" action="/login">
           <div class="form-group">
             <label>Username</label>
-            <input type="text" class="form-control" name="username" placeholder="Username" />
+            <input
+              type="text"
+              class="form-control"
+              name="username"
+              placeholder="Username"
+            />
           </div>
           <div class="form-group">
             <label>Password</label>
-            <input type="password" class="form-control" name="password" placeholder="Password" />
+            <input
+              type="password"
+              class="form-control"
+              name="password"
+              placeholder="Password"
+            />
           </div>
           <div class="checkbox">
             <label>
@@ -39,8 +49,20 @@ class LoginController extends BaseController {
             </label>
           </div>
           <div class="btn-toolbar">
-            <button type="submit" name="action" value="login" class="btn btn-default">Login</button>
-            <button type="submit" name="action" value="forgot" class="btn btn-danger">Forgot Password</button>
+            <button
+              type="submit"
+              name="action"
+              value="login"
+              class="btn btn-default">
+              Login
+            </button>
+            <button
+              type="submit"
+              name="action"
+              value="forgot"
+              class="btn btn-danger">
+              Forgot Password
+            </button>
           </div>
         </form>
       </div>;
@@ -48,40 +70,47 @@ class LoginController extends BaseController {
 
   public static function post(): void {
     // Make sure all required fields were filled out
-    if(!isset($_POST['action']) || !isset($_POST['username']) || !isset($_POST['password'])) {
+    if (!isset($_POST['action']) ||
+        !isset($_POST['username']) ||
+        !isset($_POST['password'])) {
       Route::redirect(LoginController::getPath());
     }
 
     switch ($_POST['action']) {
       case 'login':
         // Authenticate
-        if(!Auth::login($_POST['username'], $_POST['password'])) {
+        if (!Auth::login($_POST['username'], $_POST['password'])) {
           Flash::set('error', 'Login failed');
           Route::redirect(LoginController::getPath());
         }
 
         // Redirect to where we need to go
         $user = Session::getUser();
-        if(!$user) {
+        if (!$user) {
           Route::redirect(LoginController::getPath());
         } else {
-          if(Flash::exists('redirect')) {
+          if (Flash::exists('redirect')) {
             Route::redirect((string) Flash::get('redirect'));
           }
-          if(isset($_POST['remember'])) {
+          if (isset($_POST['remember'])) {
             Auth::rememberMe();
           }
 
           // Logged in correctly
-          Route::redirect(MemberProfileController::getPrePath() . $user->getID());
+          Route::redirect(
+            MemberProfileController::getPrePath().$user->getID(),
+          );
         }
         break;
       case 'forgot':
         $result = Auth::requestPasswordReset($_POST['username']);
-        if($result) {
+        if ($result) {
           Flash::set('success', 'Check your email for the password reset');
         } else {
-          Flash::set('error', 'There was an error setting that acccount for a reset');
+          Flash::set(
+            'error',
+            'There was an error setting that acccount for a reset',
+          );
         }
         Route::redirect(LoginController::getPath());
         break;

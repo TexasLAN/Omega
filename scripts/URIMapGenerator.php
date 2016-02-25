@@ -13,24 +13,21 @@ class URIMapGenerator extends Robo\Task\BaseTask
   public function run(): Robo\Result {
     $this->printTaskInfo('Generating URI Map');
     $routes = URIMapGenerator::getRoutesMap();
-    codegen\codegen_file(dirname(__FILE__).'/../lib/URIMap.php')
-      ->addClass(
-        codegen\codegen_class('URIMap')
-          ->setIsFinal()
-          ->addMethod(
-            codegen\codegen_method('getURIMap')
-              ->setReturnType('Map<string, string>')
-              ->setBody(
-                codegen\hack_builder()
-                  ->add('return ')
-                  ->addMap($routes)
-                  ->add(';')
-                  ->getCode(),
-              ),
-          ),
-      )
-      ->setIsStrict(true)
-      ->save();
+    codegen\codegen_file(dirname(__FILE__).'/../lib/URIMap.php')->addClass(
+      codegen\codegen_class('URIMap')
+        ->setIsFinal()
+        ->addMethod(
+          codegen\codegen_method('getURIMap')
+            ->setReturnType('Map<string, string>')
+            ->setBody(
+              codegen\hack_builder()
+                ->add('return ')
+                ->addMap($routes)
+                ->add(';')
+                ->getCode(),
+            ),
+        ),
+    )->setIsStrict(true)->save();
     $this->printTaskSuccess("Finished Generating URI Map");
     return Robo\Result::success($this, "Finished Generating URI Map");
   }
