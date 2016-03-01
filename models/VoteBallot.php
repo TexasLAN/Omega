@@ -3,12 +3,13 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<3e2abe1bb76db93714a7eb3f7fa06b01>>
+ * @partially-generated SignedSource<<0d34006de527bcf2086282f74c4f3e9d>>
  */
 
 final class VoteBallot {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?VoteBallot {
     $result = DB::queryFirstRow("SELECT * FROM vote_ballot WHERE id=%s", $id);
@@ -26,8 +27,15 @@ final class VoteBallot {
     return (string) $this->data['vote_list'];
   }
 
+  public function getValid(): bool {
+    return (bool) $this->data['valid'];
+  }
+
   /* BEGIN MANUAL SECTION VoteBallot_footer */
   // Insert additional methods here
+  public function getID(): int {
+    return (int) $this->data['id'];
+  }
 
   public function _getVoteList(): array {
     $decoded_json = json_decode((string) $this->data['vote_list']);
@@ -40,7 +48,7 @@ final class VoteBallot {
 
   public static function loadBallots(): array<VoteCandidate> {
     $query = DB::query(
-      'SELECT * FROM vote_ballot WHERE voting_id='.Settings::getVotingID(),
+      'SELECT * FROM vote_ballot WHERE valid=1 AND voting_id='.Settings::getVotingID(),
     );
     if (!$query) {
       return array();

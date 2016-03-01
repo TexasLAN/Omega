@@ -8,7 +8,8 @@
 
 final class Review {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?Review {
     $result = DB::queryFirstRow("SELECT * FROM reviews WHERE id=%s", $id);

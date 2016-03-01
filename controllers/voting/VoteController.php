@@ -29,6 +29,9 @@ class VoteController extends BaseController {
     if (self::validateActions($user)) {
       $admin_form =
         <form class="btn-toolbar" method="post" action={self::getPath()} />;
+      $admin_form->appendChild(
+        <p>Vote Count: {count(VoteBallot::loadBallots())} / {count(User::loadStates(Vector {UserState::Active}))}</p>
+      );
       switch (Settings::getVotingStatus()) {
         case VotingStatus::Closed:
           $admin_form->appendChild(
@@ -129,9 +132,7 @@ class VoteController extends BaseController {
               $user->getID()}>
             <h5>
               {$user->getFullName()}
-              {(Settings::getVotingStatus() == VotingStatus::Results)
-                ? ($candidate->getScore() == 1) ? ' - Won Position' : ''
-                : ''}
+              {($candidate->getScore() == 1) ? ' - Won Position' : ''}
             </h5>
           </a>,
         );
@@ -172,9 +173,14 @@ class VoteController extends BaseController {
       Settings::set('voting_status', VotingStatus::Voting);
     } else if (isset($_POST['stop_voting'])) {
       Settings::set('voting_status', VotingStatus::Results);
-      $unfinished_voting = Vote::tally();
-      if ($unfinished_voting) {
+      $voting_finished = Vote::tally();
+      if (!$voting_finished) {
         Settings::set('voting_status', VotingStatus::Apply);
+        Vote::redoElection();
+        Flash::set(
+            'error',
+            'There is an issue with the Election, a reelection is needed!',
+          );
       }
     } else if (isset($_POST['close_voting'])) {
       Settings::set('voting_status', VotingStatus::Closed);

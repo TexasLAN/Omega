@@ -8,7 +8,8 @@
 
 final class User {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?User {
     $result = DB::queryFirstRow("SELECT * FROM users WHERE id=%s", $id);
@@ -63,10 +64,8 @@ final class User {
   }
 
   public function getForgotToken(): ?string {
-    return
-      isset($this->data['forgot_token'])
-        ? (string) $this->data['forgot_token']
-        : null;
+    return isset($this->data['forgot_token'])
+      ? (string) $this->data['forgot_token'] : null;
   }
 
   /* BEGIN MANUAL SECTION User_footer */

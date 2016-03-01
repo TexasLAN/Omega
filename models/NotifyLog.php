@@ -8,7 +8,8 @@
 
 final class NotifyLog {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?NotifyLog {
     $result = DB::queryFirstRow("SELECT * FROM notify_log WHERE id=%s", $id);

@@ -32,6 +32,12 @@ class VoteApplicationController extends BaseController {
           <h1>Already submitted an application.</h1>
         </div>;
     }
+    if(!is_null(VoteCandidate::loadWinnerByRole($vote_role_id))) {
+      return
+        <div>
+          <h1>Election applications are closed for this role.</h1>
+        </div>;
+    }
 
     return
       <x:frag>

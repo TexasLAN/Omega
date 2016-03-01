@@ -31,16 +31,38 @@ class VoteCandidateController extends BaseController {
 
       $roleCandidates =
         VoteCandidate::loadRoleByScore(VoteRoleEnum::assert($roleValue));
+
+      if (count($roleCandidates) == 0) {
+        $main->appendChild(<h5>No applicants</h5>);
+        $main->appendChild(
+          <input
+            type="hidden"
+            name={(string) $roleValue}
+            value={'0'}
+          />
+        );
+        continue;
+      }
+      if (!is_null(VoteCandidate::loadWinnerByRole($roleValue))) {
+        $main->appendChild(<h5>Winner already selected</h5>);
+        $main->appendChild(
+          <input
+            type="hidden"
+            name={(string) $roleValue}
+            value={'0'}
+          />
+        );
+        continue;
+      }
+
       $main->appendChild(
         <input
           type="hidden"
           name={(string) $roleValue}
           value={(string) count($roleCandidates)}
-        />,
+        />
       );
-      if (count($roleCandidates) == 0) {
-        $main->appendChild(<h5>No applicants</h5>);
-      }
+
       for ($i = 0; $i < count($roleCandidates); $i++) {
         $select_cand = <select name={$roleValue.'-'.$i}></select>;
         $select_cand->appendChild(<option value={'0'}>{'Null'}</option>);
@@ -52,7 +74,7 @@ class VoteCandidateController extends BaseController {
           $select_cand->appendChild(
             <option value={(string) $user->getID()}>
               {$user->getFullName()}
-            </option>,
+            </option>
           );
         }
         $main->appendChild($select_cand);
@@ -63,7 +85,7 @@ class VoteCandidateController extends BaseController {
     $main->appendChild(
       <button name="vote_submit" type="submit" class="btn btn-primary">
         Submit Vote
-      </button>,
+      </button>
     );
 
     return
@@ -100,7 +122,7 @@ class VoteCandidateController extends BaseController {
 
           // Check for duplicates
           for ($j = 0; $j < (count($candidate_user_array) - 1); $j++) {
-            if ($candidate_user_array[$j] == $candidate_user_array[$i]) {
+            if ($candidate_user_array[$j] != 0 && $candidate_user_array[$j] == $candidate_user_array[$i]) {
               $isValid = false;
               break;
             }
@@ -134,6 +156,7 @@ class VoteCandidateController extends BaseController {
         VoteBallotMutator::create()
           ->setVotingID(Settings::getVotingID())
           ->setVoteList(json_encode($ballot_list))
+          ->setValid(true)
           ->save();
         Flash::set('success', 'Your vote has been submitted!');
       }

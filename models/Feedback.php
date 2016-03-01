@@ -8,7 +8,8 @@
 
 final class Feedback {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?Feedback {
     $result = DB::queryFirstRow("SELECT * FROM feedback WHERE =%s", $id);

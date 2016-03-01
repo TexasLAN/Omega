@@ -8,7 +8,8 @@
 
 final class Suggestions {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?Suggestions {
     $result = DB::queryFirstRow("SELECT * FROM suggestions WHERE id=%s", $id);

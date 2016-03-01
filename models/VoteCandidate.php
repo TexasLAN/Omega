@@ -8,11 +8,11 @@
 
 final class VoteCandidate {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?VoteCandidate {
-    $result =
-      DB::queryFirstRow("SELECT * FROM vote_candidates WHERE id=%s", $id);
+    $result = DB::queryFirstRow("SELECT * FROM vote_candidates WHERE id=%s", $id);
     if (!$result) {
       return null;
     }

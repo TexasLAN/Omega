@@ -8,9 +8,11 @@
 
 final class ApplicationMutator {
 
-  private Map<string, mixed> $data = Map {};
+  private Map<string, mixed> $data = Map {
+  };
 
-  private function __construct(private ?int $id = null) {}
+  private function __construct(private ?int $id = null) {
+  }
 
   public static function create(): this {
     return new ApplicationMutator();
@@ -50,8 +52,7 @@ final class ApplicationMutator {
       'user_id',
       'status',
     };
-    $missing = $required->removeAll($this->data->keys());
-    ;
+    $missing = $required->removeAll($this->data->keys());;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),

@@ -5,6 +5,7 @@ class VoteBallotSchema implements ModelSchema {
     return Map {
       'VotingID' => ModelField::int_field('voting_id'),
       'VoteList' => ModelField::string_field('vote_list'),
+      'Valid' => ModelField::bool_field('valid')
     };
   }
 

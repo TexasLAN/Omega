@@ -2,32 +2,36 @@
 
 class Vote {
 
+	/* 
+	 * Runs the whole election cycle
+	 * Returns true if the election is finished
+	 */
 	public static function tally(): bool {
 		// Setup ballots
 		$ballot_list = self::getBallotList();
 
 		$result_map = self::getPreviousResults();
 
-		$unfinished_voting = false;
+		$voting_finished = true;
 
 		// Find winner of each role
 		foreach(VoteRoleEnum::getValues() as $roleName => $roleValue) {
+			error_log("\n\nVoteRole = " . $roleName);
 			// Stop this role if already in results
-			foreach($result_map as $result_user_id => $result_role_id) {
-				if($roleValue == $result_role_id) continue;
+			if(!is_null(VoteCandidate::loadWinnerByRole($roleValue))) {
+				error_log("position already filled");
+				continue;
 			}
 
-			$candidate_map = self::getValidCandidates($result_map);
-
-			$winner_id = self::getWinnerUserIdForRole($candidate_map, $ballot_list);
-
+			$winner_id = self::getWinnerUserIdForRole($result_map, $ballot_list, $roleValue);
+			error_log('Winner_id = ' . $winner_id);
 			// If winner found, add to result map
 			if($winner_id != 0) {
 				$result_map[$winner_id] = $roleValue;
 			} elseif (VoteRole::isVotingPosition($roleValue)) {
 				// Winner not found and is a voting position
 				// Break the voting and prompt admin to redo voting system
-				$unfinished_voting = true;
+				$voting_finished = false;
 				break;
 			}
 		}
@@ -42,9 +46,12 @@ class Vote {
 			}
 		}
 
-		return $unfinished_voting;
+		return $voting_finished;
 	}
 
+	/* 
+	 * Gets the vote ballots that the users submitted
+	 */
 	private static function getBallotList(): array {
 		$result = array();
 		foreach(VoteBallot::loadBallots() as $ballot) {
@@ -53,6 +60,7 @@ class Vote {
 		return $result;
 	}
 
+	// Gets the previous results that were valid
 	private static function getPreviousResults(): array {
 		$result = array();
 		// See if anyone has won the current election spots (in case of a revote)
@@ -67,25 +75,35 @@ class Vote {
 		return $result;
 	}
 
-	private static function getValidCandidates(array $result_map): array {
-		$candidate_map = array();
+	/* 
+	 * Get the remaining valid candidates
+	 */
+	private static function getValidCandidates(array $result_map, int $roleValue): Map<int, bool> {
+		$candidate_map = Map<int, bool> {};
 
 		// Put candidate into hashmap (do not include those who already have a position)
 		foreach(VoteCandidate::loadRole(VoteRoleEnum::assert($roleValue)) as $candidate) {
 			if(!isset($result_map[$candidate->getUserID()])) {
-				$candidate_map[$candidate->getUserID()] = 1;
+				$candidate_map->set($candidate->getUserID(), true);
 			}
 		}
 
 		return $candidate_map;
 	}
 
-	private static function getWinnerUserIdForRole(array &$candidate_map, array $ballot_list): int {
+	/* 
+	 * Gets the winner user id for a role depending on the ballots
+	 * Returns 0 if there was no winner found.
+	 */
+	private static function getWinnerUserIdForRole(array $result_map, array $ballot_list, int $roleValue,): int {
+		$candidate_map = self::getValidCandidates($result_map, $roleValue);
 		$winner_id = 0;
 		// Find winner for this role
-		while($winner_id == 0 && count($candidate_map) > 0) {
+		error_log('---finding winner');
+		while($winner_id == 0 && $candidate_map->count() > 0) {
+			error_log('---WHILE!');
+
 			$candidate_votes_list = array();
-			$candidate_count_first_selection_list = array();
 
 			// Count voters first choice
 			foreach($ballot_list as $ballot) {
@@ -94,54 +112,97 @@ class Vote {
 
 				// Find first place
 				for($i = 0; $i < count($role_ballot); $i++) {
-					if(isset($candidate_map[$role_ballot[$i]])) {
+					if($candidate_map->contains($role_ballot[$i])) {
 						$first_place_id = $role_ballot[$i];
-
-						// Keep track of counts of actual first choices for ties
-						if($i == 0) {
-							$candidate_count_first_selection_list[$first_place_id] = 
-								(!isset($candidate_count_first_selection_list[$first_place_id])) ? 
-									1 :
-									$candidate_count_first_selection_list[$first_place_id] + 1;
-						}
 						break;
 					}
 				}
 
 				// If first place was found, increment vote counter
 				if($first_place_id != 0) {
-					$candidate_votes_list[$first_place_id] = 
-						(!isset($candidate_votes_list[$first_place_id])) ? 
+					$candidate_votes_list[$first_place_id] =
+						(!isset($candidate_votes_list[$first_place_id])) ?
 							1 :
 							$candidate_votes_list[$first_place_id] + 1;
 				}
 			}
 
-			// Find majority winner(s)
-			// TODO 
-			$majority = (int) ceil((float) count($ballot_list) / 2);
-			$biggest_id_list = array();
+			$majority = self::getMajorityCount();
+			$bigIdList = array();
+			$smallIdList = array();
 
-			arsort($candidate_votes_list);
-			$last_place_id = end(array_keys($candidate_votes_list));
-			reset($candidate_votes_list);
-			foreach($candidate_votes_list as $candidate_id => $candidate_vote) {
-				if($candidate_vote >= $majority) {
-					array_push($biggest_id_list, $candidate_id);
+			// Find minorities to remove to progress for tie or non-majority
+			asort($candidate_votes_list);
+			$smallestValue = $candidate_votes_list[array_keys($candidate_votes_list)[0]];
+			foreach($candidate_votes_list as $candidate_user_id => $candidate_vote) {
+				if($candidate_vote < $majority && (count($smallIdList) == 0) || $smallestValue == $candidate_vote ) {
+					array_push($smallIdList, $candidate_user_id);
 				}
 			}
 
+			// Find majorities to check winner
+			arsort($candidate_votes_list);
+			$biggestValue = $candidate_votes_list[array_keys($candidate_votes_list)[0]];
+			foreach($candidate_votes_list as $candidate_user_id => $candidate_vote) {
+				error_log('---compare for biggest = vote = ' . $candidate_vote . ' majority = ' . $majority);
+				if($candidate_vote >= $majority && (count($bigIdList) == 0) || $biggestValue == $candidate_vote ) {
+					array_push($bigIdList, $candidate_user_id);
+				}
+			}
+			error_log(json_encode($smallIdList));
+			error_log(json_encode($bigIdList));
+
 			// Handle cases (no winner, winner, tie)
-			if(count($biggest_id_list) == 0) {
-				unset($candidate_map[$last_place_id]);
-			} elseif(count($biggest_id_list) == 1) {
-				$winner_id = $biggest_id_list[0];
+			if(count($bigIdList) == 0) {
+				error_log('---status ==== no winner');
+				// Remove minorities
+				foreach($smallIdList as $i => $candUserId) {
+					error_log('---removing the user = ' . $candUserId);
+					$candidate_map->remove($candUserId);
+				}
+			} elseif(count($bigIdList) == 1) {
+				error_log('---status ==== winner winner');
+				$winner_id = $bigIdList[0];
+			} else {
+				error_log('---status ==== tie');
+				// Check if there is any minorities
+				if(count($smallIdList) > 0) {
+					foreach($smallIdList as $i => $candUserId) {
+						error_log('---removing the user = ' . $candUserId);
+						$candidate_map->remove($candUserId);
+					}
+				} else {
+					// Voting is invalid
+					return 0;
+				}
 			}
 		}
 		return $winner_id;
 	}
 
-	public static function closeVoting() {
+	public static function getMajorityCount(): int {
+		$majority = (int) ceil((float) count(User::loadStates(Vector {UserState::Active})) / 2.0);
+		return $majority;
+	}
+
+	/* 
+	 * Sets up the voting system for a reelection
+	 */
+	public static function redoElection(): void {
+		// Invalidate all the ballots of this election
+		foreach(VoteBallot::loadBallots() as $ballot) {
+			VoteBallotMutator::update($ballot->getID())
+				->setValid(false)
+				->save();
+		}
+		Settings::set('voting_status', VotingStatus::Apply);
+	}
+
+
+	/* 
+	 * Closes the current election up and moves it to the next one for next cycle.
+	 */
+	public static function closeVoting(): void {
 		Settings::set('voting_id', Settings::getVotingID() + 1);
 		$userList = User::loadForAutoComplete();
 		foreach($userList as $row) {

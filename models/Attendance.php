@@ -8,7 +8,8 @@
 
 final class Attendance {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?Attendance {
     $result = DB::queryFirstRow("SELECT * FROM attendance WHERE =%s", $id);

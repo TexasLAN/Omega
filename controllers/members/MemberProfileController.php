@@ -45,7 +45,7 @@ class MemberProfileController extends BaseController {
     $email_hash = md5(strtolower(trim($profile_user->getEmail())));
     $gravatar_url = 'https://secure.gravatar.com/avatar/' . $email_hash . '?s=300';
 
-    $gravatar_change = 
+    $gravatar_change =
     <div class="caption">
       <p><a href="https://en.gravatar.com/emails/" class="wide btn btn-primary" role="button">Change on Gravatar</a></p>
     </div>;

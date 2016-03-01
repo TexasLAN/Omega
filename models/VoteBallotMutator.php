@@ -3,14 +3,16 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<15115a64233b6bf95695674c6aadae89>>
+ * @partially-generated SignedSource<<7b42d4900e055dbb94351b4b1d874a0d>>
  */
 
 final class VoteBallotMutator {
 
-  private Map<string, mixed> $data = Map {};
+  private Map<string, mixed> $data = Map {
+  };
 
-  private function __construct(private ?int $id = null) {}
+  private function __construct(private ?int $id = null) {
+  }
 
   public static function create(): this {
     return new VoteBallotMutator();
@@ -37,9 +39,12 @@ final class VoteBallotMutator {
   }
 
   public function checkRequiredFields(): void {
-    $required = Set {'voting_id', 'vote_list'};
-    $missing = $required->removeAll($this->data->keys());
-    ;
+    $required = Set {
+      'voting_id',
+      'vote_list',
+      'valid',
+    };
+    $missing = $required->removeAll($this->data->keys());;
     invariant(
       $missing->isEmpty(),
       "The following required fields are missing: ".implode(", ", $missing),
@@ -53,6 +58,11 @@ final class VoteBallotMutator {
 
   public function setVoteList(string $value): this {
     $this->data["vote_list"] = $value;
+    return $this;
+  }
+
+  public function setValid(bool $value): this {
+    $this->data["valid"] = $value;
     return $this;
   }
 

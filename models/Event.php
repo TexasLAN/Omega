@@ -8,7 +8,8 @@
 
 final class Event {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?Event {
     $result = DB::queryFirstRow("SELECT * FROM events WHERE id=%s", $id);

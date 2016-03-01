@@ -8,11 +8,11 @@
 
 final class Application {
 
-  private function __construct(private Map<string, mixed> $data) {}
+  private function __construct(private Map<string, mixed> $data) {
+  }
 
   public static function load(int $id): ?Application {
-    $result =
-      DB::queryFirstRow("SELECT * FROM applications WHERE id=%s", $id);
+    $result = DB::queryFirstRow("SELECT * FROM applications WHERE id=%s", $id);
     if (!$result) {
       return null;
     }

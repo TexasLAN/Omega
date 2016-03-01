@@ -21,6 +21,8 @@ class VoteApplyController extends BaseController {
     $main = <div />;
 
     foreach (VoteRoleEnum::getValues() as $name => $value) {
+      if(!is_null(VoteCandidate::loadWinnerByRole($value))) continue;
+
       $roleMain =
         <div>
           <a
