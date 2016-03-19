@@ -1,17 +1,24 @@
 <?hh
+class OAuthAuthorizeController extends BaseController {
+  public static function getPath(): string {
+    return '/api/oauth/authorize';
+  }
 
-class OAuthAuthorize {
+  public static function getConfig(): ControllerConfig {
+    $newConfig = new ControllerConfig();
+    $newConfig->setUserState(Vector {UserState::Active});
+    return $newConfig;
+  }
+
   public static function get(): :xhp {
     $oauth = new OAuth();
     $server = $oauth->getOAuthServer();
     $request = OAuth2\Request::createFromGlobals();
     $response = new OAuth2\Response();
-
     if (!$server->validateAuthorizeRequest($request, $response)) {
       $response->send();
       die;
     }
-
     return
       <div class="well col-md-6 col-md-offset-3">
         <form method="post">
@@ -40,13 +47,11 @@ class OAuthAuthorize {
         </form>
       </div>;
   }
-
   public static function post(): void {
     $oauth = new OAuth();
     $server = $oauth->getOAuthServer();
     $request = OAuth2\Request::createFromGlobals();
     $response = new OAuth2\Response();
-
     $is_authorized = ($_POST['authorized'] === 'yes');
     $user = Session::getUser();
     $server->handleAuthorizeRequest(

@@ -1,6 +1,10 @@
 <?hh
 
-class UserAPI {
+class UserApiController extends BaseController {
+  public static function getPath(): string {
+    return '/api/users/me';
+  }
+
   public static function get(): Map {
     $oauth = new OAuth();
     $server = $oauth->getOAuthServer();
@@ -13,8 +17,9 @@ class UserAPI {
 
     $token = $server->getAccessTokenData(OAuth2\Request::createFromGlobals());
     $user_id = $token['user_id'];
-    $user = User::load($user_id);
+    $user = User::load((int)$user_id);
     invariant($user !== null, "User should not be null");
+
     return Map {
       'id' => $user->getID(),
       'username' => $user->getUsername(),

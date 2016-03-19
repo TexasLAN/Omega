@@ -11,7 +11,7 @@
     "facebook/hack-codegen": "*"
   },
   "autoload": {
-    "classmap": ["api/", "controllers/", "lib/", "models/", "views/" ],
+    "classmap": ["controllers/", "lib/", "models/", "views/" ],
     "files": ["lib/functions.php"]
   }
 }

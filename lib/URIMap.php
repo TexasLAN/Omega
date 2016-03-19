@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<ff661b7c0e1ffe9444eb88c2ae91217d>>
+ * @generated SignedSource<<8d6e191959eb68aafdefba62892c6e29>>
  */
 
 final class URIMap {
@@ -10,6 +10,9 @@ final class URIMap {
   public function getURIMap(): Map<string, string> {
     return Map {
       '/' => 'FrontpageController',
+      '/api/oauth/authorize' => 'OAuthAuthorizeController',
+      '/api/oauth/token' => 'OAuthTokenController',
+      '/api/users/me' => 'UserApiController',
       '/apply' => 'ApplyController',
       '/event' => 'EventsListController',
       '/event/(?<id>\\d+)' => 'EventDetailsController',
