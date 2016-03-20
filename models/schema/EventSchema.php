@@ -9,6 +9,7 @@ class EventSchema implements ModelSchema {
       'EndDate' => ModelField::date_field('end_date'),
       'Type' => ModelField::string_field('type'),
       'Description' => ModelField::string_field('description'),
+      'NeededPoints' => ModelField::int_field('needed_points')
     };
   }
 

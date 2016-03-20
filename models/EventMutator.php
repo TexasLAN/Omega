@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<f0e533550fa1d750582821aa829a819f>>
+ * @partially-generated SignedSource<<ddc474e6107fb882381ef21e32866d0a>>
  */
 
 final class EventMutator {
@@ -46,6 +46,7 @@ final class EventMutator {
       'end_date',
       'type',
       'description',
+      'needed_points',
     };
     $missing = $required->removeAll($this->data->keys());;
     invariant(
@@ -81,6 +82,11 @@ final class EventMutator {
 
   public function setDescription(string $value): this {
     $this->data["description"] = $value;
+    return $this;
+  }
+
+  public function setNeededPoints(int $value): this {
+    $this->data["needed_points"] = $value;
     return $this;
   }
 

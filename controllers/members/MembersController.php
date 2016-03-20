@@ -327,6 +327,8 @@ class MembersController extends BaseController {
           <td>{$row_user->getEmail()}</td>
           <td>{number_format($eventAttendText, 2, '.', '')}</td>
           <td>{number_format($gmAttendText, 2, '.', '')}</td>
+          <td>{$row_user->getPointsForAttendState(AttendanceState::Present) + 
+            $row_user->getPointsForAttendState(AttendanceState::Excused)}</td>
           <td>{$buttons}</td>
         </tr>
       );
@@ -340,6 +342,7 @@ class MembersController extends BaseController {
             <th>Email</th>
             <th>Event %</th>
             <th>GM %</th>
+            <th>Total Points</th>
             <th data-defaultsort="disabled">Actions</th>
           </tr>
         </thead>

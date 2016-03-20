@@ -82,16 +82,22 @@ class EventDetailsController extends BaseController {
               </div>
               <div class="btn-toolbar">
                 <button
-                  name="add_present_user_btn"
+                  name="mark_present_user_btn"
                   class="btn btn-primary"
                   type="submit">
                   Mark Present
                 </button>
                 <button
-                  name="add_not_present_user_btn"
+                  name="mark_not_present_user_btn"
                   class="btn btn-primary"
                   type="submit">
                   Mark Not Present
+                </button>
+                <button
+                  name="mark_excused_user_btn"
+                  class="btn btn-primary"
+                  type="submit">
+                  Mark Excused
                 </button>
               </div>
               <input
@@ -104,7 +110,7 @@ class EventDetailsController extends BaseController {
                 name="event_id"
                 value={(string) $event->getID()}
               />
-              <input type="hidden" id="user_id" name="add_user" value="0" />
+              <input type="hidden" id="user_id" name="mark_user" value="0" />
             </form>
           </div>
         </div>;
@@ -179,7 +185,7 @@ class EventDetailsController extends BaseController {
     return
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h1>{$event->getName()}</h1>
+          <h1>{$event->getName() . ' - ' . $event->getNeededPoints()}</h1>
         </div>
         {$descriptionPanel}
         {$actionPanel}
@@ -207,12 +213,21 @@ class EventDetailsController extends BaseController {
     }
 
     if (isset($_POST['delete'])) {
+      // Delete
       AttendanceMutator::deleteUserFromEvent(
         (int) $_POST['user_id'],
         (int) $_POST['event_id'],
       );
       Flash::set('success', 'Attendance deleted successfully');
     } else if (isset($_POST['change_status'])) {
+      // Change Status
+      $user = User::load((int) $_POST['user_id']);
+      $event = Event::load((int) $_POST['event_id']);
+      if(is_null($user) || is_null($event) || $user->getTotalPoints() < $event->getNeededPoints()) {
+        Flash::set('error', 'Changing the users status failed! They dont have enough points!');
+        Route::redirect(self::getPrePath().$_POST['event_id']);
+      }
+
       $newStatus = AttendanceState::NotPresent;
       if (((int) $_POST['change_status']) == AttendanceState::NotPresent) {
         $newStatus = AttendanceState::Present;
@@ -223,13 +238,20 @@ class EventDetailsController extends BaseController {
         $newStatus,
       );
       Flash::set('success', 'Attendance status changed successfully');
-    } else if (isset($_POST['add_user'])) {
+    } else if (isset($_POST['mark_user'])) {
+      // Mark
       $attendanceState = AttendanceState::NotPresent;
-      if (isset($_POST['add_present_user_btn']) &&
-          !isset($_POST['add_not_present_user_btn'])) {
+      if (isset($_POST['mark_present_user_btn'])) {
         $attendanceState = AttendanceState::Present;
+      } else if (isset($_POST['mark_excused_user_btn'])) {
+        $attendanceState = AttendanceState::Excused;
       }
-      $addUser = User::load((int) $_POST['add_user']);
+      $addUser = User::load((int) $_POST['mark_user']);
+      $event = Event::load((int) $_POST['event_id']);
+      if(is_null($addUser) || is_null($event) || $addUser->getTotalPoints() < $event->getNeededPoints()) {
+        Flash::set('error', 'Marking the user failed! They dont have enough points!');
+        Route::redirect(self::getPrePath().$_POST['event_id']);
+      }
       $eventUserAttend =
         ($addUser)
           ? Attendance::loadForUserEvent(
@@ -238,8 +260,9 @@ class EventDetailsController extends BaseController {
           )
           : null;
       if (!$addUser) {
-        Flash::set('error', 'Adding the user failed!');
+        Flash::set('error', 'Marking the user failed!');
       } else if (!$eventUserAttend) {
+        // Need to Add user
         AttendanceMutator::create()
           ->setUserID((int) $addUser->getID())
           ->setEventID((int) $_POST['event_id'])

@@ -24,6 +24,9 @@ $('#eventMutator').on('show.bs.modal', function(event) {
 
   var modal = $(this);
 
+  modal.find('#needed_points').val(button.data('neededpoints'));
+  modal.find('#type').val(button.data('type'));
+
   // Set the title
   modal.find('#eventName').text((method === 'create') ? 'Creating an event' : 'Updating an event');
 

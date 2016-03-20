@@ -35,39 +35,8 @@ class EventsListController extends BaseController {
               class="btn btn-primary"
               data-toggle="modal"
               data-target="#eventMutator"
-              data-method="create"
-              data-type={EventType::Other}>
+              data-method="create">
               New Event
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              data-toggle="modal"
-              data-target="#eventMutator"
-              data-method="create"
-              data-type={EventType::GeneralMeeting}
-              data-name="General Meeting">
-              New General Meeting
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              data-toggle="modal"
-              data-target="#eventMutator"
-              data-method="create"
-              data-type={EventType::OfficerMeeting}
-              data-name="Officer Meeting">
-              New Officer Meeting
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              data-toggle="modal"
-              data-target="#eventMutator"
-              data-method="create"
-              data-type={EventType::PledgeBonding}
-              data-name="Pledge Meeting">
-              New Pledge Bonding
             </button>
           </div>
         </div>;
@@ -78,6 +47,7 @@ class EventsListController extends BaseController {
       <table class="table table-bordered table-striped sortable">
         <tr>
           <th>Name</th>
+          <th>Type</th>
           <th>Location</th>
           <th>When</th>
           <th data-defaultsort="disabled">Actions</th>
@@ -107,13 +77,14 @@ class EventsListController extends BaseController {
             data-toggle="modal"
             data-target="#eventMutator"
             data-method="update"
-            data-type="normal"
+            data-type={$event->getType()}
             data-id={(string) $event->getID()}
             data-name={$event->getName()}
             data-location={$event->getLocation()}
             data-startdate={$event->getStartDateWeb()}
             data-enddate={$event->getEndDateWeb()}
-            data-description={$event->getDescription()}>
+            data-description={$event->getDescription()}
+            data-neededpoints={(string) $event->getNeededPoints()}>
             Update
           </button>
         );
@@ -131,6 +102,7 @@ class EventsListController extends BaseController {
       $upcoming_events->appendChild(
         <tr>
           <td>{$event->getName()}</td>
+          <td>{EventTypeInfo::getEventTypeName($event->getType())}</td>
           <td>{$event->getLocation()}</td>
           <td>{$event->getStartDateStr()}</td>
           <td>{$upcoming_event_actions}</td>
@@ -143,6 +115,7 @@ class EventsListController extends BaseController {
       <table class="table table-bordered table-striped sortable">
         <tr>
           <th>Name</th>
+          <th>Type</th>
           <th>Location</th>
           <th>When</th>
           <th data-defaultsort="disabled">Actions</th>
@@ -171,7 +144,7 @@ class EventsListController extends BaseController {
             data-toggle="modal"
             data-target="#eventMutator"
             data-method="update"
-            data-type="normal"
+            data-type={$event->getType()}
             data-id={(string) $event->getID()}
             data-name={$event->getName()}
             data-location={$event->getLocation()}
@@ -186,6 +159,7 @@ class EventsListController extends BaseController {
       $past_events->appendChild(
         <tr>
           <td>{$event->getName()}</td>
+          <td>{EventTypeInfo::getEventTypeName($event->getType())}</td>
           <td>{$event->getLocation()}</td>
           <td>{$event->getStartDateStr()}</td>
           <td>{$past_events_actions}</td>
@@ -216,10 +190,18 @@ class EventsListController extends BaseController {
         <script src="/js/eventsAdmin.js"></script>
         <script src="/js/moment.min.js"></script>
         <script src="/js/bootstrap-sortable.js"></script>
+        
       </div>;
   }
 
   private static function getEventModal(): :xhp {
+    $eventTypeSelect = <select id="type" name="type"></select>;
+    foreach (EventType::getValues() as $name => $value) {
+      $eventTypeSelect->appendChild(
+          <option value={(string) $value} selected={true}>{EventTypeInfo::getEventTypeName($value)}</option>,
+        );
+    }
+
     return
       <div
         class="modal fade"
@@ -259,6 +241,19 @@ class EventsListController extends BaseController {
                       class="form-control"
                       name="location"
                       id="location"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Type</label><br />
+                    {$eventTypeSelect}
+                  </div>
+                  <div class="form-group">
+                    <label>Needed Points</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="needed_points"
+                      id="needed_points"
                     />
                   </div>
                   <div class="form-group">
@@ -311,7 +306,6 @@ class EventsListController extends BaseController {
                 <input type="hidden" name="event_mutator" />
                 <input type="hidden" name="method" id="method" />
                 <input type="hidden" name="id" id="id" />
-                <input type="hidden" name="type" id="type" />
               </form>
             </div>
             <div class="modal-footer">
@@ -353,6 +347,7 @@ class EventsListController extends BaseController {
       if (!isset($_POST['name']) ||
           !isset($_POST['type']) ||
           !isset($_POST['location']) ||
+          !isset($_POST['needed_points']) ||
           !isset($_POST['start_date']) ||
           !isset($_POST['start_time']) ||
           !isset($_POST['end_date']) ||
@@ -373,6 +368,7 @@ class EventsListController extends BaseController {
           )
           ->setType($_POST['type'])
           ->setDescription($_POST['description'])
+          ->setNeededPoints((int) $_POST['needed_points'])
           ->save();
         Flash::set('success', 'Event created successfully');
         $createdEventID = Event::loadRecentCreated()->getID();
@@ -401,6 +397,7 @@ class EventsListController extends BaseController {
         EventMutator::update((int) $_POST['id'])
           ->setName($_POST['name'])
           ->setLocation($_POST['location'])
+          ->setType($_POST['type'])
           ->_setStartDate(
             Event::strToDatetime($_POST['start_date'], $_POST['start_time']),
           )
@@ -408,6 +405,7 @@ class EventsListController extends BaseController {
             Event::strToDatetime($_POST['end_date'], $_POST['end_time']),
           )
           ->setDescription($_POST['description'])
+          ->setNeededPoints((int) $_POST['needed_points'])
           ->save();
         Flash::set('success', 'Event updated successfully');
       }

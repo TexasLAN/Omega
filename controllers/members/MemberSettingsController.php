@@ -33,8 +33,6 @@ class MemberSettingsController extends BaseController {
     //   if(isset(json_decode($access_obj)->access_token)) {
     //     $durationEndTime = new DateTime(date(DateTime::ISO8601));
     //     date_add($durationEndTime, DateInterval::createFromDateString(json_decode($access_obj)->expires_in . ' seconds'));
-    //     error_log(serialize(json_decode($access_obj)));
-    //     error_log($durationEndTime->format(DateTime::ISO8601));
     //     UserMutator::update($user->getID())
     //       ->setVenmoToken(json_decode($access_obj)->access_token)
     //       ->setVenmoRefresh(json_decode($access_obj)->refresh_token)

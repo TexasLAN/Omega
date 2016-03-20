@@ -3,6 +3,7 @@
 enum AttendanceState : int as int {
   NotPresent = 0;
   Present = 1;
+  Excused = 2;
 }
 
 class AttendanceStateInfo {
@@ -12,6 +13,8 @@ class AttendanceStateInfo {
         return 'Not Present';
       case AttendanceState::Present:
         return 'Present';
+      case AttendanceState::Excused:
+        return 'Excused';
     }
   }
 }

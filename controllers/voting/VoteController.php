@@ -172,6 +172,13 @@ class VoteController extends BaseController {
 
       Settings::set('voting_status', VotingStatus::Voting);
     } else if (isset($_POST['stop_voting'])) {
+      if(Vote::getMajorityCount() > count(VoteBallot::loadBallots())) {
+        Flash::set(
+            'error',
+            'Not enough people have voted!',
+          );
+          Route::redirect(self::getPath());
+      }
       Settings::set('voting_status', VotingStatus::Results);
       $voting_finished = Vote::tally();
       if (!$voting_finished) {

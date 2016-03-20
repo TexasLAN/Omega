@@ -3,7 +3,7 @@
  * This file is partially generated. Only make modifications between BEGIN
  * MANUAL SECTION and END MANUAL SECTION designators.
  *
- * @partially-generated SignedSource<<6df940aef94e623a7153e2d81db38190>>
+ * @partially-generated SignedSource<<87603c96e4853fcf78225e068e09b5f8>>
  */
 
 final class Event {
@@ -41,6 +41,10 @@ final class Event {
 
   public function getDescription(): string {
     return (string) $this->data['description'];
+  }
+
+  public function getNeededPoints(): int {
+    return (int) $this->data['needed_points'];
   }
 
   /* BEGIN MANUAL SECTION Event_footer */

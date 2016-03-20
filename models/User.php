@@ -223,5 +223,26 @@ final class User {
     return ($this->getState() == UserState::Applicant ||
             $this->getState() == UserState::Candidate);
   }
+
+  public function getPointsForAttendState(int $state): int {
+    $score = 0;
+
+    $attendanceList = Attendance::loadForUser($this->getID());
+    foreach($attendanceList as $attendance) {
+      if($attendance->getStatus() == $state) {
+        $event = Event::load($attendance->getEventID());
+        if(!is_null($event) && SemesterInfo::isEventCurrentSemester($event)) {
+          $score += EventTypeInfo::getPoints($event->getType());
+        }
+      }
+    }
+
+    return $score;
+  }
+
+  public function getTotalPoints(): int {
+    return $this->getPointsForAttendState(AttendanceState::Present) +
+      $this->getPointsForAttendState(AttendanceState::Excused);
+  }
   /* END MANUAL SECTION */
 }
