@@ -102,7 +102,7 @@ class MemberProfileController extends BaseController {
               <p>{$gmPresent . " / " . ($gmPresent + $gmNotPresent)}</p>
               <h5>Officer Meeting Attendance: </h5>
               <p>{$omPresent . " / " . ($omPresent + $omNotPresent)}</p>
-              {($profile_user_id == $user->getID() || $user->validateRole(UserState::Officer)) ? 
+              {($profile_user_id == $user->getID() || $user->validateRole(UserRoleEnum::Officer)) ? 
                 <div>
                   <h5>Present Score: </h5>
                   <p>{$profile_user->getPointsForAttendState(AttendanceState::Present)}</p>

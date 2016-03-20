@@ -29,6 +29,9 @@ class EventDetailsController extends BaseController {
       $event->getEndDate() >= $curDatetime &&
       ($user->validateRole(UserRoleEnum::Officer) ||
        $user->validateRole(UserRoleEnum::Admin));
+    // return
+    //   ($user->validateRole(UserRoleEnum::Officer) ||
+    //    $user->validateRole(UserRoleEnum::Admin));
   }
 
   public static function get(): :xhp {
