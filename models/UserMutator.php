@@ -124,6 +124,7 @@ final class UserMutator {
     string $password,
     string $email,
     string $phone,
+    string $grad_year,
     string $full_name,
     string $nick_name,
   ): ?User {
@@ -142,6 +143,7 @@ final class UserMutator {
       'password' => self::encryptPassword($password),
       'email' => $email,
       'phone_number' => $phone,
+      'grad_year' => (int) $grad_year,
       'full_name' => $full_name,
       'nick_name' => $nick_name,
       'member_status' => 0,

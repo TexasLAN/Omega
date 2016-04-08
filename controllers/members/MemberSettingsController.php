@@ -61,6 +61,10 @@ class MemberSettingsController extends BaseController {
               <label>Phone Number</label>
               <input type="text" class="form-control" name="phone" placeholder="Phone Number" value={$user->getPhoneNumber()}/>
             </div>
+            <div class="form-group">
+              <label>Graduation Year</label>
+              <input type="number" class="form-control" name="grad_year" placeholder="Graduation Year" value={(string) $user->getGraduationYear()}/>
+            </div>
             <input type="hidden" name="user_id" id="user_id" value={(string) $user->getID()}/>
             <button type="submit" class="btn btn-default">Update</button>
           </form>
@@ -69,7 +73,7 @@ class MemberSettingsController extends BaseController {
   }
 
   public static function post(): void {
-    if($_POST['email'] == '' || $_POST['phone'] == '') {
+    if($_POST['email'] == '' || $_POST['phone'] == '' || $_POST['grad_year'] == '') {
       Flash::set('error', 'All fields are required');
       Route::redirect(self::getPath());
     }
@@ -85,6 +89,7 @@ class MemberSettingsController extends BaseController {
     UserMutator::update((int) $_POST['user_id'])
       ->setEmail($_POST['email'])
       ->setPhoneNumber($_POST['phone'])
+      ->setGraduationYear((int) $_POST['grad_year'])
       ->save();
 
     Route::redirect(MemberProfileController::getPrePath() . $_POST['user_id']);

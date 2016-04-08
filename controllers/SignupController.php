@@ -37,6 +37,10 @@ class SignupController extends BaseController {
             <input type="text" class="form-control" name="phone" placeholder="Phone Number" />
           </div>
           <div class="form-group">
+            <label>Graduation Year</label>
+            <input type="number" class="form-control" name="grad_year" placeholder="Graduation Year" />
+          </div>
+          <div class="form-group">
             <label>Full Name</label>
             <input type="text" class="form-control" name="full_name" placeholder="Full Name" />
           </div>
@@ -53,6 +57,7 @@ class SignupController extends BaseController {
     if($_POST['uname'] == '' || 
        $_POST['password'] == '' || $_POST['password2'] == '' ||
        $_POST['email'] == '' || $_POST['phone'] == '' ||
+       $_POST['grad_year'] == '' ||
        $_POST['full_name'] == '' || $_POST['nick_name'] == '') {
       Flash::set('error', 'All fields are required');
       Route::redirect(self::getPath());
@@ -76,6 +81,7 @@ class SignupController extends BaseController {
       $_POST['password'],
       $_POST['email'],
       $_POST['phone'],
+      $_POST['grad_year'],
       $_POST['full_name'],
       $_POST['nick_name']
     );
