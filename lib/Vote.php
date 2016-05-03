@@ -26,10 +26,12 @@ class Vote {
 				// If winner found, add to result map
 				if($winner_id != 0) {
 					$result_map[$winner_id] = $roleValue;
-				} elseif (VoteRole::isVotingPosition($roleValue)) {
-					// Winner not found and is a voting position
-					// Break the voting and prompt admin to redo voting system
-					$voting_finished = false;
+				} else {
+					if(VoteRole::isVotingPosition($roleValue)) {
+						// Winner not found and is a voting position
+						// Break the voting and prompt admin to redo voting system
+						$voting_finished = false;
+					}
 					break;
 				}
 				error_log('num of won candidates = ' . self::getCountOfRoleWinners($result_map, $roleValue));
@@ -153,6 +155,11 @@ class Vote {
 			$majority = self::getMajorityCount();
 			$bigIdList = array();
 			$smallIdList = array();
+
+			if(count($candidate_votes_list) == 0) {
+				// Voting is invalid
+				return 0;
+			}
 
 			// Find minorities to remove to progress for tie or non-majority
 			asort($candidate_votes_list);
