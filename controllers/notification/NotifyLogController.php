@@ -7,7 +7,7 @@ class NotifyLogController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(Vector {UserState::Pledge, UserState::Active});
+    $newConfig->setUserState(Vector {UserState::Active});
     $newConfig->setTitle('Notify Log');
     return $newConfig;
   }
@@ -34,8 +34,7 @@ class NotifyLogController extends BaseController {
           <div class="panel-body">
             {Email::getXhpMessage(
               $row_log->getNotifyText(),
-              $row_log->getDefaultFooter(),
-              $row_log->getHtmlParsed(),
+              $row_log->getHtmlParsed()
             )}
           </div>
         </div>

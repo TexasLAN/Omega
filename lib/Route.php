@@ -30,7 +30,7 @@ class Route {
 
     // No route detected, 404
     http_response_code(404);
-    Render::go(FourOhFourController::get(), FourOhFourController::class);
+    Render::go(FourOhFourController::get(), FourOhFourController::class, '404');
   }
 
   public static function redirect(string $path): void {

@@ -17,12 +17,11 @@ class VoteController extends BaseController {
   }
 
   public static function get(): :xhp {
+    $user = Session::getUser();
 
     if (Settings::getVotingStatus() == VotingStatus::Closed) {
       return <h1>Voting is closed</h1>;
     }
-
-    $user = Session::getUser();
 
     // Generate a table of all the actions for the event list controller
     $admin_action_panel = <div />;
@@ -87,22 +86,22 @@ class VoteController extends BaseController {
     }
 
     $action_panel = <div />;
-    if (Settings::getVotingStatus() == VotingStatus::Voting &&
-        !Session::getUser()->getHasVoted()) {
-      $action_panel =
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h1 class="panel-title">Actions</h1>
-          </div>
-          <div class="panel-body">
-            <a
-              href={VoteCandidateController::getPath()}
-              class="btn btn-primary">
-              Vote
-            </a>
-          </div>
-        </div>;
-    }
+    // if (Settings::getVotingStatus() == VotingStatus::Voting &&
+    //     !Session::getUser()->getHasVoted()) {
+    //   $action_panel =
+    //     <div class="panel panel-default">
+    //       <div class="panel-heading">
+    //         <h1 class="panel-title">Actions</h1>
+    //       </div>
+    //       <div class="panel-body">
+    //         <a
+    //           href={VoteCandidateController::getPath()}
+    //           class="btn btn-primary">
+    //           Vote
+    //         </a>
+    //       </div>
+    //     </div>;
+    // }
 
     // Show candidates
     $main = <div />;
@@ -133,6 +132,9 @@ class VoteController extends BaseController {
             <h5>
               {$user->getFullName()}
               {($candidate->getScore() == 1) ? ' - Won Position' : ''}
+              {(VoteRoleEnum::StandardsBoard == $value && 
+                Settings::getVotingStatus() == VotingStatus::Closed) ?
+                 '' : ''}
             </h5>
           </a>,
         );

@@ -16,7 +16,7 @@ class EventDetailsController extends BaseController {
         UserState::Applicant,
         UserState::Candidate,
         UserState::Pledge,
-        UserState::Active,
+        UserState::Active
       },
     );
     $newConfig->setTitle('Event Details');
@@ -29,14 +29,17 @@ class EventDetailsController extends BaseController {
       $event->getEndDate() >= $curDatetime &&
       ($user->validateRole(UserRoleEnum::Officer) ||
        $user->validateRole(UserRoleEnum::Admin));
-    // return
-    //   ($user->validateRole(UserRoleEnum::Officer) ||
-    //    $user->validateRole(UserRoleEnum::Admin));
   }
 
   public static function get(): :xhp {
     $user = Session::getUser();
     $event_id = (int) $_SESSION['route_params']['id'];
+    if ($event_id == null) {
+      Flash::set('error', 'Invalid Event ID');
+      Route::redirect(EventsAdminController::getPath());
+      invariant(false, "Unreachable");
+    }
+
     $event = Event::load($event_id);
     if (!$event) {
       Flash::set('error', 'Invalid Event ID');

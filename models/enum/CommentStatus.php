@@ -1,18 +1,16 @@
 <?hh
 
-enum SuggestionStatus : int as int {
-
+enum CommentStatus : int as int {
   Open = 0;
   Closed = 1;
-
 }
 
-class SuggestionStatusInfo {
+class CommentStatusInfo {
   public static function getName(int $value): string {
     switch ($value) {
-      case SuggestionStatus::Open:
+      case CommentStatus::Open:
         return 'Open';
-      case SuggestionStatus::Closed:
+      case CommentStatus::Closed:
         return 'Closed';
       default:
         return '';

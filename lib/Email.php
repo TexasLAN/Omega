@@ -10,7 +10,6 @@ class Email {
     array $toList,
     string $subject,
     string $body,
-    bool $default_footer,
     bool $htmlParser
   ): void {
     $email = new SendGrid\Email();
@@ -18,17 +17,16 @@ class Email {
       ->setSmtpapiTos($toList)
       ->setFrom(self::$from)
       ->setSubject($subject)
-      ->setHtml(self::getHtmlMessage($body, $default_footer, $htmlParser));
+      ->setHtml(self::getHtmlMessage($body, $htmlParser));
     self::$sendgrid->send($email);
   }
 
-  private static function getHtmlMessage(string $message, bool $default_footer, bool $htmlParser): string {
+  private static function getHtmlMessage(string $message, bool $htmlParser): string {
     $parsed_message = $message;
     if (!$htmlParser) {
       $Parsedown = new Parsedown();
       $parsed_message = $Parsedown->text($message);
     }
-    $footer = ($default_footer) ? '<p style="font-size: 16px;font-weight: 300;line-height: 27px;color: #161b21;">Cheers,<br/>Lambda Alpha Nu Team</p>' : ' ';
     return '<body style="background: #277FB2 url(\'http://www.texaslan.org/img/bg.png\') repeat;font-family: sans-serif;">
 <div class="email_body" style="margin: auto; max-width: 560px;">
   <div class="head_logo" style="padding-top: 30px; text-align: center;margin: 30px;">
@@ -36,7 +34,7 @@ class Email {
   </div>
   <div class="email_content" style="background: #fafcff;box-shadow: inset 1px 0px  #e3eaf1, 1px 0px #e3eaf1; border-bottom: 2px solid #d1ddf2;padding-left: 5%; padding-right: 5%; padding-top: 15px;">
     <div class="email_text">
-      <p style="font-size: 16px;font-weight: 300;line-height: 27px;color: #161b21;">' . $parsed_message . '</p>' . $footer .
+      <p style="font-size: 16px;font-weight: 300;line-height: 27px;color: #161b21;">' . $parsed_message . '</p>' .
     '</div>
   </div>
 
@@ -47,13 +45,12 @@ class Email {
 </body>';
   }
 
-  public static function getXhpMessage(string $message, bool $default_footer, bool $htmlParser ): xhp_div {
+  public static function getXhpMessage(string $message, bool $htmlParser ): xhp_div {
     $parsed_message = $message;
     if (!$htmlParser) {
       $Parsedown = new Parsedown();
       $parsed_message = $Parsedown->text($message);
     }
-    $footer = ($default_footer) ? <p style="font-size: 16px;font-weight: 300;line-height: 27px;color: #161b21;">Cheers,<br/>Lambda Alpha Nu Team</p> : <p />;
     return <div style="background: #277FB2 url(http://www.texaslan.org/img/bg.png) repeat;font-family: sans-serif;">
   <div class="email_body" style="margin: auto; max-width: 560px;">
     <div class="head_logo" style="padding-top: 30px; text-align: center;margin: 30px;">
@@ -62,7 +59,6 @@ class Email {
     <div class="email_content" style="background: #fafcff;box-shadow: inset 1px 0px  #e3eaf1, 1px 0px #e3eaf1; border-bottom: 2px solid #d1ddf2;padding-left: 5%; padding-right: 5%; padding-top: 15px;">
       <div class="email_text">
         <omega:email-message message={$parsed_message} />
-        {$footer}
       </div>
     </div>
 

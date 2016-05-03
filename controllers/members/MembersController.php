@@ -8,7 +8,7 @@ class MembersController extends BaseController {
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(Vector {UserState::Active});
-    $newConfig->setTitle('Review');
+    $newConfig->setTitle('Members');
     return $newConfig;
   }
 
@@ -52,19 +52,18 @@ class MembersController extends BaseController {
       // Tab Content
       $id = strtolower($name);
       $contentItem =
-        <div role="tabpanel" class="btn-toolbar tab-pane" id={$id} />;
+        <div role="tabpanel" class="tab-pane" id={$id} />;
       if ($value == UserState::Active) {
         $contentItem =
           <div
             role="tabpanel"
-            class="btn-toolbar tab-pane active"
+            class="tab-pane active"
             id={$id}
           />;
       }
 
       if (self::validateActions($user)) {
-        if ($value == UserState::Pledge ||
-            $value == UserState::Candidate ||
+        if ($value == UserState::Candidate ||
             $value == UserState::Applicant) {
           $contentItem->appendChild(
             <button
@@ -91,10 +90,13 @@ class MembersController extends BaseController {
     }
 
     return
-      <div class="well" role="tabpanel">
-        {$tabList}
-        <br />
-        {$tabPanel}
+      <div class="panel panel-default" role="tabpanel">
+        <div class="panel-heading">
+          {$tabList}
+        </div>
+        <div class="tab-content">
+          {$tabPanel}
+        </div>
         {self::getRoleEditModal()}
         {self::getDeleteModal()}
         {self::getDisableModal()}
@@ -521,6 +523,11 @@ class MembersController extends BaseController {
         UserMutator::disableByState($state);
       }
     } else if (isset($_POST['state_change'])) {
+      // Delete Application and Feedback
+      if(UserState::Pledge == (int) $_POST['state_change'] ||
+         UserState::Disabled == (int) $_POST['state_change']) {
+        ApplicationMutator::deleteAppAndFeedback((int) $_POST['id']);
+      }
       // Makes a member a candidate
       if (UserState::Pledge == (int) $_POST['state_change']) {
         UserMutator::update((int) $_POST['id'])

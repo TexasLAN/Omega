@@ -10,7 +10,7 @@ class VoteApplicationController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(Vector {UserState::Active});
+    $newConfig->setUserState(Vector {UserState::Active, UserState::Pledge});
     $newConfig->setTitle('Vote Application');
     return $newConfig;
   }
@@ -32,7 +32,7 @@ class VoteApplicationController extends BaseController {
           <h1>Already submitted an application.</h1>
         </div>;
     }
-    if(!is_null(VoteCandidate::loadWinnerByRole($vote_role_id))) {
+    if(count(VoteCandidate::loadWinnersByRole($vote_role_id)) >= VoteRole::getAmtOfPositions($vote_role_id)) {
       return
         <div>
           <h1>Election applications are closed for this role.</h1>
@@ -70,7 +70,10 @@ class VoteApplicationController extends BaseController {
 
   public static function post(): void {
     $vote_role_id = (int) $_SESSION['route_params']['id'];
-    if (isset($_POST['create_vote_app'])) {
+    $vote_cand = VoteCandidate::loadByRoleAndUser($vote_role_id, Session::getUser()->getID());
+    if (Settings::getVotingStatus() == VotingStatus::Apply && 
+        is_null($vote_cand) &&
+        isset($_POST['create_vote_app'])) {
       VoteCandidateMutator::create()
         ->setVoteRole($vote_role_id)
         ->setUserID(Session::getUser()->getID())

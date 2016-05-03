@@ -10,7 +10,7 @@ class VoteApplicationProfileController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(Vector {UserState::Active});
+    $newConfig->setUserState(Vector {UserState::Active, UserState::Pledge});
     $newConfig->setTitle('Vote Application Profile');
     return $newConfig;
   }
@@ -21,6 +21,10 @@ class VoteApplicationProfileController extends BaseController {
 
     if (Settings::getVotingStatus() == VotingStatus::Closed) {
       return <h1>Voting is closed</h1>;
+    }
+
+    if (Settings::getVotingStatus() == VotingStatus::Apply && Session::getUser()->getID() != $user_id) {
+      return <h1>This application is not visible yet</h1>;
     }
 
     $voteCandidate =
@@ -54,7 +58,7 @@ class VoteApplicationProfileController extends BaseController {
                 </div>
               </div>
               <div class="col-md-9">
-                <h4>{$voteCandidate->getDescription()}</h4>
+                <h5>{$voteCandidate->getDescription()}</h5>
               </div>
             </div>
           </div>

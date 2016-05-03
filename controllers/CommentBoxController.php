@@ -1,14 +1,14 @@
 <?hh
 
-class SuggestionBoxController extends BaseController {
+class CommentBoxController extends BaseController {
   public static function getPath(): string {
-    return '/suggestion';
+    return '/comment';
   }
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(Vector {UserState::Active});
-    $newConfig->setTitle('Review');
+    $newConfig->setTitle('Comment Box');
     return $newConfig;
   }
 
@@ -24,7 +24,7 @@ class SuggestionBoxController extends BaseController {
       <div class="col-md-12">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h1 class="panel-title">Send Suggestion</h1>
+            <h1 class="panel-title">Send Comment</h1>
           </div>
           <div class="panel-body">
             <form method="post" action={self::getPath()}>
@@ -33,7 +33,7 @@ class SuggestionBoxController extends BaseController {
                 </textarea>
               </div>
               <button
-                name="add_suggestion"
+                name="add_comment"
                 type="submit"
                 class="btn btn-default">
                 Send
@@ -41,16 +41,16 @@ class SuggestionBoxController extends BaseController {
             </form>
           </div>
         </div>
-        {self::getSuggestions()}
+        {self::getComments()}
         <script src="/js/bootstrap-sortable.js"></script>
       </div>;
   }
 
-  private static function getSuggestions(): ?:xhp {
+  private static function getComments(): ?:xhp {
     $user = Session::getUser();
 
-    // Open Suggestions
-    $openSuggestions = Suggestions::loadByStatus(SuggestionStatus::Open);
+    // Open Comments
+    $openSuggestions = Comment::loadByStatus(CommentStatus::Open);
     $openList = <ul class="list-group" />;
     foreach ($openSuggestions as $suggestion) {
       $openList->appendChild(
@@ -63,11 +63,11 @@ class SuggestionBoxController extends BaseController {
               method="post"
               action={self::getPath()}>
               <button
-                name="suggestion_state"
+                name="comment_state"
                 class="btn btn-primary"
                 value={(string) $suggestion->getID()}
                 type="submit">
-                {$suggestion->getStatus() == SuggestionStatus::Open
+                {$suggestion->getStatus() == CommentStatus::Open
                   ? 'Close'
                   : 'Open'}
               </button>
@@ -77,8 +77,8 @@ class SuggestionBoxController extends BaseController {
       );
     }
 
-    // Closed Suggestions
-    $closedSuggestions = Suggestions::loadByStatus(SuggestionStatus::Closed);
+    // Closed Comments
+    $closedSuggestions = Comment::loadByStatus(CommentStatus::Closed);
     $closedList = <ul class="list-group" />;
     foreach ($closedSuggestions as $suggestion) {
       $closedList->appendChild(
@@ -91,11 +91,11 @@ class SuggestionBoxController extends BaseController {
               method="post"
               action={self::getPath()}>
               <button
-                name="suggestion_state"
+                name="comment_state"
                 class="btn btn-primary"
                 value={(string) $suggestion->getID()}
                 type="submit">
-                {$suggestion->getStatus() == SuggestionStatus::Open
+                {$suggestion->getStatus() == CommentStatus::Open
                   ? 'Close'
                   : 'Open'}
               </button>
@@ -142,34 +142,34 @@ class SuggestionBoxController extends BaseController {
   }
 
   public static function post(): void {
-    if (isset($_POST['add_suggestion'])) {
+    if (isset($_POST['add_comment'])) {
       // Input Validatation
       if (!isset($_POST['message'] || $_POST['message'] == '')) {
         Flash::set('error', 'Message field must be filled out');
         Route::redirect(self::getPath());
       }
 
-      SuggestionsMutator::create()
+      CommentMutator::create()
         ->setMessage($_POST['message'])
-        ->setStatus(SuggestionStatus::Open)
+        ->setStatus(CommentStatus::Open)
         ->save();
 
-      Flash::set('success', 'Suggestion has been created!');
-    } else if (isset($_POST['suggestion_state'])) {
-      $suggestion = Suggestions::load((int) $_POST['suggestion_state']);
+      Flash::set('success', 'Comment has been created!');
+    } elseif (isset($_POST['comment_state'])) {
+      $suggestion = Comment::load((int) $_POST['comment_state']);
       if (is_null($suggestion)) {
-        Flash::set('error', 'Suggestion state change failed!');
+        Flash::set('error', 'Comment state change failed!');
         Route::redirect(self::getPath());
         return;
       }
 
-      SuggestionsMutator::update($suggestion->getID())->setStatus(
-        ($suggestion->getStatus() == SuggestionStatus::Open)
-          ? SuggestionStatus::Closed
-          : SuggestionStatus::Open,
+      CommentMutator::update($suggestion->getID())->setStatus(
+        ($suggestion->getStatus() == CommentStatus::Open)
+          ? CommentStatus::Closed
+          : CommentStatus::Open,
       )->save();
 
-      Flash::set('success', 'Suggestion state changed!');
+      Flash::set('success', 'Comment state changed!');
     }
 
     Route::redirect(self::getPath());

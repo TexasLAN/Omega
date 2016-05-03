@@ -1,4 +1,5 @@
 <?hh
+
 class OAuthAuthorizeController extends BaseController {
   public static function getPath(): string {
     return '/api/oauth/authorize';
@@ -17,7 +18,7 @@ class OAuthAuthorizeController extends BaseController {
     $response = new OAuth2\Response();
     if (!$server->validateAuthorizeRequest($request, $response)) {
       $response->send();
-      die;
+      exit();
     }
     return
       <div class="well col-md-6 col-md-offset-3">
@@ -52,7 +53,7 @@ class OAuthAuthorizeController extends BaseController {
     $server = $oauth->getOAuthServer();
     $request = OAuth2\Request::createFromGlobals();
     $response = new OAuth2\Response();
-    $is_authorized = ($_POST['authorized'] === 'yes');
+    $is_authorized = (getPOSTString('authorized') === 'yes');
     $user = Session::getUser();
     $server->handleAuthorizeRequest(
       $request,
@@ -61,6 +62,6 @@ class OAuthAuthorizeController extends BaseController {
       $user->getID(),
     );
     $response->send();
-    die;
+    exit();
   }
 }

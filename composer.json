@@ -12,6 +12,6 @@
   },
   "autoload": {
     "classmap": ["controllers/", "lib/", "models/", "views/" ],
-    "files": ["lib/functions.php"]
+    "files": ["lib/Global.php"]
   }
 }

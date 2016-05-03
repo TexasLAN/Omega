@@ -1,7 +1,7 @@
 <?hh
 
 class Render {
-  public static function go(:xhp $content, ?string $controller): void {
+  public static function go(:xhp $content, ?string $controller, ?string $title): void {
     $user = null;
     if (Session::isActive()) {
       $user = Session::getUser();
@@ -9,7 +9,7 @@ class Render {
 
     print
       <x:frag>
-        <omega:head />
+        <omega:head title={$title}/>
         <body>
           <omega:nav-bar user={$user} controller={$controller} />
           <div class="container">

@@ -9,7 +9,7 @@ class SettingsController extends BaseController {
     $newConfig = new ControllerConfig();
     $newConfig->setUserState(Vector {UserState::Active});
     $newConfig->setUserRoles(Vector {UserRoleEnum::Admin});
-    $newConfig->setTitle('Events Checkin');
+    $newConfig->setTitle('Site Settings');
     return $newConfig;
   }
 
@@ -91,7 +91,6 @@ class SettingsController extends BaseController {
   public static function post(): void {
 
     if (isset($_POST['cur_class'])) {
-      Flash::set('success', 'Setings updated successfully');
       Settings::set('cur_class', $_POST['cur_class']);
     }
 
@@ -101,6 +100,7 @@ class SettingsController extends BaseController {
       Settings::set('applications_open', true);
     }
 
+    Flash::set('success', 'Setings updated successfully');
     Route::redirect(SettingsController::getPath());
   }
 }

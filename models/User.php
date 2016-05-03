@@ -171,6 +171,21 @@ final class User {
     );
   }
 
+  public static function loadHasVoted(): array<User> {
+    $query = DB::query(
+      "SELECT * FROM users where has_voted=1",
+    );
+    if (!$query) {
+      return array();
+    }
+    return array_map(
+      function($value) {
+        return new User(new Map($value));
+      },
+      $query,
+    );
+  }
+
   /*
    Loads the User obj from a string forgotToken
    Used for resetting passwords

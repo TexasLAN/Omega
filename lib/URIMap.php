@@ -2,7 +2,7 @@
 /**
  * This file is generated. Do not modify it manually!
  *
- * @generated SignedSource<<8d6e191959eb68aafdefba62892c6e29>>
+ * @generated SignedSource<<24632ec2c6895c660a879c45468f3526>>
  */
 
 final class URIMap {
@@ -14,6 +14,7 @@ final class URIMap {
       '/api/oauth/token' => 'OAuthTokenController',
       '/api/users/me' => 'UserApiController',
       '/apply' => 'ApplyController',
+      '/comment' => 'CommentBoxController',
       '/event' => 'EventsListController',
       '/event/(?<id>\\d+)' => 'EventDetailsController',
       '/feedback' => 'FeedbackListController',
@@ -29,7 +30,6 @@ final class URIMap {
       '/review/(?<id>\\d+)' => 'ReviewSingleController',
       '/settings' => 'SettingsController',
       '/signup' => 'SignupController',
-      '/suggestion' => 'SuggestionBoxController',
       '/venmo' => 'VenmoController',
       '/vote' => 'VoteController',
       '/voteapply' => 'VoteApplyController',

@@ -1,6 +1,6 @@
 <?hh // strict
 
-class SuggestionsSchema implements ModelSchema {
+class CommentSchema implements ModelSchema {
   public function getFields(): Map<string, ModelField> {
     return Map {
       'Message' => ModelField::string_field('message'),
@@ -9,7 +9,7 @@ class SuggestionsSchema implements ModelSchema {
   }
 
   public function getTableName(): string {
-    return 'suggestions';
+    return 'comment';
   }
 
   public function getIdField(): string {

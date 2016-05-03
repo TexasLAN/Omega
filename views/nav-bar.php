@@ -9,7 +9,7 @@ final class :omega:nav-bar extends :x:element {
 
     $nav_buttons = null;
     $login = <li><a href="/login">Login</a></li>;
-    if ($user && $user->getState() != UserState::Disabled) {
+    if ($user) {
       $nav_buttons =
         <omega:nav-buttons user={$user} controller={$controller} />;
 
@@ -39,7 +39,7 @@ final class :omega:nav-bar extends :x:element {
     }
 
     return
-      <nav class="navbar navbar-default navbar-static-top">
+      <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container-fluid">
           <div class="navbar-header">
             <button

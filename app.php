@@ -2,7 +2,6 @@
 
 // Load in external libraries
 require 'vendor/autoload.php';
-require 'lib/Config.php';
 
 // Set the app's timezone to central
 date_default_timezone_set('America/Chicago');

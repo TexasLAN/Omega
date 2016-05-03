@@ -115,6 +115,11 @@ final class ApplicationMutator {
   }
 
   /* BEGIN MANUAL SECTION ApplicationMutator_footer */
+  public static function deleteAppAndFeedback(int $user_id): void {
+    DB::delete("feedback", "user_id=%s", $user_id);
+    DB::delete("applications", "user_id=%s", $user_id);
+  }
+
   public static function upsert(
     int $user_id,
     string $gender,

@@ -13,6 +13,7 @@ enum VoteRoleEnum : int as int {
   Webmaster = 8;
   Brotherhood = 9;
   Historian = 10;
+  StandardsBoard = 11;
 
 }
 
@@ -41,6 +42,8 @@ class VoteRole {
         return 'Brotherhood';
       case VoteRoleEnum::Historian:
         return 'Historian';
+      case VoteRoleEnum::StandardsBoard:
+        return 'Standards Board';
       default:
         return '';
     }
@@ -60,8 +63,30 @@ class VoteRole {
       case VoteRoleEnum::Webmaster:
       case VoteRoleEnum::Brotherhood:
       case VoteRoleEnum::Historian:
+      case VoteRoleEnum::StandardsBoard:
       default:
         return false;
+    }
+  }
+
+  public static function getAmtOfPositions(int $value): int {
+    switch ($value) {
+      case VoteRoleEnum::President:
+      case VoteRoleEnum::Administration:
+      case VoteRoleEnum::Treasurer:
+      case VoteRoleEnum::Social:
+      case VoteRoleEnum::Service:
+      case VoteRoleEnum::NewMember:
+      case VoteRoleEnum::Standards:
+      case VoteRoleEnum::Risk:
+      case VoteRoleEnum::Webmaster:
+      case VoteRoleEnum::Brotherhood:
+      case VoteRoleEnum::Historian:
+        return 1;
+      case VoteRoleEnum::StandardsBoard:
+        return 4;
+      default:
+        return 1;
     }
   }
 }

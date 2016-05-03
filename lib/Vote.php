@@ -9,29 +9,35 @@ class Vote {
 	public static function tally(): bool {
 		// Setup ballots
 		$ballot_list = self::getBallotList();
-
+		// List of those who have won <UserId, RoleValueWon>
 		$result_map = self::getPreviousResults();
 
 		$voting_finished = true;
 
 		// Find winner of each role
 		foreach(VoteRoleEnum::getValues() as $roleName => $roleValue) {
-			error_log("\n\nVoteRole = " . $roleName);
-			// Stop this role if already in results
-			if(!is_null(VoteCandidate::loadWinnerByRole($roleValue))) {
-				error_log("position already filled");
-				continue;
+			error_log('VoteRole = ' . $roleName);
+			error_log('num of won candidates = ' . self::getCountOfRoleWinners($result_map, $roleValue));
+			error_log('needed candidates = ' . VoteRole::getAmtOfPositions($roleValue));
+
+			while(self::getCountOfRoleWinners($result_map, $roleValue) < VoteRole::getAmtOfPositions($roleValue)) {
+				$winner_id = self::getWinnerUserIdForRole($result_map, $ballot_list, $roleValue);
+				error_log('Winner_id for ' . $roleName . ' = ' . $winner_id);
+				// If winner found, add to result map
+				if($winner_id != 0) {
+					$result_map[$winner_id] = $roleValue;
+				} elseif (VoteRole::isVotingPosition($roleValue)) {
+					// Winner not found and is a voting position
+					// Break the voting and prompt admin to redo voting system
+					$voting_finished = false;
+					break;
+				}
+				error_log('num of won candidates = ' . self::getCountOfRoleWinners($result_map, $roleValue));
+				error_log('needed candidates = ' . VoteRole::getAmtOfPositions($roleValue));
 			}
 
-			$winner_id = self::getWinnerUserIdForRole($result_map, $ballot_list, $roleValue);
-			error_log('Winner_id = ' . $winner_id);
-			// If winner found, add to result map
-			if($winner_id != 0) {
-				$result_map[$winner_id] = $roleValue;
-			} elseif (VoteRole::isVotingPosition($roleValue)) {
-				// Winner not found and is a voting position
-				// Break the voting and prompt admin to redo voting system
-				$voting_finished = false;
+			if(!$voting_finished) {
+				// Error found with finding Winner, reelection needed
 				break;
 			}
 		}
@@ -65,13 +71,30 @@ class Vote {
 		$result = array();
 		// See if anyone has won the current election spots (in case of a revote)
 		foreach(VoteRoleEnum::getValues() as $roleName => $roleValue) {
-			$winning_cand = VoteCandidate::loadWinnerByRole($roleValue);
-			if(is_null($winning_cand)) {
+			$winning_cand_array = VoteCandidate::loadWinnersByRole($roleValue);
+
+			// Add all previous winners
+			foreach($winning_cand_array as $row_cand) {
+				$result[$row_cand->getUserID()] = $roleValue;
+			}
+
+			// Stop if one position isnt full
+			if(count($winning_cand_array) < VoteRole::getAmtOfPositions($roleValue)) {
 				break;
-			} else {
-				$result[$winning_cand->getUserID()] = $roleValue;
 			}
 		}
+		return $result;
+	}
+
+	private static function getCountOfRoleWinners(array $result_map, int $roleValue): int {
+		$result = 0;
+
+		foreach($result_map as $candId => $candRole) {
+			if($candRole == $roleValue) {
+				$result++;
+			}
+		}
+
 		return $result;
 	}
 
@@ -99,9 +122,9 @@ class Vote {
 		$candidate_map = self::getValidCandidates($result_map, $roleValue);
 		$winner_id = 0;
 		// Find winner for this role
-		error_log('---finding winner');
+		// error_log('---finding winner');
 		while($winner_id == 0 && $candidate_map->count() > 0) {
-			error_log('---WHILE!');
+			// error_log('---WHILE!');
 
 			$candidate_votes_list = array();
 
@@ -144,31 +167,31 @@ class Vote {
 			arsort($candidate_votes_list);
 			$biggestValue = $candidate_votes_list[array_keys($candidate_votes_list)[0]];
 			foreach($candidate_votes_list as $candidate_user_id => $candidate_vote) {
-				error_log('---compare for biggest = vote = ' . $candidate_vote . ' majority = ' . $majority);
+				// error_log('---compare for biggest = vote = ' . $candidate_vote . ' majority = ' . $majority);
 				if($candidate_vote >= $majority && (count($bigIdList) == 0) || $biggestValue == $candidate_vote ) {
 					array_push($bigIdList, $candidate_user_id);
 				}
 			}
-			error_log(json_encode($smallIdList));
-			error_log(json_encode($bigIdList));
+			// error_log(json_encode($smallIdList));
+			// error_log(json_encode($bigIdList));
 
 			// Handle cases (no winner, winner, tie)
 			if(count($bigIdList) == 0) {
-				error_log('---status ==== no winner');
+				// error_log('---status ==== no winner');
 				// Remove minorities
 				foreach($smallIdList as $i => $candUserId) {
-					error_log('---removing the user = ' . $candUserId);
+					// error_log('---removing the user = ' . $candUserId);
 					$candidate_map->remove($candUserId);
 				}
 			} elseif(count($bigIdList) == 1) {
-				error_log('---status ==== winner winner');
+				// error_log('---status ==== winner winner');
 				$winner_id = $bigIdList[0];
 			} else {
-				error_log('---status ==== tie');
+				// error_log('---status ==== tie');
 				// Check if there is any minorities
 				if(count($smallIdList) > 0) {
 					foreach($smallIdList as $i => $candUserId) {
-						error_log('---removing the user = ' . $candUserId);
+						// error_log('---removing the user = ' . $candUserId);
 						$candidate_map->remove($candUserId);
 					}
 				} else {
@@ -195,6 +218,13 @@ class Vote {
 				->setValid(false)
 				->save();
 		}
+		// Reset users vote to hasnt vote
+		foreach(User::loadHasVoted() as $user) {
+			UserMutator::update($user->getID())
+				->setHasVoted(false)
+				->save();
+		}
+
 		Settings::set('voting_status', VotingStatus::Apply);
 	}
 

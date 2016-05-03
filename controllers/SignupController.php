@@ -1,4 +1,4 @@
-<?hh //decl
+<?hh //strict
 
 class SignupController extends BaseController {
   public static function getPath(): string {
@@ -54,45 +54,50 @@ class SignupController extends BaseController {
   }
 
   public static function post(): void {
-    if($_POST['uname'] == '' || 
-       $_POST['password'] == '' || $_POST['password2'] == '' ||
-       $_POST['email'] == '' || $_POST['phone'] == '' ||
-       $_POST['grad_year'] == '' ||
-       $_POST['full_name'] == '' || $_POST['nick_name'] == '') {
+    list($username, $errorUsername) = getPOSTString('uname');
+    list($password, $errorPassword) = getPOSTString('password');
+    list($passwordConfirm, $errorPasswordConfirm) = getPOSTString('password2');
+    list($email, $errorEmail) = getPOSTString('email');
+    list($phone, $errorPhone) = getPOSTString('phone');
+    list($gradYear, $errorGradYear) = getPOSTString('grad_year');
+    list($fullName, $errorFullName) = getPOSTString('full_name');
+    list($nickName, $errorNickName) = getPOSTString('nick_name');
+
+    if($errorUsername || $errorPassword || $errorPasswordConfirm || $errorEmail || $errorPhone || $errorGradYear || $errorFullName || $errorNickName) {
       Flash::set('error', 'All fields are required');
       Route::redirect(self::getPath());
     }
 
     // Verify password length
-    if(strlen($_POST['password']) < 6) {
+    if(strlen($password) < 6) {
       Flash::set('error', 'Password must be longer than 6 characters');
       Route::redirect(self::getPath());
     }
 
     // Verify passwords match
-    if($_POST['password'] != $_POST['password2']) {
+    if($password != $passwordConfirm) {
       Flash::set('error', 'Passwords do not match');
       Route::redirect(self::getPath());
     }
 
     // Create the user
     $user = UserMutator::createUser(
-      $_POST['uname'],
-      $_POST['password'],
-      $_POST['email'],
-      $_POST['phone'],
-      $_POST['grad_year'],
-      $_POST['full_name'],
-      $_POST['nick_name']
+      $username,
+      $password,
+      $email,
+      $phone,
+      $gradYear,
+      $fullName,
+      $nickName
     );
 
     // User creation failed
     if(!$user) {
       Flash::set('error', 'Username or Email is taken');
       Route::redirect(self::getPath());
+    } else {
+      Session::create($user);
+      Route::redirect(MemberProfileController::getPrePath() . $user->getID());
     }
-
-    Session::create($user);
-    Route::redirect(MemberProfileController::getPrePath() . $user->getID());
   }
 }

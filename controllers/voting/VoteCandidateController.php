@@ -43,7 +43,7 @@ class VoteCandidateController extends BaseController {
         );
         continue;
       }
-      if (!is_null(VoteCandidate::loadWinnerByRole($roleValue))) {
+      if (count(VoteCandidate::loadWinnersByRole($roleValue)) >= VoteRole::getAmtOfPositions($roleValue)) {
         $main->appendChild(<h5>Winner already selected</h5>);
         $main->appendChild(
           <input
@@ -99,7 +99,9 @@ class VoteCandidateController extends BaseController {
   }
 
   public static function post(): void {
-    if (isset($_POST['vote_submit']) && !Session::getUser()->getHasVoted()) {
+    if(Settings::getVotingStatus() != VotingStatus::Voting) {
+      Flash::set('error', 'Voting is closed!');
+    } elseif (isset($_POST['vote_submit']) && !Session::getUser()->getHasVoted()) {
       // Validate user input
       $isValid = true;
       foreach (VoteRoleEnum::getValues() as $name => $roleValue) {

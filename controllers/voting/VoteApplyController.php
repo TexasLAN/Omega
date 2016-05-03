@@ -7,7 +7,7 @@ class VoteApplyController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(Vector {UserState::Active});
+    $newConfig->setUserState(Vector {UserState::Active, UserState::Pledge});
     $newConfig->setTitle('Vote Apply');
     return $newConfig;
   }
@@ -21,7 +21,7 @@ class VoteApplyController extends BaseController {
     $main = <div />;
 
     foreach (VoteRoleEnum::getValues() as $name => $value) {
-      if(!is_null(VoteCandidate::loadWinnerByRole($value))) continue;
+      if(count(VoteCandidate::loadWinnersByRole($value)) >= VoteRole::getAmtOfPositions($value)) continue;
 
       $roleMain =
         <div>

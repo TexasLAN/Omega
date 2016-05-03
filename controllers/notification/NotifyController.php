@@ -50,20 +50,10 @@ class NotifyController extends BaseController {
                 <label>
                   <input
                     type="checkbox"
-                    name="default_footer"
-                    checked={false}
-                  />
-                  Default Footer
-                </label>
-              </div>
-              <div class="form-group">
-                <label>
-                  <input
-                    type="checkbox"
                     name="html_parser"
                     checked={false}
                   />
-                  Default HTML Parser
+                  HTML Parser
                 </label>
               </div>
               <button type="submit" class="btn btn-default">Send</button>
@@ -81,7 +71,6 @@ class NotifyController extends BaseController {
       Route::redirect(NotifyController::getPath());
     }
 
-    $default_footer = isset($_POST['default_footer']);
     $html_parser = isset($_POST['html_parser']);
 
     $userState = null;
@@ -99,7 +88,6 @@ class NotifyController extends BaseController {
         ->setNotifyText($_POST['body'])
         ->setSenderUserId(Session::getUser()->getID())
         ->_setSentTime(new DateTime(date('Y-m-d H:i')))
-        ->setDefaultFooter($default_footer)
         ->setHtmlParsed($html_parser)
         ->save();
     }
@@ -111,8 +99,7 @@ class NotifyController extends BaseController {
       $emailList,
       $_POST['subject'],
       $_POST['body'],
-      $default_footer,
-      $html_parser,
+      $html_parser
     );
     Flash::set('success', 'Your email was sent successfully');
     Route::redirect(NotifyController::getPath());

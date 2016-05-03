@@ -57,21 +57,19 @@ final class :omega:nav-buttons extends :x:element {
       );
     }
 
-    // Suggestions
-    if ($user->getState() == UserState::Pledge ||
-        $user->getState() == UserState::Active) {
+    // Comments
+    if ($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li
           class=
-            {($controller === 'SuggestionBoxController') ? 'active' : ''}>
-          <a href={SuggestionBoxController::getPath()}>Suggestion Box</a>
+            {($controller === 'CommentBoxController') ? 'active' : ''}>
+          <a href={CommentBoxController::getPath()}>Comment Box</a>
         </li>
       );
     }
 
     // Notify Log
-    if ($user->getState() == UserState::Pledge ||
-        $user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(
         <li
           class=
@@ -104,9 +102,10 @@ final class :omega:nav-buttons extends :x:element {
 
     // Voting
     if (($user->validateRole(UserRoleEnum::Admin)) ||
-        ((Settings::getVotingStatus() == VotingStatus::Voting ||
+        ((Settings::getVotingStatus() == VotingStatus::Apply ||
+          Settings::getVotingStatus() == VotingStatus::Voting ||
           Settings::getVotingStatus() == VotingStatus::Results) &&
-         $user->getState() == UserState::Active)) {
+         ($user->getState() == UserState::Active))) {
       $nav_buttons->appendChild(
         <li class={$controller === 'VoteController' ? 'active' : ''}>
           <a href={VoteController::getPath()}>Vote</a>

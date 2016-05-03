@@ -7,6 +7,10 @@ body {
   background-color: #e9eaed;
 }
 
+.modal.in .modal-dialog {
+  z-index: 2000;
+}
+
 .sorry {
   text-align: center;
 }
