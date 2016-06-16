@@ -19,7 +19,7 @@ final class :omega:nav-buttons extends :x:element {
     }
 
     // Member List
-    if ($user->getState() == UserState::Active) {
+    if ($user->getState() == UserState::Active || $user->getState() == UserState::Alum) {
       $nav_buttons->appendChild(
         <li
           class=

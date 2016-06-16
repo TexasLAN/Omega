@@ -7,7 +7,7 @@ class MembersController extends BaseController {
 
   public static function getConfig(): ControllerConfig {
     $newConfig = new ControllerConfig();
-    $newConfig->setUserState(Vector {UserState::Active});
+    $newConfig->setUserState(Vector {UserState::Active, UserState::Alum});
     $newConfig->setTitle('Members');
     return $newConfig;
   }

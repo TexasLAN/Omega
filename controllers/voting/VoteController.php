@@ -86,22 +86,22 @@ class VoteController extends BaseController {
     }
 
     $action_panel = <div />;
-    // if (Settings::getVotingStatus() == VotingStatus::Voting &&
-    //     !Session::getUser()->getHasVoted()) {
-    //   $action_panel =
-    //     <div class="panel panel-default">
-    //       <div class="panel-heading">
-    //         <h1 class="panel-title">Actions</h1>
-    //       </div>
-    //       <div class="panel-body">
-    //         <a
-    //           href={VoteCandidateController::getPath()}
-    //           class="btn btn-primary">
-    //           Vote
-    //         </a>
-    //       </div>
-    //     </div>;
-    // }
+    if (Settings::getVotingStatus() == VotingStatus::Voting &&
+        !Session::getUser()->getHasVoted()) {
+      $action_panel =
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h1 class="panel-title">Actions</h1>
+          </div>
+          <div class="panel-body">
+            <a
+              href={VoteCandidateController::getPath()}
+              class="btn btn-primary">
+              Vote
+            </a>
+          </div>
+        </div>;
+    }
 
     // Show candidates
     $main = <div />;
