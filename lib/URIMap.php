@@ -14,6 +14,7 @@ final class URIMap {
       '/api/oauth/token' => 'OAuthTokenController',
       '/api/users/me' => 'UserApiController',
       '/apply' => 'ApplyController',
+      '/standards_comment' => 'StandardsBoardBoxController',
       '/comment' => 'CommentBoxController',
       '/event' => 'EventsListController',
       '/event/(?<id>\\d+)' => 'EventDetailsController',

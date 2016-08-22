@@ -57,6 +57,18 @@ final class :omega:nav-buttons extends :x:element {
       );
     }
 
+    //Standards Board Comments
+    if(in_array(UserRoleEnum::Webmaster, $user->getRoles())) {
+      $nav_buttons->appendChild(
+        <li
+          class=
+            {($controller === 'StandardsBoardBoxController') ? 'active' : ''}>
+
+          <a href={StandardsBoardBoxController::getPath()}>Events</a>
+        </li>
+        );
+    }
+
     // Comments
     if ($user->getState() == UserState::Active) {
       $nav_buttons->appendChild(

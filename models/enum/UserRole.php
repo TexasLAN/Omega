@@ -4,6 +4,8 @@ enum UserRoleEnum : string as string {
   Admin = 'admin';
   Reviewer = 'reviewer';
   Officer = 'officer';
+  Standards = 'standards';
+  Webmaster = 'webmaster';
 }
 
 class UserRole {
